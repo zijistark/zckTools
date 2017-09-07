@@ -1,3 +1,6 @@
+# Sublime Text 3 workspace
+*.sublime-workspace
+
 # Prerequisites
 *.d
 
