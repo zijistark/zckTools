@@ -1,0 +1,55 @@
+/* -*- C++ -*- vim: set syntax=cpp:
+ * PURPOSE: File containing definition of token-identifier and
+ *          a function that maps token identifiers to a string
+ *          name.
+ *
+ * NOTE: This file has been created automatically by Quex.
+ *       Visit quex.org for further info.
+ *
+ * DATE: Mon Oct  2 21:51:23 2017
+ *
+ * (C) 2005-2010 Frank-Rene Schaefer
+ * ABSOLUTELY NO WARRANTY                                                     */
+#ifndef __QUEX_INCLUDE_GUARD__AUTO_TOKEN_IDS_QUEX_LEXER__QUEX_TOKEN__
+#define __QUEX_INCLUDE_GUARD__AUTO_TOKEN_IDS_QUEX_LEXER__QUEX_TOKEN__
+
+#ifndef __QUEX_OPTION_PLAIN_C
+#   include<cstdio> 
+#else
+#   include<stdio.h> 
+#endif
+
+/* Note: When multiple lexical analyzers are included, then their
+ *       token prefix must differ! Use '--token-id-prefix'.                   */
+const QUEX_TYPE_TOKEN_ID QUEX_TKN_BLOCK         = ((QUEX_TYPE_TOKEN_ID)4100);
+const QUEX_TYPE_TOKEN_ID QUEX_TKN_CHAR_SCOPE    = ((QUEX_TYPE_TOKEN_ID)4101);
+const QUEX_TYPE_TOKEN_ID QUEX_TKN_CLOSE_BRACE   = ((QUEX_TYPE_TOKEN_ID)4102);
+const QUEX_TYPE_TOKEN_ID QUEX_TKN_DATE          = ((QUEX_TYPE_TOKEN_ID)4103);
+const QUEX_TYPE_TOKEN_ID QUEX_TKN_DECIMAL       = ((QUEX_TYPE_TOKEN_ID)4104);
+const QUEX_TYPE_TOKEN_ID QUEX_TKN_DEDENT        = ((QUEX_TYPE_TOKEN_ID)4096);
+const QUEX_TYPE_TOKEN_ID QUEX_TKN_FAILURE       = ((QUEX_TYPE_TOKEN_ID)4105);
+const QUEX_TYPE_TOKEN_ID QUEX_TKN_INDENT        = ((QUEX_TYPE_TOKEN_ID)4097);
+const QUEX_TYPE_TOKEN_ID QUEX_TKN_INTEGER       = ((QUEX_TYPE_TOKEN_ID)4106);
+const QUEX_TYPE_TOKEN_ID QUEX_TKN_KW_FROM       = ((QUEX_TYPE_TOKEN_ID)4107);
+const QUEX_TYPE_TOKEN_ID QUEX_TKN_KW_PREV       = ((QUEX_TYPE_TOKEN_ID)4108);
+const QUEX_TYPE_TOKEN_ID QUEX_TKN_KW_ROOT       = ((QUEX_TYPE_TOKEN_ID)4109);
+const QUEX_TYPE_TOKEN_ID QUEX_TKN_KW_ROOTFROM   = ((QUEX_TYPE_TOKEN_ID)4110);
+const QUEX_TYPE_TOKEN_ID QUEX_TKN_KW_THIS       = ((QUEX_TYPE_TOKEN_ID)4111);
+const QUEX_TYPE_TOKEN_ID QUEX_TKN_LIST          = ((QUEX_TYPE_TOKEN_ID)4112);
+const QUEX_TYPE_TOKEN_ID QUEX_TKN_NODENT        = ((QUEX_TYPE_TOKEN_ID)4098);
+const QUEX_TYPE_TOKEN_ID QUEX_TKN_OPEN_BRACE    = ((QUEX_TYPE_TOKEN_ID)4113);
+const QUEX_TYPE_TOKEN_ID QUEX_TKN_OP_DEQ        = ((QUEX_TYPE_TOKEN_ID)4114);
+const QUEX_TYPE_TOKEN_ID QUEX_TKN_OP_EQ         = ((QUEX_TYPE_TOKEN_ID)4115);
+const QUEX_TYPE_TOKEN_ID QUEX_TKN_OP_GT         = ((QUEX_TYPE_TOKEN_ID)4116);
+const QUEX_TYPE_TOKEN_ID QUEX_TKN_OP_GTEQ       = ((QUEX_TYPE_TOKEN_ID)4117);
+const QUEX_TYPE_TOKEN_ID QUEX_TKN_OP_LT         = ((QUEX_TYPE_TOKEN_ID)4118);
+const QUEX_TYPE_TOKEN_ID QUEX_TKN_OP_LTEQ       = ((QUEX_TYPE_TOKEN_ID)4119);
+const QUEX_TYPE_TOKEN_ID QUEX_TKN_QDATE         = ((QUEX_TYPE_TOKEN_ID)4120);
+const QUEX_TYPE_TOKEN_ID QUEX_TKN_QSTRING       = ((QUEX_TYPE_TOKEN_ID)4121);
+const QUEX_TYPE_TOKEN_ID QUEX_TKN_STRING        = ((QUEX_TYPE_TOKEN_ID)4122);
+const QUEX_TYPE_TOKEN_ID QUEX_TKN_TERMINATION   = ((QUEX_TYPE_TOKEN_ID)0);
+const QUEX_TYPE_TOKEN_ID QUEX_TKN_TITLE_ID      = ((QUEX_TYPE_TOKEN_ID)4123);
+const QUEX_TYPE_TOKEN_ID QUEX_TKN_UNINITIALIZED = ((QUEX_TYPE_TOKEN_ID)4099);
+
+
+#endif /* __QUEX_INCLUDE_GUARD__AUTO_TOKEN_IDS_QUEX_LEXER__QUEX_TOKEN__        */

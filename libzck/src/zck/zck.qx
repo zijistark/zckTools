@@ -1,0 +1,96 @@
+// -*- c++ -*-
+
+start = MAIN;
+
+header {
+#include <cstdlib>  // for: atoi()
+}
+
+token {
+  /* CONCRETE TOKENS */
+  STRING;     // bare string
+  QSTRING;    // quoted string
+  INTEGER;    // integer
+  DECIMAL;    // numeric
+  DATE;       // bare date
+  QDATE;      // quoted date
+  TITLE_ID;   // k_dyn_reb_206111 or c_ascalon but not c_140
+  CHAR_SCOPE; // c_140
+  OP_EQ;
+  OP_DEQ;     // ==
+  OP_LT;
+  OP_LTEQ;
+  OP_GT;
+  OP_GTEQ;
+  OPEN_BRACE;
+  CLOSE_BRACE;
+  KW_THIS;     // THIS
+  KW_ROOT;     // ROOT
+  KW_FROM;     // all valid forms of FROM scoping (repetition count stored in token)
+  KW_ROOTFROM; // all valid forms of ROOT_FROM scoping (repetition count stored in token)
+  KW_PREV;     // all valid forms of PREV scoping (repetition count stored in token)
+
+  /* ABSTRACT SYNTAX TREE PSEUDO-TOKENS (do not occur in input, but are used for identifying certain AST elements) */
+  BLOCK;
+  LIST;
+
+  /* ABSTRACT TOKENS: MISC. */
+  FAILURE;    // pseudo-token for lexical analysis failure (unrecognized token, more or less)
+}
+
+define {
+  WHITESPACE    [ \t\r\n]+
+  DATE          -?[1-9][0-9]{0,3}\.-?[0-9]{1,2}\.-?[0-9]{1,2}
+  SIGN          (\-|\+)?
+  DECIMAL       {SIGN}[0-9]*\.[0-9]+
+  QSTRING       "\""[^"\r\n]*"\""
+  THIS          "THIS"|"this"
+  ROOT          "ROOT"|"root"
+  FROM          "FROM"|"from"
+  PREV          "PREV"|"prev"
+  CHAR_ID       c_[0-9]+
+  TITLE_ID      [bcdek]_[a-zA-Z][a-zA-Z0-9_\-]+
+  STRING        [^ \t\r\n<=>\{\}#\"]+
+}
+
+
+mode MAIN
+{
+  <<EOF>>               => QUEX_TKN_TERMINATION;
+  <<FAIL>>              => QUEX_TKN_FAILURE(Lexeme);
+  {WHITESPACE}          { }
+  #[^\n]*               { }
+  "=="                  => QUEX_TKN_OP_DEQ;
+  "="                   => QUEX_TKN_OP_EQ;
+  "<="                  => QUEX_TKN_OP_LTEQ;
+  "<"                   => QUEX_TKN_OP_LT;
+  ">="                  => QUEX_TKN_OP_GTEQ;
+  ">"                   => QUEX_TKN_OP_GT;
+  "{"                   => QUEX_TKN_OPEN_BRACE;
+  "}"                   => QUEX_TKN_CLOSE_BRACE;
+  {SIGN}[0-9]+          => QUEX_TKN_INTEGER(number=(size_t)atoi( (char*)Lexeme ));
+  {DECIMAL}             => QUEX_TKN_DECIMAL(Lexeme);
+  {DATE}                => QUEX_TKN_DATE(Lexeme);
+  "\""{DATE}"\""        => QUEX_TKN_QDATE(LexemeBegin+1, LexemeEnd-1);
+  {QSTRING}             => QUEX_TKN_QSTRING(LexemeBegin+1, LexemeEnd-1);
+  {THIS}                => QUEX_TKN_KW_THIS;
+  {ROOT}                => QUEX_TKN_KW_ROOT;
+  {PREV}                => QUEX_TKN_KW_PREV(number=1);
+  {PREV}{2}             => QUEX_TKN_KW_PREV(number=2);
+  {PREV}{3}             => QUEX_TKN_KW_PREV(number=3);
+  {PREV}{4}             => QUEX_TKN_KW_PREV(number=4);
+  {FROM}                => QUEX_TKN_KW_FROM(number=1);
+  {FROM}{2}             => QUEX_TKN_KW_FROM(number=2);
+  {FROM}{3}             => QUEX_TKN_KW_FROM(number=3);
+  {FROM}{4}             => QUEX_TKN_KW_FROM(number=4);
+  {ROOT}_{FROM}         => QUEX_TKN_KW_ROOTFROM(number=1);
+  {ROOT}_{FROM}{2}      => QUEX_TKN_KW_ROOTFROM(number=2);
+  {ROOT}_{FROM}{3}      => QUEX_TKN_KW_ROOTFROM(number=3);
+  {ROOT}_{FROM}{4}      => QUEX_TKN_KW_ROOTFROM(number=4);
+  {CHAR_ID}             => QUEX_TKN_CHAR_SCOPE(number=(size_t)atoi( (char*)LexemeBegin + 2 ));
+  {TITLE_ID}            => QUEX_TKN_TITLE_ID(Lexeme);
+  {STRING}              => QUEX_TKN_STRING(Lexeme);
+}
+
+
+

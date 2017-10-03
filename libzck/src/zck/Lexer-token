@@ -1,0 +1,473 @@
+/* -*- C++ -*-   vim: set syntax=cpp: 
+ * (C) 2004-2009 Frank-Rene Schaefer
+ * ABSOLUTELY NO WARRANTY
+ */
+#ifndef __QUEX_INCLUDE_GUARD__TOKEN__GENERATED____QUEX____TOKEN
+#define __QUEX_INCLUDE_GUARD__TOKEN__GENERATED____QUEX____TOKEN
+
+#include <quex/code_base/definitions>
+#include <quex/code_base/asserts>
+#include <quex/code_base/compatibility/stdint.h>
+#include <quex/code_base/MemoryManager>
+
+
+
+
+#   line 2 "/cygdrive/c/prog/quex/quex-0.67.5/quex/code_base/token/CppDefault.qx"
+
+#include <iostream>
+#include <string>
+
+#include "Lexer-converter-cp1252"
+
+#include <quex/code_base/lexeme>
+   
+
+#   line 27 "Lexer-token"
+
+ 
+QUEX_NAMESPACE_TOKEN_OPEN
+
+class Token;
+
+inline void    QUEX_NAME_TOKEN(construct)(Token* __this);
+inline void    QUEX_NAME_TOKEN(destruct)(Token* __this);
+inline void    QUEX_NAME_TOKEN(copy)(Token*       me, 
+                                     const Token* That);
+inline bool    QUEX_NAME_TOKEN(take_text)(Token*             __this, 
+                                          const QUEX_TYPE_LEXATOM*  Begin, 
+                                          const QUEX_TYPE_LEXATOM*  End);
+
+#ifdef QUEX_OPTION_TOKEN_REPETITION_SUPPORT
+inline size_t  QUEX_NAME_TOKEN(repetition_n_get)(Token* __this);
+inline void    QUEX_NAME_TOKEN(repetition_n_set)(Token* __this, 
+                                                 size_t        N);
+#endif 
+
+inline const char*  
+               QUEX_NAME_TOKEN(map_id_to_name)(const QUEX_TYPE_TOKEN_ID);
+
+
+class QUEX_SETTING_USER_CLASS_DECLARATION_EPILOG Token {
+public:
+    Token();
+    Token(const Token& That);
+    /* operator=(..): USE WITH CAUTION--POSSIBLE MAJOR PERFORMANCE DECREASE! 
+     *                BETTER USE __copy(That)                                */
+    Token& operator=(const Token& That) 
+    { QUEX_NAME_TOKEN(copy)(this, &That); return *this; }
+    virtual ~Token();
+
+
+#   line 15 "/cygdrive/c/prog/quex/quex-0.67.5/quex/code_base/token/CppDefault.qx"
+    const QUEX_TYPE_LEXATOM* text;
+
+#   line 66 "Lexer-token"
+
+#   line 16 "/cygdrive/c/prog/quex/quex-0.67.5/quex/code_base/token/CppDefault.qx"
+    size_t                   number;
+
+#   line 71 "Lexer-token"
+
+
+public:
+
+#   line 15 "/cygdrive/c/prog/quex/quex-0.67.5/quex/code_base/token/CppDefault.qx"
+    const QUEX_TYPE_LEXATOM* get_text() const                           { return text; }
+#   line 15 "/cygdrive/c/prog/quex/quex-0.67.5/quex/code_base/token/CppDefault.qx"
+    void                     set_text(const QUEX_TYPE_LEXATOM*& Value)  { text = Value; }
+#   line 16 "/cygdrive/c/prog/quex/quex-0.67.5/quex/code_base/token/CppDefault.qx"
+    size_t                   get_number() const                         { return number; }
+#   line 16 "/cygdrive/c/prog/quex/quex-0.67.5/quex/code_base/token/CppDefault.qx"
+    void                     set_number(size_t Value)                   { number = Value; }
+
+#   line 85 "Lexer-token"
+
+    void set(const QUEX_TYPE_TOKEN_ID ID) { _id = ID; }
+    void set(const QUEX_TYPE_TOKEN_ID ID, const  QUEX_TYPE_LEXATOM*& Value0, const size_t& Value1)
+    { _id = ID; text = Value0; number = Value1; }
+
+
+    public:
+        /* _line_n, _column_n, and _id are public, so that the token policy 
+         * can access it. making it private would imply complications for 
+         * user customized token classes. The token policies should be the
+         * same for C and Cpp.                                               */
+        QUEX_TYPE_TOKEN_ID    _id;
+        QUEX_TYPE_TOKEN_ID    type_id() const                             { return _id; }
+        const char*           map_id_to_name(QUEX_TYPE_TOKEN_ID ID) const { return QUEX_NAME_TOKEN(map_id_to_name)(ID); }
+        const std::string     type_id_name() const                        { return map_id_to_name(_id); }
+
+#   ifdef     QUEX_OPTION_TOKEN_STAMPING_WITH_LINE_AND_COLUMN
+#       ifdef QUEX_OPTION_COUNTER_LINE
+    public:
+        QUEX_TYPE_TOKEN_LINE_N    _line_n;
+        QUEX_TYPE_TOKEN_LINE_N    line_number() const                                 { return _line_n; }
+        void                      set_line_number(const QUEX_TYPE_TOKEN_LINE_N Value) { _line_n = Value; }
+#       endif
+#       ifdef  QUEX_OPTION_COUNTER_COLUMN
+    public:
+        QUEX_TYPE_TOKEN_COLUMN_N  _column_n;
+        QUEX_TYPE_TOKEN_COLUMN_N  column_number() const                                   { return _column_n; }
+        void                      set_column_number(const QUEX_TYPE_TOKEN_COLUMN_N Value) { _column_n = Value; }
+#       endif
+#   endif
+    public:
+#   define self (*this)
+
+#   line 117 "/cygdrive/c/prog/quex/quex-0.67.5/quex/code_base/token/CppDefault.qx"
+
+        operator 
+        const std::string() const
+        { return std::string(get_string()); }
+
+        const std::string
+        get_string() const 
+        {
+            std::string  tmp;
+            tmp  = map_id_to_name(self._id);
+            tmp += " '" + QUEX_NAME_TOKEN(lexeme_to_pretty_char)(self.text) + "'";
+            return tmp;
+        }
+    
+   
+
+#   line 136 "Lexer-token"
+
+#   undef  self
+
+    private:
+        friend void QUEX_NAME_TOKEN(copy)(Token*       __this, 
+                                          const Token* That);
+        friend bool QUEX_NAME_TOKEN(take_text)(Token*             __this, 
+                                               const QUEX_TYPE_LEXATOM*  Begin, 
+                                               const QUEX_TYPE_LEXATOM*  End);
+};
+
+QUEX_NAMESPACE_TOKEN_CLOSE
+
+
+#   line 142 "/cygdrive/c/prog/quex/quex-0.67.5/quex/code_base/token/CppDefault.qx"
+
+QUEX_NAMESPACE_TOKEN_OPEN
+inline std::ostream&
+operator<<(std::ostream& ostr, const Token& Tok)
+{ ostr << Tok.get_string(); return ostr; }
+QUEX_NAMESPACE_TOKEN_CLOSE
+
+#include "Lexer-converter-cp1252.i"
+
+#include <quex/code_base/lexeme.i>
+   
+
+#   line 164 "Lexer-token"
+
+
+QUEX_NAMESPACE_TOKEN_OPEN
+extern QUEX_TYPE_LEXATOM   QUEX_NAME_TOKEN(LexemeNull);
+QUEX_NAMESPACE_TOKEN_CLOSE
+
+
+#endif /* __QUEX_INCLUDE_GUARD__TOKEN__GENERATED____QUEX____TOKEN */
+
+/* This content is pasted into header, so the include guard is superfluous. 
+ * It is left in place, so that if some time later the code generator is 
+ * adapted to generate independent files, it will still work safely.          */
+#ifndef __QUEX_INCLUDE_GUARD__TOKEN__GENERATED____QUEX____TOKEN_I
+#define __QUEX_INCLUDE_GUARD__TOKEN__GENERATED____QUEX____TOKEN_I
+
+#include <quex/code_base/definitions>
+#include "Lexer-token"
+
+QUEX_NAMESPACE_TOKEN_OPEN
+
+QUEX_INLINE
+Token::Token()
+{
+#   define self (*this)
+#   define LexemeNull  (&QUEX_NAME_TOKEN(LexemeNull))
+
+#   line 21 "/cygdrive/c/prog/quex/quex-0.67.5/quex/code_base/token/CppDefault.qx"
+
+       self.number = 0;
+       self.text   = LexemeNull;
+   
+
+#   line 197 "Lexer-token"
+
+#   undef  LexemeNull
+#   undef  self
+}
+
+QUEX_INLINE
+Token::Token(const Token& Other)
+{
+   QUEX_NAME_TOKEN(copy)(this, &Other);
+#   define self (*this)
+#   define LexemeNull  (&QUEX_NAME_TOKEN(LexemeNull))
+
+#   line 21 "/cygdrive/c/prog/quex/quex-0.67.5/quex/code_base/token/CppDefault.qx"
+
+       self.number = 0;
+       self.text   = LexemeNull;
+   
+
+#   line 216 "Lexer-token"
+
+#   undef  LexemeNull
+#   undef  self
+}
+
+QUEX_INLINE
+Token::~Token()
+{
+#   define self (*this)
+#   define LexemeNull  (&QUEX_NAME_TOKEN(LexemeNull))
+
+#   line 26 "/cygdrive/c/prog/quex/quex-0.67.5/quex/code_base/token/CppDefault.qx"
+
+       if( self.text != LexemeNull ) {
+           QUEXED(MemoryManager_free)((void*)self.text,
+                                      E_MemoryObjectType_TEXT);
+           self.text = LexemeNull;
+       }
+   
+
+#   line 237 "Lexer-token"
+
+#   undef  LexemeNull
+#   undef  self
+}
+
+QUEX_INLINE void
+QUEX_NAME_TOKEN(construct)(Token* __this)
+{
+    /* Explicit constructor call by 'placement new' */
+    new ((void*)__this) Token;
+}
+
+QUEX_INLINE void
+QUEX_NAME_TOKEN(destruct)(Token* __this)
+{
+    if( ! __this ) return;
+    __this->Token::~Token();  
+}
+
+QUEX_INLINE void
+QUEX_NAME_TOKEN(copy)(Token* __this, const Token* __That)
+{
+#   define self  (*__this)
+#   define Other (*__That)
+#   define LexemeNull  (&QUEX_NAME_TOKEN(LexemeNull))
+    (void)__this;
+    (void)__That;
+
+#   line 34 "/cygdrive/c/prog/quex/quex-0.67.5/quex/code_base/token/CppDefault.qx"
+
+        self._id  = Other._id;
+
+        if( self.text != LexemeNull ) {
+            QUEXED(MemoryManager_free)((void*)self.text, E_MemoryObjectType_TEXT);
+        }
+        if( Other.text != LexemeNull ) {
+            self.text = \
+               (QUEX_TYPE_LEXATOM*)
+               QUEXED(MemoryManager_allocate)(
+                      sizeof(QUEX_TYPE_LEXATOM) * (QUEX_NAME_TOKEN(lexeme_length)(Other.text) + 1),
+                      E_MemoryObjectType_TEXT);
+            if( self.text ) {
+                __QUEX_STD_memcpy((void*)self.text, (void*)Other.text, 
+                                    sizeof(QUEX_TYPE_LEXATOM) 
+                                  * (QUEX_NAME_TOKEN(lexeme_length)(Other.text) + 1));
+            }
+            else {
+                self.text = LexemeNull;
+            }
+        }
+        self.number = Other.number;
+    #   ifdef     QUEX_OPTION_TOKEN_STAMPING_WITH_LINE_AND_COLUMN
+        __QUEX_IF_COUNT_LINES(self._line_n     = Other._line_n);
+        __QUEX_IF_COUNT_COLUMNS(self._column_n = Other._column_n);
+    #   endif
+   
+
+#   line 295 "Lexer-token"
+
+#   undef LexemeNull
+#   undef Other
+#   undef self
+   /* If the user even misses to copy the token id, then there's
+    * something seriously wrong.                                 */
+   __quex_assert(__this->_id == __That->_id);
+#ifdef     QUEX_OPTION_TOKEN_STAMPING_WITH_LINE_AND_COLUMN
+#   ifdef QUEX_OPTION_TOKEN_STAMPING_WITH_LINE_AND_COLUMN
+    __QUEX_IF_COUNT_LINES(__quex_assert(__this->_line_n == __That->_line_n));
+    __QUEX_IF_COUNT_COLUMNS(__quex_assert(__this->_column_n == __That->_column_n));
+#   endif
+#endif
+}
+
+QUEX_INLINE bool 
+QUEX_NAME_TOKEN(take_text)(Token*              __this, 
+                           const QUEX_TYPE_LEXATOM* Begin, 
+                           const QUEX_TYPE_LEXATOM* End)
+/* RETURNS: true -- if the token claims ownership over the given memory.
+ *          false -- if no ownership is claimed.                             */
+{
+#   define self      (*__this)
+#   define LexemeNull  (&QUEX_NAME_TOKEN(LexemeNull))
+    (void)__this;
+
+#   line 62 "/cygdrive/c/prog/quex/quex-0.67.5/quex/code_base/token/CppDefault.qx"
+
+
+#       if 0
+        /* Hint for debug: To check take_text change "#if 0" to "#if 1" */
+        {
+            const QUEX_TYPE_LEXATOM* it = (void*)0x0;
+            printf("previous:  '");
+            if( self.text != LexemeNull ) {
+                for(it = self.text; *it ; ++it) printf("%04X.", (int)*it);
+                printf("%04X.", (int)*it);
+            }
+            printf("'\n");
+            printf("take_text: '");
+            for(it = Begin; it != End; ++it) printf("%04X.", (int)*it);
+            printf("%04X.", (int)*it);
+            printf("'\n");
+        }
+#       endif
+
+        if( self.text != LexemeNull ) {
+            QUEXED(MemoryManager_free)((void*)self.text, E_MemoryObjectType_TEXT);
+        }
+        if( Begin != LexemeNull ) {
+            __quex_assert(End >= Begin);
+            self.text = \
+                 (QUEX_TYPE_LEXATOM*)
+                 QUEXED(MemoryManager_allocate)(
+                              sizeof(QUEX_TYPE_LEXATOM) * (size_t)(End - Begin + 1), 
+                              E_MemoryObjectType_TEXT);
+            __QUEX_STD_memcpy((void*)self.text, (void*)Begin, 
+                              sizeof(QUEX_TYPE_LEXATOM) * (size_t)(End - Begin));
+            /* The string is not necessarily zero terminated, so terminate it here. */
+            *((QUEX_TYPE_LEXATOM*)(self.text + (End - Begin))) = (QUEX_TYPE_LEXATOM)0;
+        } else {
+            self.text = LexemeNull;
+        }
+
+#       if 0
+        /* Hint for debug: To check take_text change "#if 0" to "#if 1"       */
+        {
+            const QUEX_TYPE_LEXATOM* it = 0x0;
+            printf("after:     '");
+            if( self.text != LexemeNull ) { 
+                for(it = self.text; *it ; ++it) printf("%04X.", (int)*it);
+                printf("%04X.", (int)*it);
+            }
+            printf("'\n");
+        }
+#       endif
+
+        /* This token copied the text from the chunk into the string, 
+         * so we do not claim ownership over it.                             */
+        return false;
+   
+
+#   line 378 "Lexer-token"
+
+#   undef  LexemeNull
+#   undef  self
+    /* Default: no ownership.                                                */
+    return false;
+}
+
+#ifdef QUEX_OPTION_TOKEN_REPETITION_SUPPORT
+QUEX_INLINE size_t 
+QUEX_NAME_TOKEN(repetition_n_get)(Token* __this)
+{
+#   define self (*__this)
+    (void)__this;
+
+#   line 138 "/cygdrive/c/prog/quex/quex-0.67.5/quex/code_base/token/CppDefault.qx"
+
+       return self.number;
+   
+
+#   line 398 "Lexer-token"
+
+#   undef self
+}
+
+QUEX_INLINE void 
+QUEX_NAME_TOKEN(repetition_n_set)(Token* __this, size_t N)
+{
+#   define self (*__this)
+    (void)__this;
+    (void)N;
+
+#   line 134 "/cygdrive/c/prog/quex/quex-0.67.5/quex/code_base/token/CppDefault.qx"
+
+       self.number = N;
+   
+
+#   line 415 "Lexer-token"
+
+#   undef  self
+}
+#endif /* QUEX_OPTION_TOKEN_REPETITION_SUPPORT */
+
+QUEX_INLINE const char*
+QUEX_NAME_TOKEN(map_id_to_name)(const QUEX_TYPE_TOKEN_ID TokenID)
+{
+   static char  error_string[64];
+
+   /* NOTE: This implementation works only for token id types that are 
+    *       some type of integer or enum. In case an alien type is to
+    *       used, this function needs to be redefined.                  */
+   switch( TokenID ) {
+   default: {
+       __QUEX_STD_sprintf(error_string, "<UNKNOWN TOKEN-ID: %i>", (int)TokenID);
+       return error_string;
+   }
+
+   case QUEX_TKN_TERMINATION:    return "<TERMINATION>";
+   case QUEX_TKN_UNINITIALIZED:  return "<UNINITIALIZED>";
+#  if defined(QUEX_OPTION_INDENTATION_TRIGGER)
+   case QUEX_TKN_INDENT:         return "<INDENT>";
+   case QUEX_TKN_DEDENT:         return "<DEDENT>";
+   case QUEX_TKN_NODENT:         return "<NODENT>";
+#  endif
+   case QUEX_TKN_BLOCK:         return "BLOCK";
+   case QUEX_TKN_CHAR_SCOPE:    return "CHAR_SCOPE";
+   case QUEX_TKN_CLOSE_BRACE:   return "CLOSE_BRACE";
+   case QUEX_TKN_DATE:          return "DATE";
+   case QUEX_TKN_DECIMAL:       return "DECIMAL";
+   case QUEX_TKN_FAILURE:       return "FAILURE";
+   case QUEX_TKN_INTEGER:       return "INTEGER";
+   case QUEX_TKN_KW_FROM:       return "KW_FROM";
+   case QUEX_TKN_KW_PREV:       return "KW_PREV";
+   case QUEX_TKN_KW_ROOT:       return "KW_ROOT";
+   case QUEX_TKN_KW_ROOTFROM:   return "KW_ROOTFROM";
+   case QUEX_TKN_KW_THIS:       return "KW_THIS";
+   case QUEX_TKN_LIST:          return "LIST";
+   case QUEX_TKN_OPEN_BRACE:    return "OPEN_BRACE";
+   case QUEX_TKN_OP_DEQ:        return "OP_DEQ";
+   case QUEX_TKN_OP_EQ:         return "OP_EQ";
+   case QUEX_TKN_OP_GT:         return "OP_GT";
+   case QUEX_TKN_OP_GTEQ:       return "OP_GTEQ";
+   case QUEX_TKN_OP_LT:         return "OP_LT";
+   case QUEX_TKN_OP_LTEQ:       return "OP_LTEQ";
+   case QUEX_TKN_QDATE:         return "QDATE";
+   case QUEX_TKN_QSTRING:       return "QSTRING";
+   case QUEX_TKN_STRING:        return "STRING";
+   case QUEX_TKN_TITLE_ID:      return "TITLE_ID";
+
+
+   }
+}
+
+QUEX_NAMESPACE_TOKEN_CLOSE
+
+
+#endif /* __QUEX_INCLUDE_GUARD__TOKEN__GENERATED____QUEX____TOKEN_I */
