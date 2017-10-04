@@ -42,7 +42,7 @@ test_lexer.o: test_lexer.cpp Lexer.cpp
 Lexer.cpp: zck.qx 
 	quex -i                    zck.qx   \
 	     -o                    Lexer    \
-		 --token-id-offset     0x1000   \
+	     --token-id-prefix     TK_      \
 		 --encoding            cp1252   \
 		 --buffer-element-size 1
 
@@ -51,7 +51,7 @@ Lexer.cpp: zck.qx
 source-package:
 	quex -i                    zck.qx   \
 	     -o                    Lexer    \
-		 --token-id-offset     0x1000   \
+	     --token-id-prefix     TK_      \
 		 --encoding            cp1252   \
 		 --buffer-element-size 1        \
 		 --source-package      lexer_mine

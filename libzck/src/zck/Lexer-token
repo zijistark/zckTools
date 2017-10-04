@@ -431,37 +431,37 @@ QUEX_NAME_TOKEN(map_id_to_name)(const QUEX_TYPE_TOKEN_ID TokenID)
        return error_string;
    }
 
-   case QUEX_TKN_TERMINATION:    return "<TERMINATION>";
-   case QUEX_TKN_UNINITIALIZED:  return "<UNINITIALIZED>";
+   case TK_TERMINATION:    return "<TERMINATION>";
+   case TK_UNINITIALIZED:  return "<UNINITIALIZED>";
 #  if defined(QUEX_OPTION_INDENTATION_TRIGGER)
-   case QUEX_TKN_INDENT:         return "<INDENT>";
-   case QUEX_TKN_DEDENT:         return "<DEDENT>";
-   case QUEX_TKN_NODENT:         return "<NODENT>";
+   case TK_INDENT:         return "<INDENT>";
+   case TK_DEDENT:         return "<DEDENT>";
+   case TK_NODENT:         return "<NODENT>";
 #  endif
-   case QUEX_TKN_BLOCK:         return "BLOCK";
-   case QUEX_TKN_CHAR_SCOPE:    return "CHAR_SCOPE";
-   case QUEX_TKN_CLOSE_BRACE:   return "CLOSE_BRACE";
-   case QUEX_TKN_DATE:          return "DATE";
-   case QUEX_TKN_DECIMAL:       return "DECIMAL";
-   case QUEX_TKN_FAILURE:       return "FAILURE";
-   case QUEX_TKN_INTEGER:       return "INTEGER";
-   case QUEX_TKN_KW_FROM:       return "KW_FROM";
-   case QUEX_TKN_KW_PREV:       return "KW_PREV";
-   case QUEX_TKN_KW_ROOT:       return "KW_ROOT";
-   case QUEX_TKN_KW_ROOTFROM:   return "KW_ROOTFROM";
-   case QUEX_TKN_KW_THIS:       return "KW_THIS";
-   case QUEX_TKN_LIST:          return "LIST";
-   case QUEX_TKN_OPEN_BRACE:    return "OPEN_BRACE";
-   case QUEX_TKN_OP_DEQ:        return "OP_DEQ";
-   case QUEX_TKN_OP_EQ:         return "OP_EQ";
-   case QUEX_TKN_OP_GT:         return "OP_GT";
-   case QUEX_TKN_OP_GTEQ:       return "OP_GTEQ";
-   case QUEX_TKN_OP_LT:         return "OP_LT";
-   case QUEX_TKN_OP_LTEQ:       return "OP_LTEQ";
-   case QUEX_TKN_QDATE:         return "QDATE";
-   case QUEX_TKN_QSTRING:       return "QSTRING";
-   case QUEX_TKN_STRING:        return "STRING";
-   case QUEX_TKN_TITLE_ID:      return "TITLE_ID";
+   case TK_BLOCK:         return "BLOCK";
+   case TK_CHAR_SCOPE:    return "CHAR_SCOPE";
+   case TK_CLOSE_BRACE:   return "CLOSE_BRACE";
+   case TK_DATE:          return "DATE";
+   case TK_DECIMAL:       return "DECIMAL";
+   case TK_FAILURE:       return "FAILURE";
+   case TK_INTEGER:       return "INTEGER";
+   case TK_KW_FROM:       return "KW_FROM";
+   case TK_KW_PREV:       return "KW_PREV";
+   case TK_KW_ROOT:       return "KW_ROOT";
+   case TK_KW_ROOTFROM:   return "KW_ROOTFROM";
+   case TK_KW_THIS:       return "KW_THIS";
+   case TK_LIST:          return "LIST";
+   case TK_OPEN_BRACE:    return "OPEN_BRACE";
+   case TK_OP_DEQ:        return "OP_DEQ";
+   case TK_OP_EQ:         return "OP_EQ";
+   case TK_OP_GT:         return "OP_GT";
+   case TK_OP_GTEQ:       return "OP_GTEQ";
+   case TK_OP_LT:         return "OP_LT";
+   case TK_OP_LTEQ:       return "OP_LTEQ";
+   case TK_QDATE:         return "QDATE";
+   case TK_QSTRING:       return "QSTRING";
+   case TK_STRING:        return "STRING";
+   case TK_TITLE_ID:      return "TITLE_ID";
 
 
    }
