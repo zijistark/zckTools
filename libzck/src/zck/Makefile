@@ -40,21 +40,7 @@ test_lexer.o: test_lexer.cpp lexer/Lexer.cpp
 	$(CC) $< -o $@ 
 
 lexer/Lexer.cpp: zck.qx 
-	quex -i                    zck.qx   \
-         -o                    Lexer    \
-         --token-id-prefix     TK_      \
-         --encoding            cp1252   \
-         --buffer-element-size 1
-
-# (*) HELPERS __________________________________________________________________
-#
-source-package:
-	quex -i                    zck.qx   \
-	     -o                    Lexer    \
-	     --token-id-prefix     TK_      \
-		 --encoding            cp1252   \
-		 --buffer-element-size 1        \
-		 --source-package      lexer
+	quex -i zck.qx -o Lexer --token-id-prefix TK_ --encoding cp1252 -b 1 --source-package lexer
 
 # Macro expansions (only for debugging):
 %.E: %.cpp    
@@ -65,4 +51,5 @@ clean:
 	rm -f *.o
 	rm -f *.bak
 	rm -f *.E
-	rm -f lexer
+	rm -fr lexer/*
+	rm -f test_lexer test_lexer.exe

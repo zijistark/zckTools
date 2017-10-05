@@ -7,14 +7,16 @@
 #define _ZCK_NAMESPACE_END }
 
 
-#include <cstdint>
-#include <cassert>
-#include <ostream>
-#include <cstring>
-
-
 _ZCK_NAMESPACE_BEGIN;
 
+
+#include <cstdint>
+#include <cassert>
+#include <cstring>
+#include <ostream>
+#include <memory>
+
+using uptr = std::unique_ptr;
 
 typedef unsigned int uint;
 

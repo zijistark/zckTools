@@ -33,8 +33,13 @@ token {
   BLOCK       = 0b1000.0000.0000.0000;
   LIST        = 0b1000.0000.0000.0001;
 
-  TERMINATION = 0x00;
-  FAILURE     = 0x01;
+  /* INCIDENCES TOKENS */
+  TERMINATION   = 0x00;
+  UNINITIALIZED = 0x01;
+  FAILURE       = 0x02;
+  NODENT        = 0x04;
+  INDENT        = 0x05;
+  DEDENT        = 0x06;
 }
 
 define {

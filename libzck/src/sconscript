@@ -6,5 +6,8 @@ Import('*')
 # updates and is indeed a code generator, we regenerate it manually instead of here.
 
 sources = Glob('zck/*.cc')
-
+sources.append('zck/lexer/Lexer.cpp')
+env.Command("zck/lexer/Lexer.cpp", "", "cd zck && make lexer/Lexer.cpp")
 env.StaticLibrary('zck', sources)
+env.Program('ast', sources + ['ast.cc'])
+
