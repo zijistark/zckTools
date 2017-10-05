@@ -1,0 +1,32 @@
+/* -*- C++ -*- vim: set syntax=cpp: */
+#ifndef __QUEX_INCLUDE_GUARD__BUFFER__ASSERTS
+#define __QUEX_INCLUDE_GUARD__BUFFER__ASSERTS
+
+#ifndef QUEX_OPTION_ASSERTS
+
+#    define QUEX_BUFFER_ASSERT_pointers_in_range(B)    /* empty */
+#    define QUEX_BUFFER_ASSERT_CONSISTENCY(B)          /* empty */
+#    define QUEX_BUFFER_ASSERT_NO_BUFFER_LIMIT_CODE(Begin, End) /* empty */
+
+#else
+#    include <quex/code_base/definitions>
+#    include <quex/code_base/buffer/Buffer>
+
+QUEX_NAMESPACE_MAIN_OPEN
+
+#define QUEX_BUFFER_ASSERT_pointers_in_range    QUEX_NAME(BUFFER_ASSERT_pointers_in_range_core)
+#define QUEX_BUFFER_ASSERT_limit_codes_in_place QUEX_NAME(BUFFER_ASSERT_limit_codes_in_place_core)
+#define QUEX_BUFFER_ASSERT_CONSISTENCY          QUEX_NAME(BUFFER_ASSERT_CONSISTENCY_core)
+#define QUEX_BUFFER_ASSERT_NO_BUFFER_LIMIT_CODE QUEX_NAME(BUFFER_ASSERT_NO_BUFFER_LIMIT_CODE_core)
+
+QUEX_INLINE void QUEX_NAME(BUFFER_ASSERT_pointers_in_range_core)(QUEX_NAME(Buffer)* B);                 
+QUEX_INLINE void QUEX_NAME(BUFFER_ASSERT_limit_codes_in_place_core)(QUEX_NAME(Buffer)* B);
+QUEX_INLINE void QUEX_NAME(BUFFER_ASSERT_CONSISTENCY_core)(QUEX_NAME(Buffer)* B);                                            
+QUEX_INLINE void QUEX_NAME(BUFFER_ASSERT_NO_BUFFER_LIMIT_CODE_core)(const QUEX_TYPE_LEXATOM* Begin, 
+                                                                     const QUEX_TYPE_LEXATOM* End);
+
+QUEX_NAMESPACE_MAIN_CLOSE
+
+#endif
+
+#endif /* __QUEX_INCLUDE_GUARD__BUFFER__ASSERTS */

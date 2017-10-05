@@ -1,0 +1,155 @@
+/* -*- C++ -*- vim: set syntax=cpp: */
+#ifndef  __QUEX_INCLUDE_GUARD__BUFFER__LEXATOMS__LEXATOM_LOADER
+#define  __QUEX_INCLUDE_GUARD__BUFFER__LEXATOMS__LEXATOM_LOADER
+
+#include <quex/code_base/definitions>
+#include <quex/code_base/buffer/Buffer>
+#include <quex/code_base/buffer/bytes/ByteLoader>
+
+QUEX_NAMESPACE_MAIN_OPEN
+
+struct QUEX_NAME(Converter_tag);
+struct QUEX_NAME(Buffer_tag);
+
+typedef struct QUEX_SETTING_USER_CLASS_DECLARATION_EPILOG QUEX_NAME(LexatomLoader_tag) {
+    /* -- byte order (i.e little- vs. big-endian) reversion: enable/disable
+     *    the reversion of byte order.    
+     *                                                                       */
+    bool                      _byte_order_reversion_active_f;
+
+    QUEX_TYPE_STREAM_POSITION lexatom_index_next_to_fill;
+
+    /* Byte number per lexatom. If != -1 => there is a linear relationship
+     *                            between lexatom position and lexatom
+     *                            index.                                     */
+    ptrdiff_t                 byte_n_per_lexatom;
+
+    /* This is the interface that the buffer sees of the buffer filler. Its
+     * task is to coordinate the filling of buffer content from a stream in the
+     * background. Some fillers may convert lexatoms or filter.  All fillers
+     * must provide functions for the following pointers. The pointers are set
+     * with the function
+     *
+     *              LexatomLoader_setup(...) 
+     *
+     * which shall be called in any '_construct' function of a filler. Note,
+     * that filler types shall inherit this class. This means, that the first
+     * element of the derived struct is to be of this type and best called
+     * 'base'.  For example, please, consider the 'plain' and 'converter'
+     * implementations in the correspondent sub directories.                 */
+    QUEX_NAME(ByteLoader)*    byte_loader;
+
+    /* -- 'Tell': Character index of the next lexatom to be loaded into
+     *            the buffer, when 'derived.load()' is called.
+     *                                                                       */
+    QUEX_TYPE_STREAM_POSITION   
+                (*input_lexatom_tell)(struct QUEX_NAME(LexatomLoader_tag)*);
+
+    /* -- 'Seek': Sets the lexatom index of the next lexatom to be loaded
+     *            into the buffer, when 'derived.load()' is 
+     *            called.
+     *                                                                       */
+    bool        (*input_lexatom_seek)(struct QUEX_NAME(LexatomLoader_tag)*,
+                                        const QUEX_TYPE_STREAM_POSITION Index);
+
+    /* -- 'Stomach Byte Number': is the number of bytes that have been read
+     *                           from the stream but not yet converted.      
+     *                                                                       */
+    ptrdiff_t   (*stomach_byte_n)(struct QUEX_NAME(LexatomLoader_tag)*);
+
+    /* -- 'Clear': Undo any internal state-dependency. Conversion or what-
+     *             soever starts from a clean page.   
+     *                                                                       */
+    void        (*stomach_clear)(struct QUEX_NAME(LexatomLoader_tag)*);       
+                                                                             
+    /* -- 'Delete Operator': There are derived 'classes' from this one. User 
+     *                  only stores a pointer to LexatomLoader, and requires a 
+     *                  way to delete the whole object.
+     *                                                                       */
+    void        (*delete_self)(struct QUEX_NAME(LexatomLoader_tag)*);         
+                                                                             
+                                                                             
+    struct {
+        /* PASSIVE API: Lexical analyzer requests LexatomLoader to fill its
+         *              buffer.                                              */
+
+        /* -- 'Read' reads N lexatoms from a stream into a buffer 
+         * (independent of their size)                                       */
+        size_t      (*load_lexatoms)(struct QUEX_NAME(LexatomLoader_tag)*,
+                                     QUEX_TYPE_LEXATOM* memory, 
+                                     const size_t         N,
+                                     bool*                end_of_stream_f,
+                                     bool*                encoding_error_f);
+
+        /* ACTIVE: User fills the buffer manually                                
+         *
+         * To be implemented by the derived class ...                        */
+        void        (*fill_prepare)(struct QUEX_NAME(LexatomLoader_tag)*  me,
+                                    QUEX_NAME(Buffer)*                    buffer,
+                                    void**                                begin_p,
+                                    const void**                          end_p);
+        ptrdiff_t   (*fill_finish)(struct QUEX_NAME(LexatomLoader_tag)* me,
+                                   QUEX_TYPE_LEXATOM*                   BeginP,
+                                   const QUEX_TYPE_LEXATOM*             EndP,
+                                   const void*                         FilledEndP);
+        void        (*get_fill_boundaries)(struct QUEX_NAME(LexatomLoader_tag)*  alter_ego,
+                                           QUEX_NAME(Buffer)*                    buffer,
+                                           void**                                begin_p, 
+                                           const void**                          end_p);
+
+        void        (*print_this)(struct QUEX_NAME(LexatomLoader_tag)*  alter_ego);
+
+        /* destruct_self: Free resources occupied by 'me' BUT NOT 'myself'.
+         * delete_self:   Free resources occupied by 'me' AND 'myself'.      */
+        void        (*destruct_self)(struct QUEX_NAME(LexatomLoader_tag)*);
+    } derived;
+} QUEX_NAME(LexatomLoader);
+
+QUEX_INLINE QUEX_NAME(LexatomLoader)*
+QUEX_NAME(LexatomLoader_new)(QUEX_NAME(ByteLoader)*           byte_loader, 
+                             struct QUEX_NAME(Converter_tag)* converter);
+
+QUEX_INLINE void    
+QUEX_NAME(LexatomLoader_setup)(QUEX_NAME(LexatomLoader)*   me,
+                               size_t       (*load_lexatoms)(QUEX_NAME(LexatomLoader)*,
+                                                             QUEX_TYPE_LEXATOM*, 
+                                                             const size_t, bool*, bool*),
+                               ptrdiff_t    (*stomach_byte_n)(QUEX_NAME(LexatomLoader)*),
+                               void         (*stomach_clear)(QUEX_NAME(LexatomLoader)*),
+                               void         (*destruct_self)(QUEX_NAME(LexatomLoader)*),
+                               void         (*derived_fill_prepare)(QUEX_NAME(LexatomLoader)* me,
+                                                                    QUEX_NAME(Buffer)*        buffer,
+                                                                    void**                    begin_p,
+                                                                    const void**              end_p),
+                               ptrdiff_t    (*derived_fill_finish)(QUEX_NAME(LexatomLoader)*   me,
+                                                                   QUEX_TYPE_LEXATOM*       BeginP,
+                                                                   const QUEX_TYPE_LEXATOM* EndP,
+                                                                   const void*                FilledEndP),
+                               void         (*derived_get_fill_boundaries)(QUEX_NAME(LexatomLoader)* alter_ego,
+                                                                           QUEX_NAME(Buffer)*        buffer,
+                                                                           void**                    begin_p, 
+                                                                           const void**              end_p),
+                               void         (*derived_print_this)(QUEX_NAME(LexatomLoader)*  alter_ego),
+                               QUEX_NAME(ByteLoader)*  byte_loader, 
+                               ptrdiff_t               ByteNPerCharacter);
+
+QUEX_INLINE ptrdiff_t  
+    QUEX_NAME(LexatomLoader_load)(QUEX_NAME(LexatomLoader)*  me, 
+                                  QUEX_TYPE_LEXATOM*         RegionBeginP, 
+                                  const ptrdiff_t            Size,
+                                  QUEX_TYPE_STREAM_POSITION  CharacterIndexBegin,
+                                  bool*                      end_of_stream_f,
+                                  bool*                      encoding_error_f);
+
+QUEX_INLINE bool       
+    QUEX_NAME(LexatomLoader_lexatom_index_reset)(QUEX_NAME(LexatomLoader)* me);
+
+QUEX_INLINE void       
+    QUEX_NAME(LexatomLoader_print_this)(QUEX_NAME(LexatomLoader)* me);
+
+QUEX_NAMESPACE_MAIN_CLOSE
+
+#include <quex/code_base/buffer/lexatoms/LexatomLoader_Converter>
+#include <quex/code_base/buffer/lexatoms/LexatomLoader_Plain>
+
+#endif /* __QUEX_INCLUDE_GUARD__BUFFER__BUFFERFILLER */

@@ -1,0 +1,35 @@
+/* -*- C++ -*- vim: set syntax=cpp: 
+ * (C) 2009 Frank-Rene Schaefer
+ * NO WARRANTY */
+#ifndef  __QUEX_INCLUDE_GUARD__BUFFER__LEXATOMS__CONVERTER__ICU__CONVERTER_ICU
+#define  __QUEX_INCLUDE_GUARD__BUFFER__LEXATOMS__CONVERTER__ICU__CONVERTER_ICU
+
+#include <quex/code_base/definitions>
+#include <quex/code_base/buffer/lexatoms/converter/Converter>
+#include <quex/code_base/buffer/lexatoms/converter/icu/special_headers.h>
+
+QUEX_NAMESPACE_MAIN_OPEN
+
+    typedef struct QUEX_SETTING_USER_CLASS_DECLARATION_EPILOG {
+        QUEX_NAME(Converter)  base;
+
+        UConverter*  from_handle;
+        UConverter*  to_handle;
+        UErrorCode   status;
+
+        UBool        reset_upon_next_conversion_f;
+
+        struct {
+            UChar    buffer[QUEX_SETTING_ICU_PIVOT_BUFFER_SIZE];
+            UChar*   source;
+            UChar*   target;
+        } pivot;
+
+    } QUEX_NAME(Converter_ICU);
+
+    QUEX_INLINE QUEX_NAME(Converter)* QUEX_NAME(Converter_ICU_new)(const char* FromCodec, 
+                                                                   const char* ToCodec);
+
+QUEX_NAMESPACE_MAIN_CLOSE
+
+#endif /*  __QUEX_INCLUDE_GUARD__BUFFER__LEXATOMS__CONVERTER__ICU__CONVERTER_ICU */

@@ -13,7 +13,7 @@
 
 
 
-#   line 2 "/cygdrive/c/prog/quex/quex-0.67.5/quex/code_base/token/CppDefault.qx"
+#   line 2 "/quex/code_base/token/CppDefault.qx"
 
 #include <iostream>
 #include <string>
@@ -59,12 +59,12 @@ public:
     virtual ~Token();
 
 
-#   line 15 "/cygdrive/c/prog/quex/quex-0.67.5/quex/code_base/token/CppDefault.qx"
+#   line 15 "/quex/code_base/token/CppDefault.qx"
     const QUEX_TYPE_LEXATOM* text;
 
 #   line 66 "Lexer-token"
 
-#   line 16 "/cygdrive/c/prog/quex/quex-0.67.5/quex/code_base/token/CppDefault.qx"
+#   line 16 "/quex/code_base/token/CppDefault.qx"
     size_t                   number;
 
 #   line 71 "Lexer-token"
@@ -72,13 +72,13 @@ public:
 
 public:
 
-#   line 15 "/cygdrive/c/prog/quex/quex-0.67.5/quex/code_base/token/CppDefault.qx"
+#   line 15 "/quex/code_base/token/CppDefault.qx"
     const QUEX_TYPE_LEXATOM* get_text() const                           { return text; }
-#   line 15 "/cygdrive/c/prog/quex/quex-0.67.5/quex/code_base/token/CppDefault.qx"
+#   line 15 "/quex/code_base/token/CppDefault.qx"
     void                     set_text(const QUEX_TYPE_LEXATOM*& Value)  { text = Value; }
-#   line 16 "/cygdrive/c/prog/quex/quex-0.67.5/quex/code_base/token/CppDefault.qx"
+#   line 16 "/quex/code_base/token/CppDefault.qx"
     size_t                   get_number() const                         { return number; }
-#   line 16 "/cygdrive/c/prog/quex/quex-0.67.5/quex/code_base/token/CppDefault.qx"
+#   line 16 "/quex/code_base/token/CppDefault.qx"
     void                     set_number(size_t Value)                   { number = Value; }
 
 #   line 85 "Lexer-token"
@@ -115,7 +115,7 @@ public:
     public:
 #   define self (*this)
 
-#   line 117 "/cygdrive/c/prog/quex/quex-0.67.5/quex/code_base/token/CppDefault.qx"
+#   line 117 "/quex/code_base/token/CppDefault.qx"
 
         operator 
         const std::string() const
@@ -147,7 +147,7 @@ public:
 QUEX_NAMESPACE_TOKEN_CLOSE
 
 
-#   line 142 "/cygdrive/c/prog/quex/quex-0.67.5/quex/code_base/token/CppDefault.qx"
+#   line 142 "/quex/code_base/token/CppDefault.qx"
 
 QUEX_NAMESPACE_TOKEN_OPEN
 inline std::ostream&
@@ -187,7 +187,7 @@ Token::Token()
 #   define self (*this)
 #   define LexemeNull  (&QUEX_NAME_TOKEN(LexemeNull))
 
-#   line 21 "/cygdrive/c/prog/quex/quex-0.67.5/quex/code_base/token/CppDefault.qx"
+#   line 21 "/quex/code_base/token/CppDefault.qx"
 
        self.number = 0;
        self.text   = LexemeNull;
@@ -206,7 +206,7 @@ Token::Token(const Token& Other)
 #   define self (*this)
 #   define LexemeNull  (&QUEX_NAME_TOKEN(LexemeNull))
 
-#   line 21 "/cygdrive/c/prog/quex/quex-0.67.5/quex/code_base/token/CppDefault.qx"
+#   line 21 "/quex/code_base/token/CppDefault.qx"
 
        self.number = 0;
        self.text   = LexemeNull;
@@ -224,7 +224,7 @@ Token::~Token()
 #   define self (*this)
 #   define LexemeNull  (&QUEX_NAME_TOKEN(LexemeNull))
 
-#   line 26 "/cygdrive/c/prog/quex/quex-0.67.5/quex/code_base/token/CppDefault.qx"
+#   line 26 "/quex/code_base/token/CppDefault.qx"
 
        if( self.text != LexemeNull ) {
            QUEXED(MemoryManager_free)((void*)self.text,
@@ -262,7 +262,7 @@ QUEX_NAME_TOKEN(copy)(Token* __this, const Token* __That)
     (void)__this;
     (void)__That;
 
-#   line 34 "/cygdrive/c/prog/quex/quex-0.67.5/quex/code_base/token/CppDefault.qx"
+#   line 34 "/quex/code_base/token/CppDefault.qx"
 
         self._id  = Other._id;
 
@@ -318,7 +318,7 @@ QUEX_NAME_TOKEN(take_text)(Token*              __this,
 #   define LexemeNull  (&QUEX_NAME_TOKEN(LexemeNull))
     (void)__this;
 
-#   line 62 "/cygdrive/c/prog/quex/quex-0.67.5/quex/code_base/token/CppDefault.qx"
+#   line 62 "/quex/code_base/token/CppDefault.qx"
 
 
 #       if 0
@@ -389,7 +389,7 @@ QUEX_NAME_TOKEN(repetition_n_get)(Token* __this)
 #   define self (*__this)
     (void)__this;
 
-#   line 138 "/cygdrive/c/prog/quex/quex-0.67.5/quex/code_base/token/CppDefault.qx"
+#   line 138 "/quex/code_base/token/CppDefault.qx"
 
        return self.number;
    
@@ -406,7 +406,7 @@ QUEX_NAME_TOKEN(repetition_n_set)(Token* __this, size_t N)
     (void)__this;
     (void)N;
 
-#   line 134 "/cygdrive/c/prog/quex/quex-0.67.5/quex/code_base/token/CppDefault.qx"
+#   line 134 "/quex/code_base/token/CppDefault.qx"
 
        self.number = N;
    

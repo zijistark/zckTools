@@ -20,7 +20,7 @@ endif
 #      e.g. "make COMPILER=icpc" will use intel's c++ compiler)
 COMPILER = g++ -ggdb -Wconversion -Wall -Werror -W --std=c++17
 
-CC = $(COMPILER) -c -I./ -I$(QUEX_PATH) $(CCFLAG_ASSERTS) 
+CC = $(COMPILER) -c -I./ -I./lexer/ $(CCFLAG_ASSERTS) 
 # Other useful options for debugging:
 # -DQUEX_OPTION_ASSERTS_DISABLED
 # -DQUEX_OPTION_ASSERTS_WARNING_MESSAGE_DISABLED 
@@ -30,21 +30,21 @@ LD = $(COMPILER)
 
 # (*) RULES ____________________________________________________________________
 #
-test_lexer: test_lexer.o Lexer.o
-	$(LD) -o $@ test_lexer.o Lexer.o 
+test_lexer: test_lexer.o lexer/Lexer.o
+	$(LD) -o $@ test_lexer.o lexer/Lexer.o 
           
-Lexer.o: Lexer.cpp 
+lexer/Lexer.o: lexer/Lexer.cpp 
 	$(CC) $< -o $@ 
 
-test_lexer.o: test_lexer.cpp Lexer.cpp
+test_lexer.o: test_lexer.cpp lexer/Lexer.cpp
 	$(CC) $< -o $@ 
 
-Lexer.cpp: zck.qx 
+lexer/Lexer.cpp: zck.qx 
 	quex -i                    zck.qx   \
-	     -o                    Lexer    \
-	     --token-id-prefix     TK_      \
-		 --encoding            cp1252   \
-		 --buffer-element-size 1
+         -o                    Lexer    \
+         --token-id-prefix     TK_      \
+         --encoding            cp1252   \
+         --buffer-element-size 1
 
 # (*) HELPERS __________________________________________________________________
 #
@@ -54,7 +54,7 @@ source-package:
 	     --token-id-prefix     TK_      \
 		 --encoding            cp1252   \
 		 --buffer-element-size 1        \
-		 --source-package      lexer_mine
+		 --source-package      lexer
 
 # Macro expansions (only for debugging):
 %.E: %.cpp    

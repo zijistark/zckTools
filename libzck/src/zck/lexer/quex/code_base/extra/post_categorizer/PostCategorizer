@@ -1,0 +1,80 @@
+/* -*- C++ -*-   vim:set syntax=cpp:
+ * __QUEX_INCLUDE_GUARD__ANALYZER__POST_CATEGORIZER may be undefined in case
+ *    that multiple lexical analyzers are used.                                       */
+#ifndef __QUEX_INCLUDE_GUARD__EXTRA__POST_CATEGORIZER__POST_CATEGORIZER
+#define __QUEX_INCLUDE_GUARD__EXTRA__POST_CATEGORIZER__POST_CATEGORIZER
+
+QUEX_NAMESPACE_MAIN_OPEN
+
+/*________________________________________________________________________________
+ * Post Categorization of Lexemes:
+ *
+ * The implementation of the categorization tree is a little more efficient
+ * than the STL map, since we do not iterator over the content.
+ *________________________________________________________________________________*/
+typedef struct QUEX_SETTING_USER_CLASS_DECLARATION_EPILOG QUEX_NAME(DictionaryNode_tag) {
+    /* Store the first character separately from the remainder. This might
+     * help to avoid loading 'remotely allocated' strings into the cache if
+     * they do not fit anyway (because of their first character).                 */ 
+    QUEX_TYPE_LEXATOM          name_first_character;
+    const QUEX_TYPE_LEXATOM*   name_remainder;
+
+    QUEX_TYPE_TOKEN_ID           token_id;
+
+    struct QUEX_NAME(DictionaryNode_tag)*   lesser;
+    struct QUEX_NAME(DictionaryNode_tag)*   greater;
+
+} QUEX_NAME(DictionaryNode);
+
+#ifdef __QUEX_OPTION_PLAIN_C
+    typedef struct QUEX_SETTING_USER_CLASS_DECLARATION_EPILOG QUEX_NAME(Dictionary_tag) {
+        QUEX_NAME(DictionaryNode)*  root;
+
+        void                (*enter)(struct QUEX_NAME(Dictionary_tag)* me,
+                                     const QUEX_TYPE_LEXATOM*          Lexeme, 
+                                     const QUEX_TYPE_TOKEN_ID          TokenID);
+        void                (*remove)(struct QUEX_NAME(Dictionary_tag)* me,
+                                      const QUEX_TYPE_LEXATOM*          Lexeme);
+        QUEX_TYPE_TOKEN_ID  (*get_token_id)(const struct QUEX_NAME(Dictionary_tag)* me,
+                                            const QUEX_TYPE_LEXATOM*                Lexeme);
+        void                (*clear)(struct QUEX_NAME(Dictionary_tag)* me);
+        void                (*print_this)(struct QUEX_NAME(Dictionary_tag)* me);
+        void                (*destruct_self)(struct QUEX_NAME(Dictionary_tag)* me);
+
+    } QUEX_NAME(Dictionary);
+#else
+    class QUEX_NAME(Dictionary) {
+    public:
+        QUEX_NAME(Dictionary)();
+        ~QUEX_NAME(Dictionary)();
+
+        QUEX_NAME(DictionaryNode)*  root;
+
+        void                enter(const QUEX_TYPE_LEXATOM* Lexeme, 
+                                  const QUEX_TYPE_TOKEN_ID TokenID);
+        void                remove(const QUEX_TYPE_LEXATOM* Lexeme);
+        QUEX_TYPE_TOKEN_ID  get_token_id(const QUEX_TYPE_LEXATOM* Lexeme) const;
+        void                clear();
+        void                print_this();
+        void                (*destruct_self)(QUEX_NAME(Dictionary)* me);
+    };
+#endif
+
+QUEX_INLINE bool
+QUEX_NAME(PostCategorizer_construct)(QUEX_NAME(Dictionary)* me);
+
+QUEX_INLINE void
+QUEX_NAME(PostCategorizer_destruct)(QUEX_NAME(Dictionary)* me);
+
+QUEX_INLINE void
+QUEX_NAME(PostCategorizer_resources_absent_mark)(QUEX_NAME(Dictionary)* me);
+
+QUEX_INLINE bool
+QUEX_NAME(PostCategorizer_resources_absent)(QUEX_NAME(Dictionary)* me);
+
+QUEX_INLINE void          
+QUEX_NAME(PostCategorizer_print_this)(QUEX_NAME(Dictionary)* me);
+                          
+QUEX_NAMESPACE_MAIN_CLOSE
+
+#endif /* __QUEX_INCLUDE_GUARD__EXTRA__POST_CATEGORIZER__POSTCATEGORIZER */

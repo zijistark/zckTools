@@ -1,0 +1,30 @@
+/* -*- c++ -*- vim:set syntax=cpp: 
+ *
+ * NO INCLUDE GUARDS HERE.
+ *
+ * THIS FILE ONLY CHECKS AND DOES NOT DEFINE ANYTHING.
+ *                                                                    
+ * (C) 2009-2017 Frank-Rene Schaefer                                          */
+
+/* Validate */
+#if defined(QUEX_OPTION_ENDIAN_BIG) && defined(QUEX_OPTION_ENDIAN_LITTLE)
+#   error "Cannot define little endian and big endian at the same time."
+#endif
+#if ! defined(QUEX_OPTION_ENDIAN_BIG) && ! defined(QUEX_OPTION_ENDIAN_LITTLE) && ! defined(QUEX_OPTION_ENDIAN_SYSTEM)
+#   error "Either little endian or big endian must be defined."
+#endif
+
+#if defined(QUEX_OPTION_ASSERTS) && defined (QUEX_OPTION_ASSERTS_DISABLED)
+#   error "Ambiguous configuration options."
+#endif
+
+/* Disallow computed gotos if it is known that the compiler does not
+ * support it.                                                       */
+#if defined(QUEX_OPTION_COMPUTED_GOTOS)
+#   if    defined(__GNUC__) \
+       && ((__GNUC__ < 2) || (__GNUC__ == 2 && __GNUC_MINOR__ >= 3))
+#       error "Detected gcc version < 2.3; This version does not support computed gotos. Option QUEX_OPTION_COMPUTED_GOTOS cannot be used."
+#   endif
+#endif
+
+

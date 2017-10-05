@@ -1,0 +1,51 @@
+/* -*- C++ -*- vim: set syntax=cpp:
+ * (C) 2005-2010 Frank-Rene Schaefer
+ * ABSOLUTELY NO WARRANTY              */
+#ifndef  __QUEX_INCLUDE_GUARD__ANALYZER__STRUCT__CONSTRUCTOR
+#define  __QUEX_INCLUDE_GUARD__ANALYZER__STRUCT__CONSTRUCTOR
+
+#include <quex/code_base/definitions>
+#include <quex/code_base/buffer/Buffer>
+
+QUEX_NAMESPACE_MAIN_OPEN 
+
+QUEX_INLINE void QUEX_NAME(from_file_name)(
+                                  QUEX_TYPE_ANALYZER*     me,
+                                  const char*             Filename, 
+                                  QUEX_NAME(Converter)*   converter);
+
+QUEX_INLINE void QUEX_NAME(from_ByteLoader)(
+                                  QUEX_TYPE_ANALYZER*     me,
+                                  QUEX_NAME(ByteLoader)*  byte_loader,
+                                  QUEX_NAME(Converter)*   converter);
+
+QUEX_INLINE void QUEX_NAME(from_memory)(
+                                  QUEX_TYPE_ANALYZER* me,
+                                  QUEX_TYPE_LEXATOM*  BufferMemoryBegin, 
+                                  size_t              BufferMemorySize,
+                                  QUEX_TYPE_LEXATOM*  BufferEndOfFileP); 
+
+/* Basic constructions ________________________________________________________
+ *                                                                           */
+QUEX_INLINE bool QUEX_NAME(construct_all_but_buffer)(QUEX_TYPE_ANALYZER* me, 
+                                                     bool                CallUserConstructorF);
+QUEX_INLINE void QUEX_NAME(destruct)(QUEX_TYPE_ANALYZER* me); 
+QUEX_INLINE void QUEX_NAME(destruct_all_but_buffer)(QUEX_TYPE_ANALYZER* me);
+QUEX_INLINE void QUEX_NAME(resources_absent_mark)(QUEX_TYPE_ANALYZER* me);
+QUEX_INLINE void QUEX_NAME(all_but_buffer_resources_absent_mark)(QUEX_TYPE_ANALYZER* me);
+QUEX_INLINE bool QUEX_NAME(resources_absent)(QUEX_TYPE_ANALYZER* me);
+QUEX_INLINE void QUEX_NAME(collect_user_memory)(QUEX_TYPE_ANALYZER* me, 
+                                                QUEX_TYPE_LEXATOM** user_buffer_memory_p);
+
+QUEX_INLINE const char*
+                 QUEX_NAME(input_name)(QUEX_TYPE_ANALYZER* me);
+QUEX_INLINE bool QUEX_NAME(input_name_set)(QUEX_TYPE_ANALYZER* me, 
+                                           const char*         InputNameP);
+
+extern      bool QUEX_NAME(user_constructor)(QUEX_TYPE_ANALYZER*);
+extern      void QUEX_NAME(user_destructor)(QUEX_TYPE_ANALYZER*);
+
+QUEX_NAMESPACE_MAIN_CLOSE 
+
+#endif /*  __QUEX_INCLUDE_GUARD__ANALYZER__STRUCT__CONSTRUCTOR */
+

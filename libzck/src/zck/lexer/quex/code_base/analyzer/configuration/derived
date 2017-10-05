@@ -1,0 +1,263 @@
+#ifdef    QUEX_OPTION_COMPUTED_GOTOS_DISABLED
+#   undef QUEX_OPTION_COMPUTED_GOTOS
+#endif
+#ifdef    __QUEX_OPTION_ON_ENTRY_HANDLER_PRESENT_DISABLED
+#   undef __QUEX_OPTION_ON_ENTRY_HANDLER_PRESENT
+#endif
+#ifdef    __QUEX_OPTION_ON_EXIT_HANDLER_PRESENT_DISABLED
+#   undef __QUEX_OPTION_ON_EXIT_HANDLER_PRESENT
+#endif
+#ifdef     __QUEX_OPTION_SUPPORT_BEGIN_OF_LINE_PRE_CONDITION_DISABLED
+#   undef  __QUEX_OPTION_SUPPORT_BEGIN_OF_LINE_PRE_CONDITION
+#endif
+#ifdef    QUEX_OPTION_INCLUDE_STACK_DISABLED
+#   undef QUEX_OPTION_INCLUDE_STACK
+#endif
+#ifdef    QUEX_OPTION_DEBUG_SHOW_MODES_DISABLED
+#   undef QUEX_OPTION_DEBUG_SHOW_MODES
+#endif
+#ifdef    QUEX_OPTION_RUNTIME_MODE_TRANSITION_CHECK_DISABLED
+#   undef QUEX_OPTION_RUNTIME_MODE_TRANSITION_CHECK
+#endif
+#ifdef    QUEX_OPTION_COUNTER_COLUMN_DISABLED
+#   undef QUEX_OPTION_COUNTER_COLUMN
+#endif
+#ifdef    QUEX_OPTION_COUNTER_LINE_DISABLED
+#   undef QUEX_OPTION_COUNTER_LINE
+#endif
+
+#define __QUEX_PURE_RETURN   do { return; } while(0)
+
+#if  ! defined (QUEX_SETTING_BUFFER_MIN_FALLBACK_N)
+#   if ! defined (QUEX_SETTING_BUFFER_SIZE) 
+#      error "QUEX_SETTING_BUFFER_SIZE not defined at this place."
+/* If compiler complains here, then 'QUEX_SETTING_BUFFER_SIZE' has probably
+ * be defined as something different than an integer. Definitions like
+ *
+ *   #define QUEX_SETTING_BUFFER_SIZE  (size_t)4096
+ *
+ * would be proper, but disables some math operations. Anything not-a-number
+ * must be deleted from the QUEX_SETTING_BUFFER_SIZE definition.              */
+#   elif      QUEX_SETTING_BUFFER_SIZE >= 1024
+#      define QUEX_SETTING_BUFFER_MIN_FALLBACK_N  (256)
+#   elif      QUEX_SETTING_BUFFER_SIZE >= 16
+#      define QUEX_SETTING_BUFFER_MIN_FALLBACK_N  (size_t)(QUEX_SETTING_BUFFER_SIZE >> 5)
+#   else
+#      define QUEX_SETTING_BUFFER_MIN_FALLBACK_N  (0)
+#   endif
+#endif
+
+/* Tokens may be 'stamped' with the line an column number automatically.
+ * This happens by means of the option 
+ *      
+ *       QUEX_OPTION_TOKEN_STAMPING_WITH_LINE_AND_COLUMN_DISABLED
+ *
+ * It is active by default only for queue token policies, because after
+ * a call to .receive(), the lexical analyzer maintains only the position
+ * of the last token in the queue. The positions of other tokens would
+ * not be accessible once they are in the queue. 
+ * 
+ * The token policy 'users_token' only communicates one token at a time
+ * and the line and column numbers in the lexical analyzer are those
+ * of the last token. Thus, in this case the tokens do not need to be 
+ * stamped with the position in the file.                                */
+#ifdef         QUEX_OPTION_TOKEN_STAMPING_WITH_LINE_AND_COLUMN_DISABLED
+#    ifdef     QUEX_OPTION_TOKEN_STAMPING_WITH_LINE_AND_COLUMN
+#        undef QUEX_OPTION_TOKEN_STAMPING_WITH_LINE_AND_COLUMN
+#    endif
+#else
+#    ifndef    QUEX_OPTION_TOKEN_STAMPING_WITH_LINE_AND_COLUMN
+#       define QUEX_OPTION_TOKEN_STAMPING_WITH_LINE_AND_COLUMN
+#    endif
+#endif
+
+#ifdef  QUEX_OPTION_TOKEN_REPETITION_SUPPORT
+#   define __QUEX_IF_TOKEN_REPETITION_SUPPORT(EXPRESSION)          EXPRESSION
+#   define __QUEX_IF_TOKEN_REPETITION_SUPPORT_DISABLED(EXPRESSION) /* empty */
+#else
+#   define __QUEX_IF_TOKEN_REPETITION_SUPPORT(EXPRESSION)          /* empty */
+#   define __QUEX_IF_TOKEN_REPETITION_SUPPORT_DISABLED(EXPRESSION) EXPRESSION
+#endif
+
+#define __QUEX_TYPE_ANALYZER_RETURN_VALUE            void
+#define __QUEX_RETURN                                return
+
+#if    defined(QUEX_OPTION_COUNTER_LINE)   \
+    || defined(QUEX_OPTION_COUNTER_COLUMN) \
+    || defined(QUEX_OPTION_INDENTATION_TRIGGER)       
+#     define  QUEX_OPTION_COUNTER
+#     define  __QUEX_IF_COUNT(EXPRESSION)             EXPRESSION
+#     define  __QUEX_IF_COUNT_IF(EXPRESSION)          if( EXPRESSION )
+#     define  __QUEX_IF_COUNT_SHIFT_VALUES()  \
+              __QUEX_COUNTER_SHIFT_COLUMNS(); \
+              __QUEX_COUNTER_SHIFT_LINES();
+#else
+#     if defined(QUEX_OPTION_COUNTER)  
+#        undef   QUEX_OPTION_COUNTER
+#     endif
+#     define  __QUEX_IF_COUNT(EXPRESSION)             /* empty */
+#     define  __QUEX_IF_COUNT_IF(EXPRESSION)          /* empty */
+#     define  __QUEX_IF_COUNT_SHIFT_VALUES()          /* empty */
+#endif
+
+#if defined(QUEX_OPTION_COUNTER_LINE)   
+#   define     __QUEX_IF_COUNT_LINES(EXPRESSION)      EXPRESSION
+#   define     __QUEX_IF_COUNT_LINES_IF(EXPRESSION)   if( EXPRESSION )
+#   define     __QUEX_IF_COUNT_LINES_ADD(X)                      \
+               do {                                              \
+                   me->counter._line_number_at_end   += (X);     \
+                   __quex_debug_counter();                       \
+               } while(0) 
+#   define     __QUEX_COUNTER_SHIFT_LINES() \
+               me->counter._line_number_at_begin = me->counter._line_number_at_end; 
+
+#else
+#   define     __QUEX_IF_COUNT_LINES(EXPRESSION)      /* empty */
+#   define     __QUEX_IF_COUNT_LINES_IF(EXPRESSION)   /* empty */
+#   define     __QUEX_IF_COUNT_LINES_ADD(X)           /* empty */
+#   define     __QUEX_COUNTER_SHIFT_LINES()           /* empty */
+#endif
+
+#if defined(QUEX_OPTION_COUNTER_COLUMN)   
+#   define     __QUEX_IF_COUNT_COLUMNS(EXPRESSION)    EXPRESSION
+#   define     __QUEX_IF_COUNT_COLUMNS_SET(X) \
+               do {                                              \
+                   me->counter._column_number_at_end   = (X);    \
+                   __quex_debug_counter();                       \
+               } while(0) 
+#   define     __QUEX_IF_COUNT_COLUMNS_ADD(X) \
+               do {                                              \
+                   me->counter._column_number_at_end   += (X);   \
+                   __quex_debug_counter();                       \
+               } while(0) 
+#   define     __QUEX_COUNTER_SHIFT_COLUMNS() \
+               me->counter._column_number_at_begin = me->counter._column_number_at_end; 
+
+#else
+#   define     __QUEX_IF_COUNT_COLUMNS(EXPRESSION)     /* empty */
+#   define     __QUEX_IF_COUNT_COLUMNS_SET(X)          /* empty */
+#   define     __QUEX_IF_COUNT_COLUMNS_ADD(X)          /* empty */
+#   define     __QUEX_COUNTER_SHIFT_COLUMNS()          /* empty */
+#endif
+
+#if defined(QUEX_OPTION_INDENTATION_TRIGGER)
+#   ifndef    QUEX_OPTION_INDENTATION_DEFAULT_HANDLER_DISABLED
+#      define QUEX_OPTION_INDENTATION_DEFAULT_HANDLER
+#   endif
+#   define    __QUEX_IF_COUNT_INDENTATION(EXPRESSION) EXPRESSION
+#else
+#   define    __QUEX_IF_COUNT_INDENTATION(EXPRESSION) /* empty */
+#endif
+
+/* Default Counter Rules */
+#if ! defined(__QUEX_COUNTER_RULES)
+    /* NOTE: 'x - x % 4' == 'x with the last two bits deleted'
+     *                   == 'x & (~3)'                          */
+#   if QUEX_SETTING_CHAR_CODEC == utf8
+#       define __QUEX_COUNTER_RULES(counter, iterator)                    \
+               switch( (int)(*iterator) ) {                               \
+               case (int)(QUEX_TYPE_LEXATOM)'\t':                       \
+                   (counter)._column_number_at_end &= (~(size_t)0x3) + 4; \
+                   ++(iterator);                                          \
+                   break;                                                 \
+               case (int)(QUEX_TYPE_LEXATOM)'\n':                       \
+                   (counter)._line_number_at_end   += 1;                  \
+                   (counter)._column_number_at_end  = 1;                  \
+                   ++(iterator);                                          \
+                   break;                                                 \
+               default:                                                   \
+                   if     ( (*iterator & 0x80) == 0 ) { iterator += 1; } /* 1byte character */ \
+                   /* NOT ( (*iterator & 0x40) == 0 ) { iterator += 2; }    2byte character */ \
+                   else if( (*iterator & 0x20) == 0 ) { iterator += 2; } /* 3byte character */ \
+                   else if( (*iterator & 0x10) == 0 ) { iterator += 3; } /* 3byte character */ \
+                   else if( (*iterator & 0x08) == 0 ) { iterator += 4; } /* 4byte character */ \
+                   else if( (*iterator & 0x04) == 0 ) { iterator += 5; } /* 5byte character */ \
+                   else if( (*iterator & 0x02) == 0 ) { iterator += 6; } /* 6byte character */ \
+                   else if( (*iterator & 0x01) == 0 ) { iterator += 7; } /* 7byte character */ \
+                   else                               { iterator += 1; } /* default 1       */ \
+                   (counter)._column_number_at_end += 1;                  \
+                   break;                                                 \
+               }
+#   elif QUEX_SETTING_CHAR_CODEC == utf16
+#       define __QUEX_COUNTER_RULES(counter, iterator) \
+               switch( (int)(QUEX_TYPE_LEXATOM)(*iterator) ) {         \
+               case (int)(QUEX_TYPE_LEXATOM)'\t':                      \
+                   (counter)._column_number_at_end &= (~(size_t)0x3) + 4;\
+                   ++(iterator);                            \
+                   break;                                   \
+               case (int)(QUEX_TYPE_LEXATOM)'\n':         \
+                   (counter)._line_number_at_end  += 1;     \
+                   (counter)._column_number_at_end  = 1;    \
+                   ++(iterator);                            \
+                   break;                                   \
+               default:                                     \
+                   if     ( *iterator < 0xD800 )  { iterator += 1; } /* 1 chunk character */  \
+                   else if( *iterator > 0xDBFF )  { iterator += 1; } /* 1 chunk character */  \
+                   else                           { iterator += 2; } /* 2 chunk character */  \
+                   (counter)._column_number_at_end += 1;    \
+                   break;                                   \
+               }
+#   else
+#       define __QUEX_COUNTER_RULES(counter, iterator) \
+               switch( (int)(*iterator) ) {                                      \
+               case (int)(QUEX_TYPE_LEXATOM)'\t':    \
+                   (counter)._column_number_at_end &= (~(size_t)0x3) + 4; break; \
+               case (int)(QUEX_TYPE_LEXATOM)'\n':    \
+                   (counter)._line_number_at_end   += 1;                         \
+                   (counter)._column_number_at_end  = 1;                  break; \
+               default:                                \
+                   (counter)._column_number_at_end += 1;                  break; \
+               }                                                                 \
+               ++(iterator);
+#   endif
+
+#endif
+
+/* Special Case MinGW: At the time of this writing (2009y09m23d) it does 
+ * not support 'wchart_t'.                                                */
+#if      (defined (__GLIBCPP__) || defined(__GLIBCXX__)) \
+    && ! defined  (_GLIBCXX_USE_WCHAR_T)
+#   define  __QUEX_OPTION_WCHAR_T_DISABLED
+#endif
+#ifndef     __QUEX_OPTION_WCHAR_T_DISABLED
+#   define  __QUEX_OPTION_WCHAR_T
+#endif
+
+/* If you have a different setup, define the macros QUEX_SETTING_WCHAR_CODEC
+ * and QUEX_SETTING_CHAR_CODEC before the inclusion of this file.
+ *
+ * NOTE: '8' stands for UTF8, '16' stands for UTF16, and '32' for UTF32.
+ *       Do not add anything around those numbers, otherwise the macros
+ *       will not trigger the right mappings.                             */
+#if ! defined(QUEX_SETTING_WCHAR_CODEC)
+#   if defined(_WIN32) || defined(_WIN64)
+       /* Default: Map 'wchar' to 'utf16' */
+#      define QUEX_SETTING_WCHAR_CODEC  16
+#   else
+       /* Default: Map 'wchar' to 'utf32' */
+#      define QUEX_SETTING_WCHAR_CODEC  32
+#   endif
+#endif
+
+/* Default: Map 'char' to 'utf8' */
+#if ! defined(QUEX_SETTING_CHAR_CODEC)
+#   define    QUEX_SETTING_CHAR_CODEC   utf8
+#endif
+
+#if defined (QUEX_OPTION_ASSERTS) 
+#   define __QUEX_IF_ASSERT(X)  X
+#else
+#   define __QUEX_IF_ASSERT(X)  /* Ignore */
+#endif
+
+#ifdef  QUEX_OPTION_INCLUDE_STACK
+#    define __QUEX_IF_INCLUDE_STACK(X) X
+#else
+#    define __QUEX_IF_INCLUDE_STACK(X) /* No operation */
+#endif
+
+/* If the user does not define a class declaration epilog, 
+ * define it as empty.                                                        */
+#ifndef     QUEX_SETTING_USER_CLASS_DECLARATION_EPILOG
+#    define QUEX_SETTING_USER_CLASS_DECLARATION_EPILOG
+#endif

@@ -1,0 +1,166 @@
+/* -*- C++ -*- vim: set syntax=cpp: 
+ *
+ * PURPOSE: 'self-ishnes' for TokenQueue operations:
+ *
+ * Implement macros to facilitate implementation of operations as re-action to
+ * mode-related events.
+ *
+ * REQUIRES: The macros only work in environments where:
+ * 
+ *      (i)  'self'              refers to the lexical analyzer object.
+ *      (ii) 'self._token_queue' refers to the TokenQueue object of
+ *                               the lexical analyzer.
+ *
+ * (C) 2005-2017 Frank-Rene Schaefer                                          */
+#include <quex/code_base/token/TokenQueue>
+#include <quex/code_base/lexeme>
+
+/* NO INCLUDE GUARDS -- THIS FILE MIGHT BE INCLUDED TWICE FOR MULTIPLE
+ *                      LEXICAL ANALYZERS
+ *
+ * NOT: #ifndef  __QUEX_INCLUDE_GUARD__TOKEN__TOKEN_POLICY
+ * NOT: #define  __QUEX_INCLUDE_GUARD__TOKEN__TOKEN_POLICY              
+ *
+ * Instead of an include guard, there is an include indicator 
+ *
+ *         __QUEX_INCLUDE_INDICATOR__TOKEN_POLICY__
+ *
+ * If the indicator is defined at the entry of this file, all internally 
+ * defined macros are undefined right at the beginning, so they can be 
+ * safely redefined.                                                         */
+#ifdef __QUEX_INCLUDE_INDICATOR__TOKEN_POLICY__
+#    undef self_write_token_p
+#    undef self_token_get_id
+#    undef self_token_set_id
+#    undef self_token_take_text
+#    undef self_token_repetition_n_set
+#    undef self_send
+#    undef self_send1
+#    undef self_send2
+#    undef self_send_n
+
+#    undef QUEX_TOKEN_QUEUE_PREPARE_NEXT
+#    undef QUEX_TOKEN_QUEUE_GET_CURRENT
+#    if 0
+#    undef QUEX_ACTION_TOKEN_STAMP
+#    undef QUEX_ACTION_TOKEN_STAMP_LINE_NUMBER
+#    undef QUEX_ACTION_TOKEN_STAMP_COLUMN_NUMBER
+#    endif
+#else
+#    define __QUEX_INCLUDE_INDICATOR__TOKEN_POLICY__
+#endif
+/*____________________________________________________________________________*/
+
+/* Token access. _______________________________________________________________
+ *
+ * Provide access to the currently to-be-sent token from the token queue.     */
+#define self_write_token_p()             (self._token_queue.write_iterator)
+
+/* Token content writing _______________________________________________________
+ *
+ * Setting 'id' and 'text' (most likely == lexeme) of the content.              
+ * The 'self_token_take_text' only works if the token class provides a corres-
+ * ponding member function. Quex generated token classes do so.               */
+#define self_token_get_id()                                  \
+        (self_write_token_p()->_id)
+
+#define self_token_set_id(ID)                                \
+        do {                                                 \
+            QUEX_ACTION_TOKEN_STAMP(self);                   \
+            self_write_token_p()->_id = (ID);                \
+        } while(0)
+
+#define self_token_take_text(Begin, End) \
+        QUEX_NAME_TOKEN(take_text)(self_write_token_p(), (Begin), (End))
+
+#if defined(QUEX_OPTION_TOKEN_REPETITION_SUPPORT)
+#  define self_token_repetition_n_set(N) \
+          QUEX_NAME_TOKEN(repetition_n_set)(self_write_token_p(), (N)) 
+#else 
+#  define self_token_repetition_n_set(N)                                                   \
+          do {                                                                             \
+              self.error_code = E_Error_TokenRepetitionNSetButNotSupportedByGeneratedCode; \
+              QUEX_NAME(TokenQueue_set_token_TERMINATION)(&self._token_queue);             \
+              RETURN;                                                                      \
+          } while(0)
+#endif
+
+/* Token sending. _____________________________________________________________
+ *
+ * Following macros assume the 'self' object being present and related to the
+ * lexical analyzer. They combine a sequence of commands for setting the token
+ * identifier and, optionally text, into a single command.
+ *
+ * Assertions ensure that at each token being send the state of the analyzer
+ * and its token queue is sane.                                               */
+#define self_send(ID)                                                    \
+        do {                                                             \
+            QUEX_ASSERT_TOKEN_QUEUE_BEFORE_SENDING(&self._token_queue);  \
+            self_token_set_id(ID);                                       \
+            QUEX_TOKEN_QUEUE_PREPARE_NEXT(self._token_queue);            \
+        } while ( 0 )
+
+#define self_send1(ID, Str)                                              \
+        self_send2((ID), (Str), (Str) + QUEX_NAME_TOKEN(lexeme_length)(Str)); 
+                                                                         
+#define self_send2(ID, StrBegin, StrEnd)                                 \
+        do {                                                             \
+            QUEX_ASSERT_TOKEN_QUEUE_BEFORE_SENDING(&self._token_queue);  \
+            self_token_set_id(ID);                                       \
+            self_token_take_text((StrBegin), (StrEnd));                  \
+            QUEX_TOKEN_QUEUE_PREPARE_NEXT(self._token_queue);            \
+        } while ( 0 )
+
+#if defined(QUEX_OPTION_TOKEN_REPETITION_SUPPORT)
+#  define self_send_n(RepetitionN, ID)                                   \
+        do {                                                             \
+             __quex_assert(RepetitionN != 0);                            \
+             __quex_assert(__QUEX_SETTING_TOKEN_ID_REPETITION_TEST(ID)); \
+             self_token_set_id(ID);                                      \
+             self_token_repetition_n_set(RepetitionN);                   \
+             QUEX_TOKEN_QUEUE_PREPARE_NEXT(self._token_queue);           \
+        } while ( 0 )
+
+#endif
+
+/* Token stamping. ____________________________________________________________
+ *
+ * This option enables the stamping of tokens at the time that they are sent
+ * with the current position of the lexeme in terms of line and column
+ * numbers. If line or column numbering is disabled than the stamping of the 
+ * corresponding value is disabled. 
+ *
+ * In the default token class the members '_line_n' and '_column_n' only 
+ * exist if the corresponding stamping is active.                             */
+#if    defined(QUEX_OPTION_TOKEN_STAMPING_WITH_LINE_AND_COLUMN) 
+#   if defined(QUEX_OPTION_COUNTER_LINE)
+#       define QUEX_ACTION_TOKEN_STAMP_LINE_NUMBER(ME) \
+               do { QUEX_TOKEN_QUEUE_GET_CURRENT((ME)._token_queue)->_line_n = (ME).counter._line_number_at_begin; } while(0)
+#   else
+#       define QUEX_ACTION_TOKEN_STAMP_LINE_NUMBER(ME)               /* empty */
+#   endif
+#   if defined(QUEX_OPTION_COUNTER_COLUMN)
+#       define QUEX_ACTION_TOKEN_STAMP_COLUMN_NUMBER(ME) \
+               do { QUEX_TOKEN_QUEUE_GET_CURRENT((ME)._token_queue)->_column_n = (ME).counter._column_number_at_begin; } while(0)  
+#   else
+#       define QUEX_ACTION_TOKEN_STAMP_COLUMN_NUMBER(ME)             /* empty */
+#   endif
+#else
+#       define QUEX_ACTION_TOKEN_STAMP_LINE_NUMBER(ME)               /* empty */
+#       define QUEX_ACTION_TOKEN_STAMP_COLUMN_NUMBER(ME)             /* empty */
+#endif
+
+/* We do not define QUEX_ACTION_TOKEN_STAMP in 'configuration/derived' since
+ * the derived configuration is included before the user's header.  The user's
+ * header requires the configuration parameters.                              */
+#if ! defined(QUEX_ACTION_TOKEN_STAMP) 
+#     define  QUEX_ACTION_TOKEN_STAMP(ME)   \
+              do {                                            \
+                  QUEX_ACTION_TOKEN_STAMP_LINE_NUMBER(ME);    \
+                  QUEX_ACTION_TOKEN_STAMP_COLUMN_NUMBER(ME);  \
+              } while(0)
+#endif
+
+#define QUEX_TOKEN_QUEUE_GET_CURRENT(ME)  ((ME).write_iterator != (ME).end ? (ME).write_iterator : (QUEX_TYPE_TOKEN*)0)
+#define QUEX_TOKEN_QUEUE_PREPARE_NEXT(ME) (++(ME).write_iterator) 
+

@@ -1,0 +1,26 @@
+#ifndef  __QUEX_INCLUDE_GUARD__BUFFER__BYTES__BYTE_LOADER_WSTREAM
+#define  __QUEX_INCLUDE_GUARD__BUFFER__BYTES__BYTE_LOADER_WSTREAM
+#if defined(__cplusplus) && defined(__QUEX_OPTION_WCHAR_T)
+
+#include <istream>
+#include <quex/code_base/buffer/bytes/ByteLoader>
+
+QUEX_NAMESPACE_MAIN_OPEN
+
+class QUEX_NAME(ByteLoader_wstream) { 
+public:
+    QUEX_NAME(ByteLoader)  base;
+    std::wistream*         input_handle;
+};
+
+QUEX_INLINE void
+QUEX_NAME(ByteLoader_wstream_construct)(QUEX_NAME(ByteLoader_wstream)* me, std::wistream* sh);
+QUEX_INLINE QUEX_NAME(ByteLoader)*
+QUEX_NAME(ByteLoader_wstream_new)(std::wistream* sh);
+QUEX_INLINE QUEX_NAME(ByteLoader)*    
+QUEX_NAME(ByteLoader_wstream_new_from_file_name)(const char* FileName);
+
+QUEX_NAMESPACE_MAIN_CLOSE
+
+#endif /* __cplusplus and wchar_t                                             */
+#endif /*  __QUEX_INCLUDE_GUARD__BUFFER__BYTES__BYTE_LOADER_WSTREAM           */

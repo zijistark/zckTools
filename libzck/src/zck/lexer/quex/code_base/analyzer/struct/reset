@@ -1,0 +1,52 @@
+/* -*- C++ -*- vim: set syntax=cpp:
+ *
+ * Important:
+ *                  RESET != DESTRUCTOR + CONSTRUCTOR
+ *
+ * because DESTRUCTOR and CONSTRUCTOR may involve resource de-allocation and
+ * resource re-allocation. Reset, instead may work on existing resources.
+ *
+ * (C) 2005-2017 Frank-Rene Schaefer
+ *
+ * ABSOLUTELY NO WARRANTY                                                    */
+#ifndef __QUEX_INCLUDE_GUARD__ANALYZER__STRUCT__RESET
+#define __QUEX_INCLUDE_GUARD__ANALYZER__STRUCT__RESET
+
+#include <quex/code_base/definitions>
+
+QUEX_NAMESPACE_MAIN_OPEN 
+
+/* The constructor 'core' function is implemented per analyzer.
+ * It's implementation happens inside the generated source file.             */
+
+/* Level (0) __________________________________________________________________
+ *                                                                           */
+QUEX_INLINE bool QUEX_NAME(reset)(QUEX_TYPE_ANALYZER* me);
+
+/* Level (1) __________________________________________________________________
+ *                                                                           */
+QUEX_INLINE bool QUEX_NAME(reset_file_name)(QUEX_TYPE_ANALYZER*   me,
+                                            const char*           Filename, 
+                                            QUEX_NAME(Converter)* converter);
+
+/* Level (3) __________________________________________________________________
+ *                                                                           */
+QUEX_INLINE bool QUEX_NAME(reset_ByteLoader)(QUEX_TYPE_ANALYZER*    me,
+                                             QUEX_NAME(ByteLoader)* byte_loader,
+                                             QUEX_NAME(Converter)*  converter);
+
+/* Level (5) __________________________________________________________________
+ *                                                                           */
+QUEX_INLINE bool QUEX_NAME(reset_memory)(QUEX_TYPE_ANALYZER* me,
+                                         QUEX_TYPE_LEXATOM*  BufferMemoryBegin, 
+                                         size_t              BufferMemorySize,
+                                         QUEX_TYPE_LEXATOM*  BufferEndOfFileP); 
+
+/* Basic constructions ________________________________________________________
+ *                                                                           */
+QUEX_INLINE bool QUEX_NAME(reset_all_but_buffer)(QUEX_TYPE_ANALYZER* me);
+extern      bool QUEX_NAME(user_reset)(QUEX_TYPE_ANALYZER* me);
+
+QUEX_NAMESPACE_MAIN_CLOSE
+
+#endif /* __QUEX_INCLUDE_GUARD__ANALYZER__STRUCT__RESET */

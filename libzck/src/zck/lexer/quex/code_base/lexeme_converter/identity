@@ -1,0 +1,49 @@
+/* vim: set filetype=cpp:  -*- C++ -*-
+ *
+ * Declaration of converter functions which implement pure identity operations
+ * for 'char', and 'wchar_t': 
+ *
+ *    QUEX_NAME(identical_string)(...)  for string and buffer 
+ *    QUEX_NAME(identical_wstring)(...) for string and buffer 
+ *
+ * They exist mainly so that generalized code can be written in a homogenous
+ * manner with the other converter functions. See 'token/CDefault.qx' for example.
+ *
+ * These functions ARE DEPENDENT on QUEX_TYPE_LEXATOM.
+ * => Thus, they are placed in the analyzer's namespace.
+ *
+ * (C) 2012 Frank-Rene Schaefer. 
+ *     ABSOLUTELY NO WARRANTY                                                */
+#ifndef __QUEX_INCLUDE_GUARD__LEXEME_CONVERTER__IDENTITY
+#define __QUEX_INCLUDE_GUARD__LEXEME_CONVERTER__IDENTITY
+
+#include <quex/code_base/lexeme_converter/common.h>
+
+QUEX_NAMESPACE_TOKEN_OPEN
+
+QUEX_INLINE void
+QUEX_CONVERTER_STRING_DEF(identical, char)(const QUEX_TYPE_LEXATOM**  source_pp, 
+                                           const QUEX_TYPE_LEXATOM*   SourceEnd, 
+                                           char**                       drain_pp,  
+                                           const char*                  DrainEnd);
+
+#if ! defined(__QUEX_OPTION_WCHAR_T_DISABLED)
+QUEX_INLINE void
+QUEX_CONVERTER_STRING_DEF(identical, wchar)(const QUEX_TYPE_LEXATOM**  source_pp, 
+                                            const QUEX_TYPE_LEXATOM*   SourceEnd, 
+                                            wchar_t**                    drain_pp,  
+                                            const wchar_t*               DrainEnd);
+#endif
+
+#if ! defined(__QUEX_OPTION_PLAIN_C)
+    QUEX_INLINE std::basic_string<char>
+    QUEX_CONVERTER_STRING_DEF(identical, char)(const std::basic_string<QUEX_TYPE_LEXATOM>& Source);
+#   if ! defined(__QUEX_OPTION_WCHAR_T_DISABLED)
+    QUEX_INLINE std::basic_string<wchar_t>
+    QUEX_CONVERTER_STRING_DEF(identical, wchar)(const std::basic_string<QUEX_TYPE_LEXATOM>& Source);
+#   endif
+#endif
+
+QUEX_NAMESPACE_TOKEN_CLOSE
+
+#endif /* __QUEX_INCLUDE_GUARD__LEXEME_CONVERTER__IDENTITY */

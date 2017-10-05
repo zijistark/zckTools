@@ -1,0 +1,110 @@
+/* -*- C++ -*-  vim:set syntax=cpp: 
+ *
+ * (C) 2004-2009 Frank-Rene Schaefer
+ *
+ * __QUEX_INCLUDE_GUARD__ANALYZER__ACCUMULATOR may be undefined in case
+ *    that multiple lexical analyzers are used. Then, the name of the
+ *    QUEX_NAME(Accumulator) must be different.                             */
+#ifndef __QUEX_INCLUDE_GUARD__EXTRA__ACCUMULATOR__ACCUMULATOR
+#define __QUEX_INCLUDE_GUARD__EXTRA__ACCUMULATOR__ACCUMULATOR
+
+
+#include <quex/code_base/definitions>
+
+QUEX_NAMESPACE_MAIN_OPEN
+
+#ifdef __QUEX_OPTION_PLAIN_C
+    QUEX_TYPE0_ANALYZER;   
+
+    typedef struct QUEX_SETTING_USER_CLASS_DECLARATION_EPILOG QUEX_NAME(Accumulator_tag) {
+        __QUEX_IF_COUNT_LINES(size_t    _begin_line;)
+        __QUEX_IF_COUNT_COLUMNS(size_t  _begin_column;)
+
+        struct { 
+            QUEX_TYPE_LEXATOM* begin;
+            QUEX_TYPE_LEXATOM* end;
+            QUEX_TYPE_LEXATOM* memory_end;
+        }                   text;
+        QUEX_TYPE_ANALYZER* the_lexer;     
+
+        void   (*destruct)(struct QUEX_NAME(Accumulator_tag)* me);
+        void   (*clear)(struct QUEX_NAME(Accumulator_tag)* me);
+        void   (*add)(struct QUEX_NAME(Accumulator_tag)*  me,
+                      const QUEX_TYPE_LEXATOM*            Begin, 
+                      const QUEX_TYPE_LEXATOM*            End);
+        void   (*add_character)(struct QUEX_NAME(Accumulator_tag)* me,
+                                const QUEX_TYPE_LEXATOM            Character);
+
+        bool   (*extend)(struct QUEX_NAME(Accumulator_tag)* me, 
+                         size_t                             MinAddSize);
+        bool   (*flush)(struct QUEX_NAME(Accumulator_tag)* me, 
+                        QUEX_TYPE_TOKEN_ID                 TokenID);
+        void   (*print_this)(struct QUEX_NAME(Accumulator_tag)* me);
+    } QUEX_NAME(Accumulator);
+
+#else
+    class QUEX_TYPE0_ANALYZER;
+
+    class QUEX_SETTING_USER_CLASS_DECLARATION_EPILOG QUEX_NAME(Accumulator) {
+    public:
+        __QUEX_IF_COUNT_LINES(size_t    _begin_line;)
+        __QUEX_IF_COUNT_COLUMNS(size_t  _begin_column;)
+
+        struct { 
+            QUEX_TYPE_LEXATOM* begin;
+            QUEX_TYPE_LEXATOM* end;
+            QUEX_TYPE_LEXATOM* memory_end;
+        }                   text;
+        QUEX_TYPE_ANALYZER* the_lexer;     
+
+        QUEX_NAME(Accumulator)();
+        ~QUEX_NAME(Accumulator)();
+
+        void   clear();
+        void   add(const QUEX_TYPE_LEXATOM* Begin, 
+                   const QUEX_TYPE_LEXATOM* End);
+        void   add_character(const QUEX_TYPE_LEXATOM Character);
+        bool   extend(size_t MinAddSize);
+        bool   flush(QUEX_TYPE_TOKEN_ID);
+        void   print_this();
+    };
+#endif
+
+QUEX_INLINE bool
+QUEX_NAME(Accumulator_construct)(QUEX_NAME(Accumulator)*, QUEX_TYPE_ANALYZER*);
+
+QUEX_INLINE void
+QUEX_NAME(Accumulator_destruct)(QUEX_NAME(Accumulator)* me);
+                      
+QUEX_INLINE void      
+QUEX_NAME(Accumulator__clear)(QUEX_NAME(Accumulator)* me);
+                      
+QUEX_INLINE void      
+QUEX_NAME(Accumulator__add)(QUEX_NAME(Accumulator)*  me,
+                            const QUEX_TYPE_LEXATOM* Begin, 
+                            const QUEX_TYPE_LEXATOM* End);
+                      
+QUEX_INLINE void      
+QUEX_NAME(Accumulator__add_character)(QUEX_NAME(Accumulator)*  me,
+                                      const QUEX_TYPE_LEXATOM  Character);
+
+QUEX_INLINE bool
+QUEX_NAME(Accumulator__flush)(QUEX_NAME(Accumulator)*   me,
+                              const QUEX_TYPE_TOKEN_ID  TokenID);
+                      
+QUEX_INLINE void
+QUEX_NAME(Accumulator_resources_absent_mark)(QUEX_NAME(Accumulator)* me);
+
+QUEX_INLINE bool
+QUEX_NAME(Accumulator_resources_absent)(QUEX_NAME(Accumulator)* me);
+
+QUEX_INLINE bool
+QUEX_NAME(Accumulator_init_memory)(QUEX_NAME(Accumulator)*   me);
+
+QUEX_INLINE void      
+QUEX_NAME(Accumulator_print_this)(QUEX_NAME(Accumulator)* me);
+                      
+
+QUEX_NAMESPACE_MAIN_CLOSE
+
+#endif /*  __QUEX_INCLUDE_GUARD__EXTRA__ACCUMULATOR__ACCUMULATOR */

@@ -1,0 +1,49 @@
+/* -*- C++ -*- vim: set syntax=cpp:
+ * (C) 2005-2016 Frank-Rene Schaefer
+ * ABSOLUTELY NO WARRANTY                                                    */
+#ifndef __QUEX_INCLUDE_GUARD__ANALYZER__MEMBER__MISC
+#define __QUEX_INCLUDE_GUARD__ANALYZER__MEMBER__MISC
+
+#include <quex/code_base/definitions>
+
+QUEX_NAMESPACE_MAIN_OPEN
+
+/* Callback on buffer content change --> user may safe its lexeme's away.    */
+QUEX_INLINE void        
+QUEX_NAME(set_callback_on_buffer_content_change)(QUEX_TYPE_ANALYZER*  me,
+                                                 void               (*callback)(const QUEX_TYPE_LEXATOM*, 
+                                                                                const QUEX_TYPE_LEXATOM*));
+QUEX_INLINE QUEX_TYPE_LEXATOM*  
+                        QUEX_NAME(lexeme_start_pointer_get)(QUEX_TYPE_ANALYZER*);
+
+QUEX_INLINE QUEX_TYPE_LEXATOM*
+                        QUEX_NAME(input_pointer_get)(QUEX_TYPE_ANALYZER*);
+QUEX_INLINE void        QUEX_NAME(input_pointer_set)(QUEX_TYPE_ANALYZER*, QUEX_TYPE_LEXATOM* Adr);
+
+/* Activate/deactivate byte order reversion (big-/little-endian) */
+QUEX_INLINE bool        QUEX_NAME(byte_order_reversion)(QUEX_TYPE_ANALYZER* me);
+QUEX_INLINE void        QUEX_NAME(byte_order_reversion_set)(QUEX_TYPE_ANALYZER* me,
+                                                            bool                Value);
+/* Version information */
+QUEX_INLINE const char* QUEX_NAME(version)(QUEX_TYPE_ANALYZER* me); 
+
+/* Token handling. */
+QUEX_INLINE QUEX_TYPE_TOKEN*  QUEX_NAME(token_p)(QUEX_TYPE_ANALYZER* me);
+
+QUEX_INLINE bool    QUEX_NAME(token_queue_is_empty)(QUEX_TYPE_ANALYZER* me);
+QUEX_INLINE void    QUEX_NAME(token_queue_remainder_get)(QUEX_TYPE_ANALYZER*  me,
+                                                         QUEX_TYPE_TOKEN**    begin, 
+                                                         QUEX_TYPE_TOKEN**    end);
+QUEX_INLINE void    QUEX_NAME(token_queue_swap)(QUEX_TYPE_ANALYZER*  me, 
+                                                  QUEX_TYPE_TOKEN**    memory, 
+                                                  size_t*              n);
+
+
+/* Print */
+QUEX_INLINE void    QUEX_NAME(print_this)(QUEX_TYPE_ANALYZER* me);
+extern      void    QUEX_NAME(user_print)(QUEX_TYPE_ANALYZER* me);
+
+QUEX_NAMESPACE_MAIN_CLOSE
+
+#endif /* __QUEX_INCLUDE_GUARD__ANALYZER__MEMBER__MISC */
+
