@@ -14,17 +14,17 @@ _ZCK_NAMESPACE_BEGIN;
 class AST {
 public:
     using namespace quex;
-    using child_vec_t = std::vector<AST*>;
+    using children_t = std::vector<AST*>;
 
     Token&       token()       noexcept { return _tok; }
     Token const& token() const noexcept { return _tok; }
 
-    child_vec_t&       children()       noexcept { return _children; }
-    child_vec_t const& children() const noexcept { return _children; }
+    children_t&       children()       noexcept { return _children; }
+    children_t const& children() const noexcept { return _children; }
 
 private:
     Token _tok;
-    child_vec_t _children;
+    children_t _children;
 };
 
 

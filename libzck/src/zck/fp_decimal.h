@@ -12,7 +12,7 @@
 
 #pragma once
 #include "common.h"
-#include "error_queue.h"
+#include "ErrorQueue.h"
 
 
 _ZCK_NAMESPACE_BEGIN;
@@ -41,7 +41,7 @@ public:
     static const int32_t invalid = INT32_MIN; // cannot be represented in any fp_decimal<D in 1..9>, so we'll use it as our NaN
 
 public:
-    fp_decimal(char* src, const floc&, error_queue&); // for construction while parsing
+    fp_decimal(char* src, const FLoc&, ErrorQueue&); // for construction while parsing
     fp_decimal(double f) : _m( f * scale + 0.5 )  {}
     fp_decimal(float f)  : _m( f * scale + 0.5f ) {}
     fp_decimal(int i)    : _m( i * scale ) {}
@@ -103,7 +103,7 @@ _ZCK_NAMESPACE_BEGIN;
  * DECIMAL: -?[0-9]+\.[0-9]*
  */
 template<uint D>
-fp_decimal<D>::fp_decimal(char* src, const floc& loc, error_queue& errors) {
+fp_decimal<D>::fp_decimal(char* src, const FLoc& loc, ErrorQueue& errors) {
 
     bool is_negative = false;
     const char* s_i = src;
@@ -142,7 +142,7 @@ fp_decimal<D>::fp_decimal(char* src, const floc& loc, error_queue& errors) {
                         s_i, integral_min+0, integral_max+0); // [1]
 
         /* [1] the weird +0 syntax was required due to weirdness w/ compile-time constants that end-up being optimized out
-         * of the object code and the way std::forward works for error_queue::enqueue. without converting them to temporaries,
+         * of the object code and the way std::forward works for ErrorQueue::enqueue. without converting them to temporaries,
          * std::forward seems to prefer directly referencing them, which is a no-no at link time since they'll be gone. */
     }
 
@@ -163,7 +163,7 @@ fp_decimal<D>::fp_decimal(char* src, const floc& loc, error_queue& errors) {
         if (*p) {
             /* assuming *p is a digit (guaranteed by DECIMAL token), then:
              * data truncation due to insufficient fractional digits in representation */
-            errors.push(error::priority::WARNING, loc,
+            errors.push(Error::priority::WARNING, loc,
                         "Fractional value too big in decimal number (%s) -- supported range: [0, %d]; value truncated",
                         s_f, scale - 1);
         }

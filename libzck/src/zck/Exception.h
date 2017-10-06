@@ -3,7 +3,7 @@
 #pragma once
 
 #include "common.h"
-#include "file_location.h"
+#include "FileLocation.h"
 
 #include <exception>
 #include <stdexcept>
@@ -15,13 +15,13 @@
 _ZCK_NAMESPACE_BEGIN;
 
 
-class va_error : public std::exception {
+class VException : public std::exception {
     char msg[1024];
 
 public:
-    va_error() = delete;
+    VException() = delete;
 
-    explicit va_error(const char* format, ...) {
+    explicit VException(const char* format, ...) {
         va_list vl;
         va_start(vl, format);
         vsnprintf(&msg[0], sizeof(msg), format, vl);
@@ -32,20 +32,20 @@ public:
         return msg;
     }
 
-    ~va_error() noexcept {}
+    ~VException() noexcept {}
 };
 
 
-class parse_error : public std::exception {};
+class ParseException : public std::exception {};
 
 
-class va_parse_error : public parse_error {
+class VParseException : public ParseException {
     char msg[1024];
 
 public:
-    va_parse_error() = delete;
+    VParseException() = delete;
 
-    explicit va_parse_error(const floc& fl, const char* format, ...) {
+    explicit VParseException(const FLoc& fl, const char* format, ...) {
         auto buf_sz_left = sizeof(msg);
         va_list vl;
         va_start(vl, format);
@@ -62,9 +62,8 @@ public:
         return msg;
     }
 
-    ~va_parse_error() noexcept {}
+    ~VParseException() noexcept {}
 };
-
 
 
 _ZCK_NAMESPACE_END;
