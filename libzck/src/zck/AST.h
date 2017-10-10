@@ -3,12 +3,10 @@
 #pragma once
 
 #include "common.h"
+#include <vector>
 
 
 _ZCK_NAMESPACE_BEGIN;
-
-
-#include <vector>
 
 
 class AST {

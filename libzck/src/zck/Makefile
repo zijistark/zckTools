@@ -40,7 +40,7 @@ test_lexer.o: test_lexer.cpp lexer/Lexer.cpp
 	$(CC) $< -o $@ 
 
 lexer/Lexer.cpp: zck.qx 
-	quex -i zck.qx -o Lexer --token-id-prefix TK_ --encoding cp1252 -b 1 --source-package lexer
+	quex -i zck.qx -o Lexer --sma --token-id-prefix TK_ --encoding cp1252 --sp lexer
 
 # Macro expansions (only for debugging):
 %.E: %.cpp    

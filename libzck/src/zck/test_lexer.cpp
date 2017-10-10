@@ -25,14 +25,17 @@ main(int argc, char** argv) {
             cout << "'";
 
         switch (token_p->type_id()) {
-            case TK_OP_DEQ:      cout << "=="; break;
-            case TK_OP_EQ:       cout << "=";  break;
-            case TK_OP_LTEQ:     cout << "<="; break;
-            case TK_OP_LT:       cout << "<";  break;
-            case TK_OP_GTEQ:     cout << ">="; break;
-            case TK_OP_GT:       cout << ">";  break;
-            case TK_OPEN_BRACE:  cout << "{";  break;
-            case TK_CLOSE_BRACE: cout << "}";  break;
+            case TK_OP_DEQ:      cout << "==";     break;
+            case TK_OP_EQ:       cout << "=";      break;
+            case TK_OP_LTEQ:     cout << "<=";     break;
+            case TK_OP_LT:       cout << "<";      break;
+            case TK_OP_GTEQ:     cout << ">=";     break;
+            case TK_OP_GT:       cout << ">";      break;
+            case TK_OPEN_BRACE:  cout << "{";      break;
+            case TK_CLOSE_BRACE: cout << "}";      break;
+            case TK_KW_MODULE:   cout << "module"; break;
+            case TK_KW_BEGIN:    cout << "begin";  break;
+            case TK_KW_END:      cout << "end";    break;
 
             case TK_FAILURE:
             case TK_DECIMAL:
@@ -47,13 +50,6 @@ main(int argc, char** argv) {
             case TK_INTEGER:    cout << token_p->number; break;
             case TK_CHAR_SCOPE: cout << "c_" << token_p->number; break;
 
-            case TK_KW_THIS: cout << "THIS"; break;
-            case TK_KW_ROOT: cout << "ROOT"; break;
-            case TK_KW_PREV: for (size_t i = 0; i < token_p->number; ++i) cout << "PREV"; break;
-            case TK_KW_FROM: for (size_t i = 0; i < token_p->number; ++i) cout << "FROM"; break;
-            case TK_KW_ROOTFROM:
-                cout << "ROOT_"; for (size_t i = 0; i < token_p->number; ++i) cout << "FROM";
-                break;
 
             default: break;
         }

@@ -7,33 +7,33 @@ header {
 }
 
 token {
-  STRING      = 0b0000.0000.1000.0000;
-  QSTRING     = 0b0000.0000.1000.0001;
-  INTEGER     = 0b0000.0000.1000.0010;
-  DECIMAL     = 0b0000.0000.1000.0011;
-  DATE        = 0b0000.0000.1000.0100;
-  QDATE       = 0b0000.0000.1000.0101;
-  TITLE_ID    = 0b0000.0000.1000.0110;
-  CHAR_SCOPE  = 0b0000.0000.1000.0111;
-  OP_EQ       = 0b0000.0000.0001.0000;
-  OP_DEQ      = 0b0000.0000.0001.1000;
-  OP_LT       = 0b0000.0000.0001.1001;
-  OP_LTEQ     = 0b0000.0000.0001.1010;
-  OP_GT       = 0b0000.0000.0001.1011;
-  OP_GTEQ     = 0b0000.0000.0001.1100;
-  OPEN_BRACE  = 0b0000.0001.0000.0000;
-  CLOSE_BRACE = 0b0000.0001.0000.0001;
-  KW_THIS     = 0b0000.0001.0000.0010;
-  KW_ROOT     = 0b0000.0001.0000.0011;
-  KW_FROM     = 0b0000.0001.0000.0100;
-  KW_ROOTFROM = 0b0000.0001.0000.0101;
-  KW_PREV     = 0b0000.0001.0000.0110;
+  STRING                       = 0b0000.1000.0000.0000;
+  QSTRING                      = 0b0000.1000.0000.0001;
+  INTEGER                      = 0b0000.1000.0000.0010;
+  DECIMAL                      = 0b0000.1000.0000.0011;
+  DATE                         = 0b0000.1000.0000.0100;
+  QDATE                        = 0b0000.1000.0000.0101;
+  TITLE_ID                     = 0b0000.1000.0000.0110;
+  CHAR_SCOPE                   = 0b0000.1000.0000.0111;
+  KW_MODULE                    = 0b0000.1000.0000.1000;
+  KW_BEGIN                     = 0b0000.1000.0000.1001;
+  KW_END                       = 0b0000.1000.0000.1010;
+
+  OP_EQ        = 0b0000.0100.0000.0000;
+  OP_DEQ       = 0b0000.0100.0000.1000;
+  OP_LT        = 0b0000.0100.0000.1001;
+  OP_LTEQ      = 0b0000.0100.0000.1010;
+  OP_GT        = 0b0000.0100.0000.1011;
+  OP_GTEQ      = 0b0000.0100.0000.1100;
+  OPEN_BRACE   = 0b0000.0001.0000.0000;
+  CLOSE_BRACE  = 0b0000.0001.0000.0001;
 
   /* ABSTRACT SYNTAX TREE PSEUDO-TOKENS (do not occur in input, but are used for identifying certain AST elements) */
-  BLOCK       = 0b1000.0000.0000.0000;
-  LIST        = 0b1000.0000.0000.0001;
+  STMT_LIST   = 0b1000.0000.0000.0000;
+  VALUE_LIST  = 0b1000.0000.0000.0001;
+  EMPTY_LIST  = 0b1000.0000.0000.0010;
 
-  /* INCIDENCES TOKENS */
+  /* INCIDENCE TOKENS */
   TERMINATION   = 0x00;
   UNINITIALIZED = 0x01;
   FAILURE       = 0x02;
@@ -43,57 +43,45 @@ token {
 }
 
 define {
-  WHITESPACE    [ \t\r\n]+
-  DATE          -?[1-9][0-9]{0,3}\.-?[0-9]{1,2}\.-?[0-9]{1,2}
-  SIGN          (\-|\+)?
-  DECIMAL       {SIGN}[0-9]*\.[0-9]+
-  QSTRING       "\""[^"\r\n]*"\""
-  THIS          "THIS"|"this"
-  ROOT          "ROOT"|"root"
-  FROM          "FROM"|"from"
-  PREV          "PREV"|"prev"
-  CHAR_ID       c_[0-9]+
-  TITLE_ID      [bcdek]_[a-zA-Z][a-zA-Z0-9_\-]+
-  STRING        [^ \t\r\n<=>\{\}#\"]+
+  DATE                        -?[1-9][0-9]{0,3}\.-?[0-9]{1,2}\.-?[0-9]{1,2}
+  SIGN                        (\-|\+)?
+  DECIMAL                     {SIGN}[0-9]*\.[0-9]+
+  QSTRING                     "\""[^"\r\n]*"\""
+  CHAR_ID                     c_[0-9]+
+  TITLE_ID                    [bcdek]_[a-zA-Z][a-zA-Z0-9_\-]+
+  STRING                      [^ \t\r\n<=>\{\}#\"]+
+  MODULE                      MODULE|module
+  UNDERSCORES                 _*
+  BEGIN                       _*(BEGIN|begin):?
+  END                         _*(END|end):?
 }
 
 
-mode MAIN
+mode MAIN :
+<skip:       [ \t\r\n]>
+<skip_range: "#"  "\n">
 {
-  <<EOF>>               => TK_TERMINATION;
-  <<FAIL>>              => TK_FAILURE(Lexeme);
-  {WHITESPACE}          { }
-  #[^\n]*               { }
-  "=="                  => TK_OP_DEQ;
-  "="                   => TK_OP_EQ;
-  "<="                  => TK_OP_LTEQ;
-  "<"                   => TK_OP_LT;
-  ">="                  => TK_OP_GTEQ;
-  ">"                   => TK_OP_GT;
-  "{"                   => TK_OPEN_BRACE;
-  "}"                   => TK_CLOSE_BRACE;
-  {SIGN}[0-9]+          => TK_INTEGER(number=(size_t)atoi( (char*)Lexeme ));
-  {DECIMAL}             => TK_DECIMAL(Lexeme);
-  {DATE}                => TK_DATE(Lexeme);
-  "\""{DATE}"\""        => TK_QDATE(LexemeBegin+1, LexemeEnd-1);
-  {QSTRING}             => TK_QSTRING(LexemeBegin+1, LexemeEnd-1);
-  {THIS}                => TK_KW_THIS;
-  {ROOT}                => TK_KW_ROOT;
-  {PREV}                => TK_KW_PREV(number=1);
-  {PREV}{2}             => TK_KW_PREV(number=2);
-  {PREV}{3}             => TK_KW_PREV(number=3);
-  {PREV}{4}             => TK_KW_PREV(number=4);
-  {FROM}                => TK_KW_FROM(number=1);
-  {FROM}{2}             => TK_KW_FROM(number=2);
-  {FROM}{3}             => TK_KW_FROM(number=3);
-  {FROM}{4}             => TK_KW_FROM(number=4);
-  {ROOT}_{FROM}         => TK_KW_ROOTFROM(number=1);
-  {ROOT}_{FROM}{2}      => TK_KW_ROOTFROM(number=2);
-  {ROOT}_{FROM}{3}      => TK_KW_ROOTFROM(number=3);
-  {ROOT}_{FROM}{4}      => TK_KW_ROOTFROM(number=4);
-  {CHAR_ID}             => TK_CHAR_SCOPE(number=(size_t)atoi( (char*)LexemeBegin + 2 ));
-  {TITLE_ID}            => TK_TITLE_ID(Lexeme);
-  {STRING}              => TK_STRING(Lexeme);
+  <<EOF>>                     => TK_TERMINATION;
+  <<FAIL>>                    => TK_FAILURE(Lexeme);
+  "=="                        => TK_OP_DEQ;
+  "="                         => TK_OP_EQ;
+  "<="                        => TK_OP_LTEQ;
+  "<"                         => TK_OP_LT;
+  ">="                        => TK_OP_GTEQ;
+  ">"                         => TK_OP_GT;
+  "{"                         => TK_OPEN_BRACE;
+  "}"                         => TK_CLOSE_BRACE;
+  {SIGN}[0-9]+                => TK_INTEGER(number=(size_t)atoi( (char*)Lexeme ));
+  {DECIMAL}                   => TK_DECIMAL(Lexeme);
+  {DATE}                      => TK_DATE(Lexeme);
+  "\""{DATE}"\""              => TK_QDATE(LexemeBegin+1, LexemeEnd-1);
+  {MODULE}                    => TK_KW_MODULE;
+  ^{BEGIN}                    => TK_KW_BEGIN;
+  ^{END}                      => TK_KW_END;
+  {QSTRING}                   => TK_QSTRING(LexemeBegin+1, LexemeEnd-1);
+  {CHAR_ID}                   => TK_CHAR_SCOPE(number=(size_t)atoi( (char*)LexemeBegin + 2 ));
+  {TITLE_ID}                  => TK_TITLE_ID(Lexeme);
+  {STRING}                    => TK_STRING(Lexeme);
 }
 
 

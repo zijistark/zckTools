@@ -3,13 +3,12 @@
 #pragma once
 
 #include "common.h"
-
+#include <vector>
+#include <string>
 
 _ZCK_NAMESPACE_BEGIN;
 
 #include "ErrorQueue.h"
-#include <vector>
-#include <string>
 
 
 class AST;

@@ -1,14 +1,10 @@
 // -*- c++ -*-
 
-#ifndef _zck_COMMON_H_
-#define _zck_COMMON_H_
+#ifndef _ZCK_COMMON_H_
+#define _ZCK_COMMON_H_
 
 #define _ZCK_NAMESPACE_BEGIN namespace zck {
 #define _ZCK_NAMESPACE_END }
-
-
-_ZCK_NAMESPACE_BEGIN;
-
 
 #include <cstdint>
 #include <cassert>
@@ -16,9 +12,12 @@ _ZCK_NAMESPACE_BEGIN;
 #include <ostream>
 #include <memory>
 
-using uptr = std::unique_ptr;
 
-typedef unsigned int uint;
+_ZCK_NAMESPACE_BEGIN;
+
+
+using uptr = std::unique_ptr;
+using uint = unsigned int;
 
 #ifndef SIZE_MAX
 #define SIZE_MAX (~(size_t)0)

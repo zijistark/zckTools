@@ -438,19 +438,16 @@ QUEX_NAME_TOKEN(map_id_to_name)(const QUEX_TYPE_TOKEN_ID TokenID)
    case TK_DEDENT:         return "<DEDENT>";
    case TK_NODENT:         return "<NODENT>";
 #  endif
-   case TK_BLOCK:         return "BLOCK";
    case TK_CHAR_SCOPE:    return "CHAR_SCOPE";
    case TK_CLOSE_BRACE:   return "CLOSE_BRACE";
    case TK_DATE:          return "DATE";
    case TK_DECIMAL:       return "DECIMAL";
+   case TK_EMPTY_LIST:    return "EMPTY_LIST";
    case TK_FAILURE:       return "FAILURE";
    case TK_INTEGER:       return "INTEGER";
-   case TK_KW_FROM:       return "KW_FROM";
-   case TK_KW_PREV:       return "KW_PREV";
-   case TK_KW_ROOT:       return "KW_ROOT";
-   case TK_KW_ROOTFROM:   return "KW_ROOTFROM";
-   case TK_KW_THIS:       return "KW_THIS";
-   case TK_LIST:          return "LIST";
+   case TK_KW_BEGIN:      return "KW_BEGIN";
+   case TK_KW_END:        return "KW_END";
+   case TK_KW_MODULE:     return "KW_MODULE";
    case TK_OPEN_BRACE:    return "OPEN_BRACE";
    case TK_OP_DEQ:        return "OP_DEQ";
    case TK_OP_EQ:         return "OP_EQ";
@@ -460,8 +457,10 @@ QUEX_NAME_TOKEN(map_id_to_name)(const QUEX_TYPE_TOKEN_ID TokenID)
    case TK_OP_LTEQ:       return "OP_LTEQ";
    case TK_QDATE:         return "QDATE";
    case TK_QSTRING:       return "QSTRING";
+   case TK_STMT_LIST:     return "STMT_LIST";
    case TK_STRING:        return "STRING";
    case TK_TITLE_ID:      return "TITLE_ID";
+   case TK_VALUE_LIST:    return "VALUE_LIST";
 
 
    }

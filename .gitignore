@@ -1,6 +1,8 @@
 # Sublime Text 3 workspace
 *.sublime-workspace
 
+.sconsign.dblite
+
 # Prerequisites
 *.d
 
