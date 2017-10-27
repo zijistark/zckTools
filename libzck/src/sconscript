@@ -9,5 +9,5 @@ sources = Glob('zck/*.cc')
 sources.append('zck/lexer/Lexer.cpp')
 env.Command("zck/lexer/Lexer.cpp", "", "cd zck && make lexer/Lexer.cpp")
 env.StaticLibrary('zck', sources)
-env.Program('ast', sources + ['ast.cc'])
+env.Program('ast2dot', sources + ['ast2dot.cc'])
 

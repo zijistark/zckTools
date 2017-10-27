@@ -431,36 +431,33 @@ QUEX_NAME_TOKEN(map_id_to_name)(const QUEX_TYPE_TOKEN_ID TokenID)
        return error_string;
    }
 
-   case TK_TERMINATION:    return "<TERMINATION>";
-   case TK_UNINITIALIZED:  return "<UNINITIALIZED>";
+   case T_TERMINATION:    return "<TERMINATION>";
+   case T_UNINITIALIZED:  return "<UNINITIALIZED>";
 #  if defined(QUEX_OPTION_INDENTATION_TRIGGER)
-   case TK_INDENT:         return "<INDENT>";
-   case TK_DEDENT:         return "<DEDENT>";
-   case TK_NODENT:         return "<NODENT>";
+   case T_INDENT:         return "<INDENT>";
+   case T_DEDENT:         return "<DEDENT>";
+   case T_NODENT:         return "<NODENT>";
 #  endif
-   case TK_CHAR_SCOPE:    return "CHAR_SCOPE";
-   case TK_CLOSE_BRACE:   return "CLOSE_BRACE";
-   case TK_DATE:          return "DATE";
-   case TK_DECIMAL:       return "DECIMAL";
-   case TK_EMPTY_LIST:    return "EMPTY_LIST";
-   case TK_FAILURE:       return "FAILURE";
-   case TK_INTEGER:       return "INTEGER";
-   case TK_KW_BEGIN:      return "KW_BEGIN";
-   case TK_KW_END:        return "KW_END";
-   case TK_KW_MODULE:     return "KW_MODULE";
-   case TK_OPEN_BRACE:    return "OPEN_BRACE";
-   case TK_OP_DEQ:        return "OP_DEQ";
-   case TK_OP_EQ:         return "OP_EQ";
-   case TK_OP_GT:         return "OP_GT";
-   case TK_OP_GTEQ:       return "OP_GTEQ";
-   case TK_OP_LT:         return "OP_LT";
-   case TK_OP_LTEQ:       return "OP_LTEQ";
-   case TK_QDATE:         return "QDATE";
-   case TK_QSTRING:       return "QSTRING";
-   case TK_STMT_LIST:     return "STMT_LIST";
-   case TK_STRING:        return "STRING";
-   case TK_TITLE_ID:      return "TITLE_ID";
-   case TK_VALUE_LIST:    return "VALUE_LIST";
+   case T_CHAR_SCOPE:    return "CHAR_SCOPE";
+   case T_CLOSE_BRACE:   return "CLOSE_BRACE";
+   case T_DATE:          return "DATE";
+   case T_DECIMAL:       return "DECIMAL";
+   case T_EMPTY_LIST:    return "EMPTY_LIST";
+   case T_FAILURE:       return "FAILURE";
+   case T_INTEGER:       return "INTEGER";
+   case T_OPEN_BRACE:    return "OPEN_BRACE";
+   case T_OP_DEQ:        return "OP_DEQ";
+   case T_OP_EQ:         return "OP_EQ";
+   case T_OP_GT:         return "OP_GT";
+   case T_OP_GTEQ:       return "OP_GTEQ";
+   case T_OP_LT:         return "OP_LT";
+   case T_OP_LTEQ:       return "OP_LTEQ";
+   case T_QDATE:         return "QDATE";
+   case T_QSTRING:       return "QSTRING";
+   case T_STMT_LIST:     return "STMT_LIST";
+   case T_STRING:        return "STRING";
+   case T_TITLE_ID:      return "TITLE_ID";
+   case T_VALUE_LIST:    return "VALUE_LIST";
 
 
    }

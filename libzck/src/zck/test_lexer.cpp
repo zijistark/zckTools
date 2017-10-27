@@ -21,47 +21,44 @@ main(int argc, char** argv) {
 
         cout << "| " << token_p->type_id_name() << " ";
 
-        if (token_p->type_id() != TK_TERMINATION)
+        if (token_p->type_id() != T_TERMINATION)
             cout << "'";
 
         switch (token_p->type_id()) {
-            case TK_OP_DEQ:      cout << "==";     break;
-            case TK_OP_EQ:       cout << "=";      break;
-            case TK_OP_LTEQ:     cout << "<=";     break;
-            case TK_OP_LT:       cout << "<";      break;
-            case TK_OP_GTEQ:     cout << ">=";     break;
-            case TK_OP_GT:       cout << ">";      break;
-            case TK_OPEN_BRACE:  cout << "{";      break;
-            case TK_CLOSE_BRACE: cout << "}";      break;
-            case TK_KW_MODULE:   cout << "module"; break;
-            case TK_KW_BEGIN:    cout << "begin";  break;
-            case TK_KW_END:      cout << "end";    break;
+            case T_OP_DEQ:      cout << "==";     break;
+            case T_OP_EQ:       cout << "=";      break;
+            case T_OP_LTEQ:     cout << "<=";     break;
+            case T_OP_LT:       cout << "<";      break;
+            case T_OP_GTEQ:     cout << ">=";     break;
+            case T_OP_GT:       cout << ">";      break;
+            case T_OPEN_BRACE:  cout << "{";      break;
+            case T_CLOSE_BRACE: cout << "}";      break;
 
-            case TK_FAILURE:
-            case TK_DECIMAL:
-            case TK_DATE:
-            case TK_QDATE:
-            case TK_QSTRING:
-            case TK_TITLE_ID:
-            case TK_STRING:
+            case T_FAILURE:
+            case T_DECIMAL:
+            case T_DATE:
+            case T_QDATE:
+            case T_QSTRING:
+            case T_TITLE_ID:
+            case T_STRING:
                 cout << token_p->text;
                 break;
 
-            case TK_INTEGER:    cout << token_p->number; break;
-            case TK_CHAR_SCOPE: cout << "c_" << token_p->number; break;
+            case T_INTEGER:    cout << token_p->number; break;
+            case T_CHAR_SCOPE: cout << "c_" << token_p->number; break;
 
 
             default: break;
         }
 
-        if (token_p->type_id() != TK_TERMINATION)
+        if (token_p->type_id() != T_TERMINATION)
             cout << "'";
 
         cout << endl;
         ++number_of_tokens;
 
-        if (token_p->type_id() == TK_TERMINATION) break;
-        if (token_p->type_id() == TK_FAILURE) break;
+        if (token_p->type_id() == T_TERMINATION) break;
+        if (token_p->type_id() == T_FAILURE) break;
     }
 
     cout << "| [END] number of tokens = " << number_of_tokens << "\n";

@@ -4,6 +4,7 @@
 
 #include "common.h"
 #include <vector>
+#include <Lexer-token>
 
 
 _ZCK_NAMESPACE_BEGIN;

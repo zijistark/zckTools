@@ -1,15 +1,17 @@
 
-/* VAL == STRING|QSTRING|INTEGER|DECIMAL|DATE|QDATE|TITLE_ID|CHAR_SCOPE|KW_* */
+/* VAL: STRING|QSTRING|INTEGER|DECIMAL|DATE|QDATE|TITLE_ID|CHAR_SCOPE (bit 12 in token type)
+ * OP:  yeah, you can guess, k. (bit 11 in token type)
+ */
 
-Start     : Stmt*
-Stmt      : VAL OP StmtRHS                   // LA: {VAL}
-StmtRHS   : VAL                              // LA: {VAL}
-          | OPEN_BRACE ListOpen              // LA: {OPEN_BRACE}
-          ;                                  // LA: {VAL, OPEN_BRACE}
-ListOpen  : CLOSE_BRACE                      // LA: {CLOSE_BRACE}
-          | VAL ListEnd                      // LA: {VAL}
-          | OPEN_BRACE ListOpen              // LA: {OPEN_BRACE}
-          ;                                  // LA: {OPEN_BRACE, CLOSE_BRACE, VAL}
-ListEnd   : OP StmtRHS Stmt* CLOSE_BRACE     // LA: {OP}
-          | VAL* CLOSE_BRACE                 // LA: {VAL, CLOSE_BRACE}
-          ;                                  // LA: {OP, VAL, CLOSE_BRACE}
+Start     → Stmt*                           ;        // FOLLOW: {VAL}
+Stmt      → VAL OP StmtRHS                  ;        // FOLLOW: {VAL}
+StmtRHS   → VAL                                      // FOLLOW: {VAL}
+          | OPEN_BRACE ListOpen                      // FOLLOW: {OPEN_BRACE}
+          ;                                          // FOLLOW: {VAL, OPEN_BRACE}
+ListOpen  → CLOSE_BRACE                              // FOLLOW: {CLOSE_BRACE}
+          | VAL ListEnd                              // FOLLOW: {VAL}
+          | OPEN_BRACE ListOpen                      // FOLLOW: {OPEN_BRACE}
+          ;                                          // FOLLOW: {OPEN_BRACE, CLOSE_BRACE, VAL}
+ListEnd   → OP StmtRHS Stmt* CLOSE_BRACE             // FOLLOW: {OP}
+          | VAL* CLOSE_BRACE                         // FOLLOW: {VAL, CLOSE_BRACE}
+          ;                                          // FOLLOW: {OP, VAL, CLOSE_BRACE}

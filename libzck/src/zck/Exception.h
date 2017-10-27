@@ -55,7 +55,7 @@ public:
         assert(len >= 0);
         buf_sz_left -= len;
 
-        snprintf(&msg[len], buf_sz_left, " in '%s' at line %u", fl.pathname(), fl.line());
+        snprintf(&msg[len], buf_sz_left, " in '%s' at line %lu, column %lu", fl.pathname(), fl.line(), fl.column());
     }
 
     const char* what() const noexcept {

@@ -20,12 +20,14 @@ endif
 #      e.g. "make COMPILER=icpc" will use intel's c++ compiler)
 COMPILER = g++ -ggdb -Wconversion -Wall -Werror -W --std=c++17
 
-CC = $(COMPILER) -c -I./ -I./lexer/ $(CCFLAG_ASSERTS) 
+QUEX_DEFINES = $(CCFLAG_ASSERTS) -DQUEX_OPTION_ASSERTS_WARNING_MESSAGE_DISABLED
 # Other useful options for debugging:
 # -DQUEX_OPTION_ASSERTS_DISABLED
 # -DQUEX_OPTION_ASSERTS_WARNING_MESSAGE_DISABLED 
 # -DQUEX_OPTION_DEBUG_SHOW
-   
+
+CC = $(COMPILER) -c -I./ -I./lexer/ $(QUEX_DEFINES)
+
 LD = $(COMPILER) 
 
 # (*) RULES ____________________________________________________________________
@@ -40,10 +42,10 @@ test_lexer.o: test_lexer.cpp lexer/Lexer.cpp
 	$(CC) $< -o $@ 
 
 lexer/Lexer.cpp: zck.qx 
-	quex -i zck.qx -o Lexer --sma --token-id-prefix TK_ --encoding cp1252 --sp lexer
+	quex -i zck.qx -o Lexer --sma --token-id-prefix T_ --encoding cp1252 --sp lexer
 
 # Macro expansions (only for debugging):
-%.E: %.cpp    
+lexer/%.E: lexer/%.cpp    
 	$(CC) -E $< -o $@ 
 
 clean:	
