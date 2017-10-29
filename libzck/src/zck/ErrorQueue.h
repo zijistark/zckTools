@@ -15,7 +15,7 @@ _ZCK_NAMESPACE_BEGIN;
 
 struct Error {
     /* will want to add more useful fields to this in the future than just an opaque character msg */
-    enum priority : uint { NORMAL = 0, WARNING } _prio;
+    enum priority { NORMAL, WARNING } _prio;
     FLoc _location;
     char _msg[256]; // probably want this dynamically-allocated w/ move-semantics but ehhh
 

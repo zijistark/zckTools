@@ -457,7 +457,7 @@ QUEX_NAME_TOKEN(map_id_to_name)(const QUEX_TYPE_TOKEN_ID TokenID)
    case T_STMT_LIST:     return "STMT_LIST";
    case T_STRING:        return "STRING";
    case T_TITLE_ID:      return "TITLE_ID";
-   case T_VALUE_LIST:    return "VALUE_LIST";
+   case T_VAL_LIST:      return "VAL_LIST";
 
 
    }

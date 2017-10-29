@@ -7,10 +7,11 @@ header {
 }
 
 token {
-  /* bit 16 indicates an AST meta-token type
+  /* 
    * bit 12 indicates a scalar value ("VAL" in grammar)
    * bit 11 indicates an operator ("OP" in grammar)
-   * bit 9 indicates that the token is punctuation or similar, ergo has no value associated with it
+   * bit 10 indicates an AST meta-token type
+   * bit 9 indicates that the token has no value associated with it (usually punctuation tokens)
    *
    * note that the currently-used token ID type is 32-bit, so we've got a lot of room for such bitplay.
    */
@@ -33,10 +34,10 @@ token {
   OPEN_BRACE  = 0b0000.0001.0000.0000;
   CLOSE_BRACE = 0b0000.0001.0000.0001;
 
-  /* AST PSEUDO-TOKENS (do not occur in input, but are used for identifying certain AST elements) */
-  STMT_LIST   = 0b1000.0001.0000.0000;
-  VALUE_LIST  = 0b1000.0001.0000.0001;
-  EMPTY_LIST  = 0b1000.0001.0000.0010;
+  /* AST META-TOKENS (do not occur in input, but are used for identifying certain AST elements) */
+  STMT_LIST   = 0b0000.0011.0000.0000;
+  VAL_LIST    = 0b0000.0011.0000.0001;
+  EMPTY_LIST  = 0b0000.0011.0000.0010;
 
   /* INCIDENCE TOKENS */
   TERMINATION   = 0x00;

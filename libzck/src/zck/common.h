@@ -14,6 +14,10 @@
 #define _ZCK_NAMESPACE_BEGIN namespace zck {
 #define _ZCK_NAMESPACE_END }
 
+#ifndef SIZE_MAX
+#define SIZE_MAX (~(size_t)0)
+#endif
+
 
 _ZCK_NAMESPACE_BEGIN;
 
@@ -21,9 +25,6 @@ _ZCK_NAMESPACE_BEGIN;
 using uptr = std::unique_ptr;
 typedef unsigned int uint; // would be 'using' but this is usually already a typedef
 
-#ifndef SIZE_MAX
-#define SIZE_MAX (~(size_t)0)
-#endif
 
 /* mdh_strncpy
  *
