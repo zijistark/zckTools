@@ -147,8 +147,8 @@ protected:
     void rule_ListEnd(AST* pRoot, size_t nStartLine, size_t nStartCol, AST* pFirstNode) {
         if (peek_matchmask(TM_OP)) {
             auto pStmtList = new AST( Token(T_STMT_LIST), pRoot );
-            pStmtList->set_line_number(nStartLine);
-            pStmtList->set_column_number(nStartCol);
+            pStmtList->token().set_line_number(nStartLine);
+            pStmtList->token().set_column_number(nStartCol);
             pStmtList->add_child(pFirstNode);
             auto pOp = pStmtList->add_child( advance_and_save() );
             rule_StmtRHS(pOp);
@@ -158,8 +158,8 @@ protected:
         }
         else { // scalar value list
             auto pValueList = new AST( Token(T_VAL_LIST), pRoot );
-            pValueList->set_line_number(nStartLine);
-            pValueList->set_column_number(nStartCol);
+            pValueList->token().set_line_number(nStartLine);
+            pValueList->token().set_column_number(nStartCol);
             pValueList->add_child(pFirstNode);
 
             while (peek_matchmask(TM_VAL))
