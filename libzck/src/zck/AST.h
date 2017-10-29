@@ -15,8 +15,8 @@ public:
     using namespace quex;
     using vec_t = std::vector<AST*>;
 
-    AST(AST* pParent = nullptr) : _pParent(pParent) { }
-    AST(Token const& tok, AST* pParent = nullptr) : _tok(tok), _pParent(pParent) { }
+    AST(AST* pParent = nullptr) { if (pParent) pParent->add_child(this); }
+    AST(Token const& tok, AST* pParent = nullptr) : _tok(tok) { if (pParent) pParent->add_child(this); }
 
     Token&       token()       noexcept { return _tok; }
     Token const& token() const noexcept { return _tok; }
