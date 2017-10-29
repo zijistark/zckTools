@@ -53,15 +53,15 @@ protected:
     auto peek() { return *_pTok; }
 
     /* just a handy helper method for error handling */
-    auto token_loc() { return FLoc(_path, _pTok->line_number(), _pTok->column_number()); }
+    auto token_loc() { return FLoc(_path, peek().line_number(), peek().column_number()); }
 
     /* fundamental helper methods for parsing */
 
     void advance() {
-        _lexer.receive(&_pTok);
+        _lex.receive(&_pTok);
         assert( _pTok != nullptr );
 
-        if (_pTok->type_id() == T_FAILURE)
+        if (peek().type_id() == T_FAILURE)
             throw VParseException(token_loc(), "Failed to recognize token '%s'", _pTok->text);
     }
 
@@ -118,8 +118,8 @@ protected:
             advance();
             rule_ListOpen(pRoot, nLine, nCol);
         }
-        else
-            match_id_mask(T_VAL_MASK);
+        else // terminal scalar
+            pRoot->add_child( matchmask_and_save(TM_VAL) );
     }
 
     void rule_ListOpen(AST* pRoot, size_t nStartLine, size_t nStartCol) {
@@ -147,6 +147,8 @@ protected:
     void rule_ListEnd(AST* pRoot, size_t nStartLine, size_t nStartCol, AST* pFirstNode) {
         if (peek_matchmask(TM_OP)) {
             auto pStmtList = new AST( Token(T_STMT_LIST), pRoot );
+            pStmtList->set_line_number(nStartLine);
+            pStmtList->set_column_number(nStartCol);
             pStmtList->add_child(pFirstNode);
             auto pOp = pStmtList->add_child( advance_and_save() );
             rule_StmtRHS(pOp);
@@ -156,6 +158,8 @@ protected:
         }
         else { // scalar value list
             auto pValueList = new AST( Token(T_VAL_LIST), pRoot );
+            pValueList->set_line_number(nStartLine);
+            pValueList->set_column_number(nStartCol);
             pValueList->add_child(pFirstNode);
 
             while (peek_matchmask(TM_VAL))
