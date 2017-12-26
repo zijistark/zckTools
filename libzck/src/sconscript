@@ -1,3 +1,6 @@
+
+import os
+
 Import('*')
 
 # TODO: Add a custom builder that exists on _both_ Windows and Linux/cygwin for
@@ -5,9 +8,12 @@ Import('*')
 # namely-- but on pure Windows too). In the meantime, since our lexer rarely
 # updates and is indeed a code generator, we regenerate it manually instead of here.
 
+env.Append(CXXFLAGS='-DQUEX_OPTION_ASSERTS_DISABLED')
+env.Append(CPPPATH=['zck/lexer'])
+
 sources = Glob('zck/*.cc')
 sources.append('zck/lexer/Lexer.cpp')
-env.Command("zck/lexer/Lexer.cpp", "", "cd zck && make lexer/Lexer.cpp")
+#env.Command("zck/lexer/Lexer.cpp", "", "cd src/zck && QUEX_PATH='{}' make lexer/Lexer.cpp".format(os.environ['QUEX_PATH']))
 env.StaticLibrary('zck', sources)
-env.Program('ast2dot', sources + ['ast2dot.cc'])
+env.Program('ast', sources + ['ast2dot.cc'])
 

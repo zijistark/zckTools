@@ -22,7 +22,7 @@
 _ZCK_NAMESPACE_BEGIN;
 
 
-using uptr = std::unique_ptr;
+//using uptr = std::unique_ptr;
 typedef unsigned int uint; // would be 'using' but this is usually already a typedef
 
 

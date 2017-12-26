@@ -7,15 +7,15 @@
 #include "AST.h"
 #include "FileLocation.h"
 #include "ErrorQueue.h"
+#include "Exception.h"
+
+#include <Lexer>
 
 
 _ZCK_NAMESPACE_BEGIN;
 
 
-#include <Lexer>
-
-
-using namespace quex;
+using namespace ::quex;
 using token_id_t = QUEX_TYPE_TOKEN_ID;
 
 
@@ -50,10 +50,19 @@ protected:
     Lexer  _lex;
     Token* _pTok; // lookahead token
 
-    auto peek() { return *_pTok; }
+    auto const& peek() { return *_pTok; }
 
     /* just a handy helper method for error handling */
     auto token_loc() { return FLoc(_path, peek().line_number(), peek().column_number()); }
+
+    /* helper for creating new meta-tokens */
+    auto make_token(token_id_t id, size_t line = 0, size_t col = 0) {
+        Token t;
+        t.set(id);
+        t.set_line_number(line);
+        t.set_column_number(col);
+        return t;
+    }
 
     /* fundamental helper methods for parsing */
 
@@ -95,10 +104,10 @@ protected:
     /* methods corresponding to grammar rules */
 
     void start() {
-        AST* pRoot = new AST( Token(T_STMT_LIST) );
+        _pRoot = new AST( make_token(T_STMT_LIST) );
 
         while (peek_matchmask(TM_VAL))
-            rule_Stmt(pRoot);
+            rule_Stmt(_pRoot);
 
         match(T_TERMINATION);
     }
@@ -124,10 +133,7 @@ protected:
 
     void rule_ListOpen(AST* pRoot, size_t nStartLine, size_t nStartCol) {
         if (peek_match(T_CLOSE_BRACE)) {
-            Token t(T_EMPTY_LIST);
-            t.set_line_number(nStartLine);
-            t.set_column_number(nStartCol);
-            pRoot->add_child( new AST(t) );
+            pRoot->add_child( new AST( make_token(T_EMPTY_LIST, nStartLine, nStartCol) ) );
             advance();
         }
         else if (peek_matchmask(TM_VAL)) {
@@ -146,9 +152,7 @@ protected:
 
     void rule_ListEnd(AST* pRoot, size_t nStartLine, size_t nStartCol, AST* pFirstNode) {
         if (peek_matchmask(TM_OP)) {
-            auto pStmtList = new AST( Token(T_STMT_LIST), pRoot );
-            pStmtList->token().set_line_number(nStartLine);
-            pStmtList->token().set_column_number(nStartCol);
+            auto pStmtList = new AST( make_token(T_STMT_LIST, nStartLine, nStartCol), pRoot );
             pStmtList->add_child(pFirstNode);
             auto pOp = pStmtList->add_child( advance_and_save() );
             rule_StmtRHS(pOp);
@@ -157,9 +161,7 @@ protected:
                 rule_Stmt(pStmtList);
         }
         else { // scalar value list
-            auto pValueList = new AST( Token(T_VAL_LIST), pRoot );
-            pValueList->token().set_line_number(nStartLine);
-            pValueList->token().set_column_number(nStartCol);
+            auto pValueList = new AST( make_token(T_VAL_LIST, nStartLine, nStartCol), pRoot );
             pValueList->add_child(pFirstNode);
 
             while (peek_matchmask(TM_VAL))

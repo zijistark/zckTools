@@ -22,11 +22,12 @@ public:
         : _line_n(line), _column_n(column), _pathname(path) {}
 
     size_t      line()     const noexcept { return _line_n; }
+    size_t      column()   const noexcept { return _column_n; }
     const char* pathname() const noexcept { return _pathname; }
 
-    void set_line(size_t line)          noexcept { _line_n = line; }
-    void set_column(size_t column)      noexcept { _column_n = column; }
-    void set_pathname(const char* path) noexcept { _pathname = path; }
+    void line(size_t line)          noexcept { _line_n = line; }
+    void column(size_t column)      noexcept { _column_n = column; }
+    void pathname(const char* path) noexcept { _pathname = path; }
 };
 
 

@@ -9,12 +9,12 @@ vars.Add(
 )
 
 env = Environment(variables = vars)
-env.Append(CXXFLAGS='--std=c++17 -Wall')
+env.Append(CXXFLAGS='--std=c++17 -Wconversion -Wall -Werror -W')
 
 if env['BUILD_TYPE'] == 'debugmax':
-	env.Append(CXXFLAGS='-g -O0')
+	env.Append(CXXFLAGS='-ggdb -O0')
 elif env['BUILD_TYPE'] == 'debug':
-	env.Append(CXXFLAGS='-g -O2')
+	env.Append(CXXFLAGS='-ggdb -O2')
 elif env['BUILD_TYPE'] == 'release':
 	env.Append(CXXFLAGS='-g0 -s -O3')
 

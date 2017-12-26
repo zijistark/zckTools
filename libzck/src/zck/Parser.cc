@@ -3,6 +3,9 @@
 #include "Exception.h"
 
 
+_ZCK_NAMESPACE_BEGIN;
+
+
 Parser::Parser(char const* path)
     : _pRoot(nullptr), _path(path), _lex(path), _pTok(nullptr)
 {
@@ -16,3 +19,6 @@ Parser::Parser(char const* path)
     // begin recursive descent
     start();
 }
+
+
+_ZCK_NAMESPACE_END;

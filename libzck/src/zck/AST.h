@@ -4,15 +4,17 @@
 
 #include "common.h"
 #include <vector>
-#include <Lexer-token>
+#include <Lexer>
 
 
 _ZCK_NAMESPACE_BEGIN;
 
 
+using namespace ::quex;
+
+
 class AST {
 public:
-    using namespace quex;
     using vec_t = std::vector<AST*>;
 
     AST(AST* pParent = nullptr) { if (pParent) pParent->add_child(this); }
@@ -29,16 +31,6 @@ public:
     void       parent(AST* pNewParent) noexcept { _pParent = pNewParent; }
 
     AST* add_child(AST* pNode) { _children.push_back(pNode); pNode->parent(this); return pNode; }
-
-    auto       operator[](size_t i)       noexcept { return _children[i]; }
-    auto const operator[](size_t i) const noexcept { return _children[i]; }
-
-    auto size()  const noexcept { return _children.size(); }
-    auto empty() const noexcept { return size() == 0; }
-    auto begin()       noexcept { return _vec.begin(); }
-    auto end()         noexcept { return _vec.end(); }
-    auto begin() const noexcept { return _vec.cbegin(); }
-    auto end()   const noexcept { return _vec.cend(); }
 
 private:
     Token _tok;

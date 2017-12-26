@@ -9,18 +9,15 @@
 ifndef QUEX_PATH
     $(error The environment variable QUEX_PATH is not defined!)
 endif
-ifdef ASSERTS_ENABLED_F
-	CCFLAG_ASSERTS=# By default asserts are disabled
-else 
-	CCFLAG_ASSERTS=-DQUEX_OPTION_ASSERTS_DISABLED
-endif
+
+CCFLAG_ASSERTS=-DQUEX_OPTION_ASSERTS_DISABLED
 
 # (*) COMPILER SETTINGS ________________________________________________________
 #     (change COMPILER to whatever you use as compiler on the command line,
 #      e.g. "make COMPILER=icpc" will use intel's c++ compiler)
 COMPILER = g++ -ggdb -Wconversion -Wall -Werror -W --std=c++17
 
-QUEX_DEFINES = $(CCFLAG_ASSERTS) -DQUEX_OPTION_ASSERTS_WARNING_MESSAGE_DISABLED
+QUEX_DEFINES = $(CCFLAG_ASSERTS)
 # Other useful options for debugging:
 # -DQUEX_OPTION_ASSERTS_DISABLED
 # -DQUEX_OPTION_ASSERTS_WARNING_MESSAGE_DISABLED 
