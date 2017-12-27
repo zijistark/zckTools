@@ -2816,17 +2816,16 @@ _65:
     __quex_debug("* TERMINAL {SIGN}[0-9]+\n");
 __QUEX_IF_COUNT_SHIFT_VALUES();
 __QUEX_IF_COUNT_COLUMNS_ADD(((size_t)(me->buffer._read_p - me->buffer._lexeme_start_p)));
-QUEX_LEXEME_TERMINATING_ZERO_SET(&me->buffer);
 {
 
 #   line 85 "zck.qx"
-self_write_token_p()->number = (size_t)atoi( (char*)Lexeme );
+QUEX_NAME_TOKEN(take_text)(self_write_token_p(), me->buffer._lexeme_start_p, me->buffer._read_p);
 self_send(T_INTEGER);
 
 __QUEX_PURE_RETURN;
 
 
-#   line 2830 "Lexer.cpp"
+#   line 2829 "Lexer.cpp"
 
 }
 RETURN;
@@ -2843,7 +2842,7 @@ self_send(T_DECIMAL);
 __QUEX_PURE_RETURN;
 
 
-#   line 2847 "Lexer.cpp"
+#   line 2846 "Lexer.cpp"
 
 }
 RETURN;
@@ -2860,7 +2859,7 @@ self_send(T_DATE);
 __QUEX_PURE_RETURN;
 
 
-#   line 2864 "Lexer.cpp"
+#   line 2863 "Lexer.cpp"
 
 }
 RETURN;
@@ -2877,7 +2876,7 @@ self_send(T_QDATE);
 __QUEX_PURE_RETURN;
 
 
-#   line 2881 "Lexer.cpp"
+#   line 2880 "Lexer.cpp"
 
 }
 RETURN;
@@ -2893,7 +2892,7 @@ self_send(T_QSTRING);
 __QUEX_PURE_RETURN;
 
 
-#   line 2897 "Lexer.cpp"
+#   line 2896 "Lexer.cpp"
 
 }
 RETURN;
@@ -2904,13 +2903,13 @@ __QUEX_IF_COUNT_COLUMNS_ADD(((size_t)(me->buffer._read_p - me->buffer._lexeme_st
 {
 
 #   line 90 "zck.qx"
-self_write_token_p()->number = (size_t)atoi( (char*)LexemeBegin + 2 );
+QUEX_NAME_TOKEN(take_text)(self_write_token_p(), me->buffer._lexeme_start_p, me->buffer._read_p);
 self_send(T_CHAR_SCOPE);
 
 __QUEX_PURE_RETURN;
 
 
-#   line 2914 "Lexer.cpp"
+#   line 2913 "Lexer.cpp"
 
 }
 RETURN;
@@ -2927,7 +2926,7 @@ self_send(T_TITLE_ID);
 __QUEX_PURE_RETURN;
 
 
-#   line 2931 "Lexer.cpp"
+#   line 2930 "Lexer.cpp"
 
 }
 RETURN;
@@ -2944,7 +2943,7 @@ self_send(T_STRING);
 __QUEX_PURE_RETURN;
 
 
-#   line 2948 "Lexer.cpp"
+#   line 2947 "Lexer.cpp"
 
 }
 RETURN;

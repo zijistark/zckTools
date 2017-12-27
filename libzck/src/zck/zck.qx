@@ -82,12 +82,12 @@ mode MAIN :
   ">"             => T_OP_GT;
   "{"             => T_OPEN_BRACE;
   "}"             => T_CLOSE_BRACE;
-  {SIGN}[0-9]+    => T_INTEGER(number=(size_t)atoi( (char*)Lexeme ));
+  {SIGN}[0-9]+    => T_INTEGER(Lexeme);
   {DECIMAL}       => T_DECIMAL(Lexeme);
   {DATE}          => T_DATE(Lexeme);
   "\""{DATE}"\""  => T_QDATE(LexemeBegin+1, LexemeEnd-1);
   {QSTRING}       => T_QSTRING(LexemeBegin+1, LexemeEnd-1);
-  {CHAR_ID}       => T_CHAR_SCOPE(number=(size_t)atoi( (char*)LexemeBegin + 2 ));
+  {CHAR_ID}       => T_CHAR_SCOPE(Lexeme);
   {TITLE_ID}      => T_TITLE_ID(Lexeme);
   {STRING}        => T_STRING(Lexeme);
 }

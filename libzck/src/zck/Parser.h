@@ -37,8 +37,10 @@ public:
     ErrorQueue&       error_queue()       noexcept { return _errors; }
 
     /* TM_: Token Mask (token type grouping) */
-    static const token_id_t TM_VAL = (1<<11);
-    static const token_id_t TM_OP  = (1<<10);
+    static const token_id_t TM_VAL   = (1<<11);
+    static const token_id_t TM_OP    = (1<<10);
+    static const token_id_t TM_META  = (1<<9);
+    static const token_id_t TM_EMPTY = (1<<8);
 
 protected:
     /* persistent state (i.e., still relevant/required after Parser construction) */
