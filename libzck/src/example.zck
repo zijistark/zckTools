@@ -1,8 +1,6 @@
 
-# suppose this were in the on_success of a civil war CB (with FROM being the losing liege and ROOT being the revolt leader)...
-
 FROM {
-    any_demesne_title {{ tier = PREV }
+    any_demesne_title {{ OR { tier = KING tier = EMPEROR } }
         ROOT {
             priority_select:any_vassal {
                 limit {
@@ -16,6 +14,11 @@ FROM {
                         mercenary = no
                         holy_order = no
                     }
+                    capital_scope {
+                        distance { where = 496 value < 400 }
+                        de_jure_liege_or_above = e_byzantium
+                    }
+                    check_variable { which = "some_damn_variable" value >= 4.5 }
                 }
                 priority {
                     { has_strong_claim = PREVPREV }
