@@ -6,7 +6,7 @@
  * NOTE: This file has been created automatically by Quex.
  *       Visit quex.org for further info.
  *
- * DATE: Tue Dec 26 15:57:47 2017
+ * DATE: Sat Jan 20 05:23:55 2018
  *
  * (C) 2005-2010 Frank-Rene Schaefer
  * ABSOLUTELY NO WARRANTY                                                     */
@@ -38,6 +38,7 @@ const QUEX_TYPE_TOKEN_ID T_OP_GT         = ((QUEX_TYPE_TOKEN_ID)1291);
 const QUEX_TYPE_TOKEN_ID T_OP_GTEQ       = ((QUEX_TYPE_TOKEN_ID)1292);
 const QUEX_TYPE_TOKEN_ID T_OP_LT         = ((QUEX_TYPE_TOKEN_ID)1289);
 const QUEX_TYPE_TOKEN_ID T_OP_LTEQ       = ((QUEX_TYPE_TOKEN_ID)1290);
+const QUEX_TYPE_TOKEN_ID T_OP_NEQ        = ((QUEX_TYPE_TOKEN_ID)1293);
 const QUEX_TYPE_TOKEN_ID T_QDATE         = ((QUEX_TYPE_TOKEN_ID)2053);
 const QUEX_TYPE_TOKEN_ID T_QSTRING       = ((QUEX_TYPE_TOKEN_ID)2049);
 const QUEX_TYPE_TOKEN_ID T_STMT_LIST     = ((QUEX_TYPE_TOKEN_ID)768);

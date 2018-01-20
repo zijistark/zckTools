@@ -452,6 +452,7 @@ QUEX_NAME_TOKEN(map_id_to_name)(const QUEX_TYPE_TOKEN_ID TokenID)
    case T_OP_GTEQ:       return "OP_GTEQ";
    case T_OP_LT:         return "OP_LT";
    case T_OP_LTEQ:       return "OP_LTEQ";
+   case T_OP_NEQ:        return "OP_NEQ";
    case T_QDATE:         return "QDATE";
    case T_QSTRING:       return "QSTRING";
    case T_STMT_LIST:     return "STMT_LIST";

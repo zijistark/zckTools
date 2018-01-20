@@ -31,6 +31,7 @@ token {
   OP_LTEQ     = 0b0000.0101.0000.1010;
   OP_GT       = 0b0000.0101.0000.1011;
   OP_GTEQ     = 0b0000.0101.0000.1100;
+  OP_NEQ      = 0b0000.0101.0000.1101;
   OPEN_BRACE  = 0b0000.0001.0000.0000;
   CLOSE_BRACE = 0b0000.0001.0000.0001;
 
@@ -75,6 +76,7 @@ mode MAIN :
   <<EOF>>         => T_TERMINATION;
   <<FAIL>>        => T_FAILURE(Lexeme);
   "=="            => T_OP_DEQ;
+  "!="            => T_OP_NEQ;
   "="             => T_OP_EQ;
   "<="            => T_OP_LTEQ;
   "<"             => T_OP_LT;
