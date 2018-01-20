@@ -36,9 +36,7 @@ token {
   CLOSE_BRACE = 0b0000.0001.0000.0001;
 
   /* AST META-TOKENS (do not occur in input, but are used for identifying certain AST elements) */
-  STMT_LIST   = 0b0000.0011.0000.0000;
-  VAL_LIST    = 0b0000.0011.0000.0001;
-  EMPTY_LIST  = 0b0000.0011.0000.0010;
+  LIST        = 0b0000.0011.0000.0000;
 
   /* INCIDENCE TOKENS */
   TERMINATION   = 0x00;

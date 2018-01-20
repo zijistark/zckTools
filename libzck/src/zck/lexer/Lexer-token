@@ -442,9 +442,9 @@ QUEX_NAME_TOKEN(map_id_to_name)(const QUEX_TYPE_TOKEN_ID TokenID)
    case T_CLOSE_BRACE:   return "CLOSE_BRACE";
    case T_DATE:          return "DATE";
    case T_DECIMAL:       return "DECIMAL";
-   case T_EMPTY_LIST:    return "EMPTY_LIST";
    case T_FAILURE:       return "FAILURE";
    case T_INTEGER:       return "INTEGER";
+   case T_LIST:          return "LIST";
    case T_OPEN_BRACE:    return "OPEN_BRACE";
    case T_OP_DEQ:        return "OP_DEQ";
    case T_OP_EQ:         return "OP_EQ";
@@ -455,10 +455,8 @@ QUEX_NAME_TOKEN(map_id_to_name)(const QUEX_TYPE_TOKEN_ID TokenID)
    case T_OP_NEQ:        return "OP_NEQ";
    case T_QDATE:         return "QDATE";
    case T_QSTRING:       return "QSTRING";
-   case T_STMT_LIST:     return "STMT_LIST";
    case T_STRING:        return "STRING";
    case T_TITLE_ID:      return "TITLE_ID";
-   case T_VAL_LIST:      return "VAL_LIST";
 
 
    }

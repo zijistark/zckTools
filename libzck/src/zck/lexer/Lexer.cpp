@@ -2595,7 +2595,7 @@ _29:
 QUEX_FUNCTION_COUNT_ARBITRARY(&self, LexemeBegin, LexemeEnd);
 {
 
-#   line 76 "zck.qx"
+#   line 74 "zck.qx"
 self_send(T_TERMINATION);
 
 __QUEX_PURE_RETURN;
@@ -2613,7 +2613,7 @@ _78:
 QUEX_FUNCTION_COUNT_ARBITRARY(&self, LexemeBegin, LexemeEnd);
 {
 
-#   line 77 "zck.qx"
+#   line 75 "zck.qx"
 QUEX_NAME_TOKEN(take_text)(self_write_token_p(), me->buffer._lexeme_start_p, me->buffer._read_p);
 self_send(T_FAILURE);
 
@@ -2744,7 +2744,7 @@ __QUEX_IF_COUNT_SHIFT_VALUES();
 __QUEX_IF_COUNT_COLUMNS_ADD(2);
 {
 
-#   line 78 "zck.qx"
+#   line 76 "zck.qx"
 self_send(T_OP_DEQ);
 
 __QUEX_PURE_RETURN;
@@ -2760,7 +2760,7 @@ __QUEX_IF_COUNT_SHIFT_VALUES();
 __QUEX_IF_COUNT_COLUMNS_ADD(2);
 {
 
-#   line 79 "zck.qx"
+#   line 77 "zck.qx"
 self_send(T_OP_NEQ);
 
 __QUEX_PURE_RETURN;
@@ -2776,7 +2776,7 @@ __QUEX_IF_COUNT_SHIFT_VALUES();
 __QUEX_IF_COUNT_COLUMNS_ADD(1);
 {
 
-#   line 80 "zck.qx"
+#   line 78 "zck.qx"
 self_send(T_OP_EQ);
 
 __QUEX_PURE_RETURN;
@@ -2792,7 +2792,7 @@ __QUEX_IF_COUNT_SHIFT_VALUES();
 __QUEX_IF_COUNT_COLUMNS_ADD(2);
 {
 
-#   line 81 "zck.qx"
+#   line 79 "zck.qx"
 self_send(T_OP_LTEQ);
 
 __QUEX_PURE_RETURN;
@@ -2808,7 +2808,7 @@ __QUEX_IF_COUNT_SHIFT_VALUES();
 __QUEX_IF_COUNT_COLUMNS_ADD(1);
 {
 
-#   line 82 "zck.qx"
+#   line 80 "zck.qx"
 self_send(T_OP_LT);
 
 __QUEX_PURE_RETURN;
@@ -2824,7 +2824,7 @@ __QUEX_IF_COUNT_SHIFT_VALUES();
 __QUEX_IF_COUNT_COLUMNS_ADD(2);
 {
 
-#   line 83 "zck.qx"
+#   line 81 "zck.qx"
 self_send(T_OP_GTEQ);
 
 __QUEX_PURE_RETURN;
@@ -2840,7 +2840,7 @@ __QUEX_IF_COUNT_SHIFT_VALUES();
 __QUEX_IF_COUNT_COLUMNS_ADD(1);
 {
 
-#   line 84 "zck.qx"
+#   line 82 "zck.qx"
 self_send(T_OP_GT);
 
 __QUEX_PURE_RETURN;
@@ -2856,7 +2856,7 @@ __QUEX_IF_COUNT_SHIFT_VALUES();
 __QUEX_IF_COUNT_COLUMNS_ADD(1);
 {
 
-#   line 85 "zck.qx"
+#   line 83 "zck.qx"
 self_send(T_OPEN_BRACE);
 
 __QUEX_PURE_RETURN;
@@ -2872,7 +2872,7 @@ __QUEX_IF_COUNT_SHIFT_VALUES();
 __QUEX_IF_COUNT_COLUMNS_ADD(1);
 {
 
-#   line 86 "zck.qx"
+#   line 84 "zck.qx"
 self_send(T_CLOSE_BRACE);
 
 __QUEX_PURE_RETURN;
@@ -2888,7 +2888,7 @@ __QUEX_IF_COUNT_SHIFT_VALUES();
 __QUEX_IF_COUNT_COLUMNS_ADD(((size_t)(me->buffer._read_p - me->buffer._lexeme_start_p)));
 {
 
-#   line 87 "zck.qx"
+#   line 85 "zck.qx"
 QUEX_NAME_TOKEN(take_text)(self_write_token_p(), me->buffer._lexeme_start_p, me->buffer._read_p);
 self_send(T_INTEGER);
 
@@ -2905,7 +2905,7 @@ __QUEX_IF_COUNT_SHIFT_VALUES();
 __QUEX_IF_COUNT_COLUMNS_ADD(((size_t)(me->buffer._read_p - me->buffer._lexeme_start_p)));
 {
 
-#   line 88 "zck.qx"
+#   line 86 "zck.qx"
 QUEX_NAME_TOKEN(take_text)(self_write_token_p(), me->buffer._lexeme_start_p, me->buffer._read_p);
 self_send(T_DECIMAL);
 
@@ -2922,7 +2922,7 @@ __QUEX_IF_COUNT_SHIFT_VALUES();
 __QUEX_IF_COUNT_COLUMNS_ADD(((size_t)(me->buffer._read_p - me->buffer._lexeme_start_p)));
 {
 
-#   line 89 "zck.qx"
+#   line 87 "zck.qx"
 QUEX_NAME_TOKEN(take_text)(self_write_token_p(), me->buffer._lexeme_start_p, me->buffer._read_p);
 self_send(T_DATE);
 
@@ -2939,7 +2939,7 @@ __QUEX_IF_COUNT_SHIFT_VALUES();
 __QUEX_IF_COUNT_COLUMNS_ADD(((size_t)(me->buffer._read_p - me->buffer._lexeme_start_p)));
 {
 
-#   line 90 "zck.qx"
+#   line 88 "zck.qx"
 QUEX_NAME_TOKEN(take_text)(self_write_token_p(), LexemeBegin+1, LexemeEnd-1);
 self_send(T_QDATE);
 
@@ -2955,7 +2955,7 @@ _71:
 QUEX_FUNCTION_COUNT_ARBITRARY(&self, LexemeBegin, LexemeEnd);
 {
 
-#   line 91 "zck.qx"
+#   line 89 "zck.qx"
 QUEX_NAME_TOKEN(take_text)(self_write_token_p(), LexemeBegin+1, LexemeEnd-1);
 self_send(T_QSTRING);
 
@@ -2972,7 +2972,7 @@ __QUEX_IF_COUNT_SHIFT_VALUES();
 __QUEX_IF_COUNT_COLUMNS_ADD(((size_t)(me->buffer._read_p - me->buffer._lexeme_start_p)));
 {
 
-#   line 92 "zck.qx"
+#   line 90 "zck.qx"
 QUEX_NAME_TOKEN(take_text)(self_write_token_p(), me->buffer._lexeme_start_p, me->buffer._read_p);
 self_send(T_CHAR_SCOPE);
 
@@ -2989,7 +2989,7 @@ __QUEX_IF_COUNT_SHIFT_VALUES();
 __QUEX_IF_COUNT_COLUMNS_ADD(((size_t)(me->buffer._read_p - me->buffer._lexeme_start_p)));
 {
 
-#   line 93 "zck.qx"
+#   line 91 "zck.qx"
 QUEX_NAME_TOKEN(take_text)(self_write_token_p(), me->buffer._lexeme_start_p, me->buffer._read_p);
 self_send(T_TITLE_ID);
 
@@ -3006,7 +3006,7 @@ __QUEX_IF_COUNT_SHIFT_VALUES();
 __QUEX_IF_COUNT_COLUMNS_ADD(((size_t)(me->buffer._read_p - me->buffer._lexeme_start_p)));
 {
 
-#   line 94 "zck.qx"
+#   line 92 "zck.qx"
 QUEX_NAME_TOKEN(take_text)(self_write_token_p(), me->buffer._lexeme_start_p, me->buffer._read_p);
 self_send(T_STRING);
 

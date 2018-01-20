@@ -106,71 +106,54 @@ protected:
     /* methods corresponding to grammar rules */
 
     void start() {
-        _pRoot = new AST( make_token(T_STMT_LIST) );
-
-        while (peek_matchmask(TM_VAL))
-            rule_Stmt(_pRoot);
-
+        _pRoot = new AST( make_token(T_LIST) );
+        rule_List(_pRoot);
         match(T_TERMINATION);
     }
 
-    void rule_Stmt(AST* pRoot) {
-        auto pLHS = matchmask_and_save(TM_VAL);
-        auto pOp = pRoot->add_child( matchmask_and_save(TM_OP) );
-        pOp->add_child(pLHS);
-        rule_StmtRHS(pOp);
+    void rule_StmtVal(AST* pRoot) {
+        if (peek_matchmask(TM_VAL)) {
+            auto pVal = advance_and_save();
+            if (peek_matchmask(TM_OP) || peek_match(T_OPEN_BRACE))
+                rule_StmtCont(pRoot, pVal);
+        }
+        else {
+            auto pList = pRoot->add_child(new AST( make_token(T_LIST, peek().line_number(), peek().column_number()) ));
+            match(T_OPEN_BRACE);
+            rule_List(pList);
+            match(T_CLOSE_BRACE);
+        }
+    }
+
+    void rule_StmtCont(AST* pRoot, AST* pLHS) {
+        if (peek_matchmask(TM_OP)) {
+            auto pOp = pRoot->add_child( advance_and_save());
+            pOp->add_child(pLHS);
+            rule_StmtRHS(pOp);
+        }
+        else {
+            auto pOp = pRoot->add_child(new AST( make_token(T_OP_EQ, peek().line_number(), peek().column_number()) ));
+            pOp->add_child(pLHS);
+            auto pList = pOp->add_child(new AST( make_token(T_LIST, peek().line_number(), peek().column_number()) ));
+            match(T_OPEN_BRACE);
+            rule_List(pList);
+            match(T_CLOSE_BRACE);
+        }
     }
 
     void rule_StmtRHS(AST* pRoot) {
-        if (peek_match(T_OPEN_BRACE)) {
-            /* save away line and column number of open brace for stamping *_LIST pseudo-tokens with it */
-            auto nLine = peek().line_number();
-            auto nCol = peek().column_number();
-            advance();
-            rule_ListOpen(pRoot, nLine, nCol);
-        }
-        else // terminal scalar
-            pRoot->add_child( matchmask_and_save(TM_VAL) );
-    }
-
-    void rule_ListOpen(AST* pRoot, size_t nStartLine, size_t nStartCol) {
-        if (peek_match(T_CLOSE_BRACE)) {
-            pRoot->add_child( new AST( make_token(T_EMPTY_LIST, nStartLine, nStartCol) ) );
-            advance();
-        }
-        else if (peek_matchmask(TM_VAL)) {
-            /* save away the lookahead token so that rule_ListEnd() can use it when finally constructing AST node */
-            auto pFirstNode = advance_and_save();
-            rule_ListEnd(pRoot, nStartLine, nStartCol, pFirstNode);
-        }
-        else { // recursing into another list of some type
-            /* save away line and column number of open brace for stamping *_LIST pseudo-tokens with it */
-            auto nLine = peek().line_number();
-            auto nCol = peek().column_number();
+        if (peek_matchmask(TM_VAL)) pRoot->add_child( advance_and_save() );
+        else {
+            auto pList = pRoot->add_child(new AST( make_token(T_LIST, peek().line_number(), peek().column_number()) ));
             match(T_OPEN_BRACE);
-            rule_ListOpen(pRoot, nLine, nCol);
+            rule_List(pList);
+            match(T_CLOSE_BRACE);
         }
     }
 
-    void rule_ListEnd(AST* pRoot, size_t nStartLine, size_t nStartCol, AST* pFirstNode) {
-        if (peek_matchmask(TM_OP)) {
-            auto pStmtList = new AST( make_token(T_STMT_LIST, nStartLine, nStartCol), pRoot );
-            pStmtList->add_child(pFirstNode);
-            auto pOp = pStmtList->add_child( advance_and_save() );
-            rule_StmtRHS(pOp);
-
-            while (peek_matchmask(TM_VAL))
-                rule_Stmt(pStmtList);
-        }
-        else { // scalar value list
-            auto pValueList = new AST( make_token(T_VAL_LIST, nStartLine, nStartCol), pRoot );
-            pValueList->add_child(pFirstNode);
-
-            while (peek_matchmask(TM_VAL))
-                pValueList->add_child( advance_and_save() );
-        }
-
-        match(T_CLOSE_BRACE);
+    void rule_List(AST* pRoot) {
+        while (peek_matchmask(TM_VAL) || peek_match(T_OPEN_BRACE))
+            rule_StmtVal(pRoot);
     }
 };
 
