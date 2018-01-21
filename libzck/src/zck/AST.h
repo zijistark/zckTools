@@ -3,6 +3,9 @@
 #pragma once
 
 #include "common.h"
+#include <string.h>
+#include <stdlib.h>
+#include <memory>
 #include <vector>
 #include <Lexer>
 
@@ -17,8 +20,14 @@ class AST {
 public:
     using vec_t = std::vector<AST*>;
 
-    AST(AST* pParent = nullptr) { if (pParent) pParent->add_child(this); }
-    AST(Token const& tok, AST* pParent = nullptr) : _tok(tok) { if (pParent) pParent->add_child(this); }
+    AST(AST* pParent = nullptr) {
+        if (pParent) pParent->add_child(this);
+    }
+
+    AST(Token const& otherTok, AST* pParent = nullptr) {
+        QUEX_NAME_TOKEN(copy)(&_tok, &otherTok);
+        if (pParent) pParent->add_child(this);
+    }
 
     Token&       token()       noexcept { return _tok; }
     Token const& token() const noexcept { return _tok; }

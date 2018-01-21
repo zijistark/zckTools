@@ -61,9 +61,6 @@ define {
   CHAR_ID    c_[0-9]+
   TITLE_ID   [bcdek]_[a-zA-Z][a-zA-Z0-9_\-]+
   STRING     [^ \t\r\n<=>\{\}#\"]+
-  MODULE     MODULE|module
-  BEGIN      _*(BEGIN|begin):?
-  END        _*(END|end):?
 }
 
 
@@ -73,15 +70,15 @@ mode MAIN :
 {
   <<EOF>>         => T_TERMINATION;
   <<FAIL>>        => T_FAILURE(Lexeme);
-  "=="            => T_OP_DEQ;
-  "!="            => T_OP_NEQ;
-  "="             => T_OP_EQ;
-  "<="            => T_OP_LTEQ;
-  "<"             => T_OP_LT;
-  ">="            => T_OP_GTEQ;
-  ">"             => T_OP_GT;
-  "{"             => T_OPEN_BRACE;
-  "}"             => T_CLOSE_BRACE;
+  "=="            => T_OP_DEQ(Lexeme);
+  "!="            => T_OP_NEQ(Lexeme);
+  "="             => T_OP_EQ(Lexeme);
+  "<="            => T_OP_LTEQ(Lexeme);
+  "<"             => T_OP_LT(Lexeme);
+  ">="            => T_OP_GTEQ(Lexeme);
+  ">"             => T_OP_GT(Lexeme);
+  "{"             => T_OPEN_BRACE(Lexeme);
+  "}"             => T_CLOSE_BRACE(Lexeme);
   {SIGN}[0-9]+    => T_INTEGER(Lexeme);
   {DECIMAL}       => T_DECIMAL(Lexeme);
   {DATE}          => T_DATE(Lexeme);

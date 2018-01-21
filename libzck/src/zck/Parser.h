@@ -18,6 +18,9 @@ _ZCK_NAMESPACE_BEGIN;
 using namespace ::quex;
 using token_id_t = QUEX_TYPE_TOKEN_ID;
 
+class Parser;
+// using node_t = AST<Parser>;
+
 
 class Parser {
 public:
