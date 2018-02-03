@@ -439,13 +439,14 @@ QUEX_NAME_TOKEN(map_id_to_name)(const QUEX_TYPE_TOKEN_ID TokenID)
    case T_NODENT:         return "<NODENT>";
 #  endif
    case T_CHAR_SCOPE:    return "CHAR_SCOPE";
-   case T_CLOSE_BRACE:   return "CLOSE_BRACE";
    case T_DATE:          return "DATE";
    case T_DECIMAL:       return "DECIMAL";
+   case T_ELSIF:         return "ELSIF";
    case T_FAILURE:       return "FAILURE";
+   case T_IF:            return "IF";
    case T_INTEGER:       return "INTEGER";
    case T_LIST:          return "LIST";
-   case T_OPEN_BRACE:    return "OPEN_BRACE";
+   case T_L_BRACE:       return "L_BRACE";
    case T_OP_DEQ:        return "OP_DEQ";
    case T_OP_EQ:         return "OP_EQ";
    case T_OP_GT:         return "OP_GT";
@@ -455,6 +456,7 @@ QUEX_NAME_TOKEN(map_id_to_name)(const QUEX_TYPE_TOKEN_ID TokenID)
    case T_OP_NEQ:        return "OP_NEQ";
    case T_QDATE:         return "QDATE";
    case T_QSTRING:       return "QSTRING";
+   case T_R_BRACE:       return "R_BRACE";
    case T_STRING:        return "STRING";
    case T_TITLE_ID:      return "TITLE_ID";
 

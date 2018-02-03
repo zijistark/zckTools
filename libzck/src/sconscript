@@ -16,4 +16,4 @@ sources.append('zck/lexer/Lexer.cpp')
 #env.Command("zck/lexer/Lexer.cpp", "", "cd src/zck && QUEX_PATH='{}' make lexer/Lexer.cpp".format(os.environ['QUEX_PATH']))
 env.StaticLibrary('zck', sources)
 env.Program('ast', sources + ['ast2dot.cc'])
-
+env.Program('zck', sources + ['zck.cc'])

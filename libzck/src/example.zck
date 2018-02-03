@@ -1,36 +1,38 @@
 
-FROM {
-    any_demesne_title {{ OR { tier = KING tier = EMPEROR } }
-        ROOT {
-            priority_select:any_vassal {
-                limit {
-                    is_playable = yes
-                    is_landed = yes
-                    OR {
-                        is_feudal = yes
-                        is_tribal = yes
-                    }
-                    primary_title {
-                        mercenary = no
-                        holy_order = no
-                    }
-                    capital_scope {
-                        distance { where = 496 value < 400 }
-                        de_jure_liege_or_above = e_byzantium
-                    }
-                    check_variable { which = "some_damn_variable" value >= 4.5 }
-                }
-                priority {
-                    { has_strong_claim = PREVPREV }
-                    { has_claim = PREVPREV }
-                    { any_heir_title { title = PREVPREVPREV } }
-                    { any_pretender_title { title = PREVPREVPREV } }
-                    { primary_title { de_jure_liege_or_above = PREVPREVPREV } }
-                    { capital_scope { de_jure_liege_or_above = PREVPREVPREV } }
-                }
-                usurp_title = { target = PREVPREV type = faction_demand }
-            }
-        }
-    }
-}
+#FROM {
+#    any_demesne_title {{ OR { tier = KING tier = EMPEROR } }
+#        ROOT {
+#            priority_select:any_vassal {
+#                limit {
+#                    is_playable = yes
+#                    is_landed = yes
+#                    OR {
+#                        is_feudal = yes
+#                        is_tribal = yes
+#                    }
+#                    primary_title {
+#                        mercenary = no
+#                        holy_order = no
+#                    }
+#                    capital_scope {
+#                        distance { where = 496 value < 400 }
+#                        de_jure_liege_or_above = e_byzantium
+#                    }
+#                    check_variable { which = "some_damn_variable" value >= 4.5 }
+#                }
+#                priority {
+#                    { has_strong_claim = PREVPREV }
+#                    { has_claim = PREVPREV }
+#                    { any_heir_title { title = PREVPREVPREV } }
+#                    { any_pretender_title { title = PREVPREVPREV } }
+#                }
+#                usurp_title { target = PREVPREV type = faction_demand }
+#            }
+#        }
+#    }
+#}
+
+
+if { culture = ROOT religion = ROOT } { move_character = ROOT }
+elif { hostile_religion = ROOT } { imprison = ROOT death = yes }
 

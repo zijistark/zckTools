@@ -25,14 +25,17 @@ main(int argc, char** argv) {
             cout << "'";
 
         switch (token_p->type_id()) {
+            case T_OP_NEQ:      cout << "!=";     break;
             case T_OP_DEQ:      cout << "==";     break;
             case T_OP_EQ:       cout << "=";      break;
             case T_OP_LTEQ:     cout << "<=";     break;
             case T_OP_LT:       cout << "<";      break;
             case T_OP_GTEQ:     cout << ">=";     break;
             case T_OP_GT:       cout << ">";      break;
-            case T_OPEN_BRACE:  cout << "{";      break;
-            case T_CLOSE_BRACE: cout << "}";      break;
+            case T_L_BRACE:     cout << "{";      break;
+            case T_R_BRACE:     cout << "}";      break;
+            case T_IF:          cout << "if";     break;
+            case T_ELSIF:       cout << "elif";   break;
 
             case T_FAILURE:
             case T_DECIMAL:

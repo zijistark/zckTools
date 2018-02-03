@@ -29,6 +29,12 @@ public:
         if (pParent) pParent->add_child(this);
     }
 
+    // AST(QUEX_TYPE_TOKEN_ID token_id, char const* text, size_t line = 0, size_t column = 0)
+    //     : _tok(token_id, text, 0) {
+    //     _tok.set_line_number(line);
+    //     _tok.set_column_number(column);
+    // }
+
     Token&       token()       noexcept { return _tok; }
     Token const& token() const noexcept { return _tok; }
 

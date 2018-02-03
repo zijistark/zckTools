@@ -17,14 +17,17 @@ string pretty_label(AST const* pNode) {
     string s;
 
     switch (t.type_id()) {
+        case T_OP_NEQ:      s = "!=";     break;
         case T_OP_DEQ:      s = "==";     break;
         case T_OP_EQ:       s = "=";      break;
         case T_OP_LTEQ:     s = "<=";     break;
         case T_OP_LT:       s = "<";      break;
         case T_OP_GTEQ:     s = ">=";     break;
         case T_OP_GT:       s = ">";      break;
-        case T_OPEN_BRACE:  s = "{";      break;
-        case T_CLOSE_BRACE: s = "}";      break;
+        case T_L_BRACE:     s = "{";      break;
+        case T_R_BRACE:     s = "}";      break;
+        case T_IF:          s = "if";     break;
+        case T_ELSIF:       s = "elif";   break;
         default:            s = t.type_id_name();
     }
 

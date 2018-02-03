@@ -8,6 +8,7 @@ header {
 
 token {
   /* 
+   * bit 13 indicates a keyword; keywords are only pre-recognized strings
    * bit 12 indicates a scalar value ("VAL" in grammar)
    * bit 11 indicates an operator ("OP" in grammar)
    * bit 10 indicates an AST meta-token type
@@ -32,8 +33,11 @@ token {
   OP_GT       = 0b0000.0101.0000.1011;
   OP_GTEQ     = 0b0000.0101.0000.1100;
   OP_NEQ      = 0b0000.0101.0000.1101;
-  OPEN_BRACE  = 0b0000.0001.0000.0000;
-  CLOSE_BRACE = 0b0000.0001.0000.0001;
+  L_BRACE     = 0b0000.0001.0000.0000;
+  R_BRACE     = 0b0000.0001.0000.0001;
+
+  IF          = 0b0001.0001.0000.0000;
+  ELSIF       = 0b0001.0001.0000.0001;
 
   /* AST META-TOKENS (do not occur in input, but are used for identifying certain AST elements) */
   LIST        = 0b0000.0011.0000.0000;
@@ -61,6 +65,7 @@ define {
   CHAR_ID    c_[0-9]+
   TITLE_ID   [bcdek]_[a-zA-Z][a-zA-Z0-9_\-]+
   STRING     [^ \t\r\n<=>\{\}#\"]+
+  ELSIF      el(s(e_)?)?if
 }
 
 
@@ -70,15 +75,17 @@ mode MAIN :
 {
   <<EOF>>         => T_TERMINATION;
   <<FAIL>>        => T_FAILURE(Lexeme);
-  "=="            => T_OP_DEQ(Lexeme);
-  "!="            => T_OP_NEQ(Lexeme);
-  "="             => T_OP_EQ(Lexeme);
-  "<="            => T_OP_LTEQ(Lexeme);
-  "<"             => T_OP_LT(Lexeme);
-  ">="            => T_OP_GTEQ(Lexeme);
-  ">"             => T_OP_GT(Lexeme);
-  "{"             => T_OPEN_BRACE(Lexeme);
-  "}"             => T_CLOSE_BRACE(Lexeme);
+  "=="            => T_OP_DEQ;
+  "!="            => T_OP_NEQ;
+  "="             => T_OP_EQ;
+  "<="            => T_OP_LTEQ;
+  "<"             => T_OP_LT;
+  ">="            => T_OP_GTEQ;
+  ">"             => T_OP_GT;
+  "{"             => T_L_BRACE;
+  "}"             => T_R_BRACE;
+  "if"            => T_IF;
+  {ELSIF}         => T_ELSIF;
   {SIGN}[0-9]+    => T_INTEGER(Lexeme);
   {DECIMAL}       => T_DECIMAL(Lexeme);
   {DATE}          => T_DATE(Lexeme);
