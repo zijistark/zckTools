@@ -22,4 +22,4 @@ Help(vars.GenerateHelpText(env))
 Export('env')
 
 SConscript('src/sconscript', variant_dir='build', duplicate=0)
-SConscript('tests/sconscript')
+#SConscript('tests/sconscript')

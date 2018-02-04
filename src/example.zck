@@ -34,5 +34,6 @@
 
 
 if { culture = ROOT religion = ROOT } { move_character = ROOT }
-elif { hostile_religion = ROOT } { imprison = ROOT death = yes }
+elif { hostile_religion = ROOT } { imprison = ROOT death = { death_reason = death_execution_beheading } }
+else { death = yes }
 
