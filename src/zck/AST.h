@@ -20,11 +20,11 @@ class AST {
 public:
     using vec_t = std::vector<AST*>;
 
-    AST(AST* pParent = nullptr) {
+    AST(AST* pParent = nullptr) : _pParent(nullptr) {
         if (pParent) pParent->add_child(this);
     }
 
-    AST(Token const& otherTok, AST* pParent = nullptr) {
+    AST(Token const& otherTok, AST* pParent = nullptr) : _pParent(nullptr) {
         QUEX_NAME_TOKEN(copy)(&_tok, &otherTok);
         if (pParent) pParent->add_child(this);
     }

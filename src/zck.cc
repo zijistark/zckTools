@@ -3,38 +3,14 @@
 
 #include <cstdio>
 #include <getopt.h>
+#include <boost/filesystem.hpp>
 
 using namespace std;
 using namespace zck;
+namespace fs = boost::filesystem;
 
 
 char const* const TAB = "  ";
-
-
-string pretty_label(AST const* pNode) {
-    auto const& t = pNode->token();
-//    string s = t.get_string();
-    string s;
-
-    switch (t.type_id()) {
-        case T_OP_DEQ:      s = "==";     break;
-        case T_OP_EQ:       s = "=";      break;
-        case T_OP_LTEQ:     s = "<=";     break;
-        case T_OP_LT:       s = "<";      break;
-        case T_OP_GTEQ:     s = ">=";     break;
-        case T_OP_GT:       s = ">";      break;
-        case T_L_BRACE:  s = "{";      break;
-        case T_R_BRACE: s = "}";      break;
-        default:            s = t.type_id_name();
-    }
-
-    if (t.type_id() & Parser::TM_VAL) {
-        s += "\\n";
-        s += (char*)t.get_text();
-    }
-
-    return s;
-}
 
 
 struct options {
@@ -152,12 +128,25 @@ private:
 };
 
 
-int
-main(int argc, char* argv[]) {
-    char const* const short_opts = "i:o:vh";
+bool find_root_path(fs::path& out_path) {
+    auto p = fs::current_path();
+
+    while (true) {
+        if (exists(p / "config.zck")) {
+            out_path = p;
+            return true;
+        }
+        else if (p.has_parent_path()) p = p.parent_path();
+        else break;
+    }
+
+    return false;
+}
+
+
+int main(int argc, char* argv[]) {
+    char const* const short_opts = "vh";
     option const long_opts[] = {
-      {"input",   required_argument, nullptr, 'i'},
-      {"output",  required_argument, nullptr, 'o'},
       {"verbose", no_argument,       nullptr, 'v'},
       {"help",    no_argument,       nullptr, 'h'},
       {nullptr, 0, nullptr, 0}
@@ -175,14 +164,6 @@ main(int argc, char* argv[]) {
             g_opt.verbose = true;
             break;
 
-        case 'i':
-            g_opt.input = optarg;
-            break;
-
-        case 'o':
-            g_opt.output = optarg;
-            break;
-
         case 'h':
             print_help(argv[0], cout);
             return 0;
@@ -194,26 +175,44 @@ main(int argc, char* argv[]) {
         }
     }
 
-    if (g_opt.input.empty()) {
-        cerr << "Parameter '-i' / '--input' required!" << endl;
-        print_help(argv[0], cerr);
-        return 1;
-    }
-
-    // if (g_opt.output.empty()) {
-    //     cerr << "Parameter '-o' / '--output' required!" << endl;
-    //     print_help(argv[0], cerr);
-    //     return 1;
-    // }
-
     try {
+        /* search for mod root folder, then change the current directory to it */
+        fs::path root_path;
 
-        Parser parser( g_opt.input.c_str() );
-        Translator(parser.root());
+        if (!find_root_path(root_path))
+            throw runtime_error("Cannot invoke zck outside of a mod folder! Did you forget to add a config.zck file to the mod's root folder?");
 
-        // cout << "digraph {" << endl << TAB << "rankdir=LR" << endl;
-        // walk_tree( parser.root() );
-        // cout << "}" << endl;
+        fs::current_path(root_path);
+
+        /* recursively scan all relevant directories under us for .zck files to translate to CK2script files */
+
+        // TODO: only scan the directory types about which we give a shit
+
+        vector<fs::path> in_paths;
+
+        for (auto&& e : fs::recursive_directory_iterator(".")) {
+            const auto& p = e.path();
+            if (fs::is_regular_file(p) && p.extension() == ".zck" && p.filename() != "config.zck")
+                in_paths.emplace_back(p);
+        }
+
+        for (const auto& in_path : in_paths) {
+            auto out_file = in_path.stem();
+            out_file += "_ZCK.txt";
+            auto out_path = in_path.parent_path() / out_file;
+
+            /* open the target's stream */
+            fs::ofstream out(out_path, std::ios::binary);
+
+            if (!out)
+                throw VException("Could not open file for writing: %s", out_path.generic_string().c_str());
+
+            cout << "[COMPILE] " << in_path.generic_string() << endl;
+
+            /* parse the source & translate it into the target stream */
+            Parser parser(in_path.generic_string().c_str());
+            Translator(parser.root(), out);
+        }
     }
     catch (std::exception& e) {
         cout << "Fatal: " << e.what() << endl;
