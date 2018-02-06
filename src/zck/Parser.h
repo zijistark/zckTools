@@ -117,10 +117,14 @@ protected:
     void rule_StmtVal(AST* pRoot) {
         if (peek_match(T_IF)) {
             auto pIf = pRoot->add_child( advance_and_save() );
-            auto pCondList = pIf->add_child(new AST( make_token(T_LIST, peek().line_number(), peek().column_number()) ));
-            rule_ClosedList(pCondList);
-            auto pExecList = pIf->add_child(new AST( make_token(T_LIST, peek().line_number(), peek().column_number()) ));
-            rule_ClosedList(pExecList);
+            auto pList1 = pIf->add_child(new AST( make_token(T_LIST, peek().line_number(), peek().column_number()) ));
+            rule_ClosedList(pList1);
+
+            if (peek_match(T_L_BRACE)) {
+                auto pList2 = pIf->add_child(new AST( make_token(T_LIST, peek().line_number(), peek().column_number()) ));
+                rule_ClosedList(pList2);
+            }
+
             while (peek_match(T_ELSIF))
                 rule_ElseIf(pRoot);
         }
@@ -159,10 +163,13 @@ protected:
 
     void rule_ElseIf(AST* pRoot) {
         auto pElseIf = pRoot->add_child( advance_and_save() );
-        auto pCondList = pElseIf->add_child(new AST( make_token(T_LIST, peek().line_number(), peek().column_number()) ));
-        rule_ClosedList(pCondList);
-        auto pExecList = pElseIf->add_child(new AST( make_token(T_LIST, peek().line_number(), peek().column_number()) ));
-        rule_ClosedList(pExecList);
+        auto pList1 = pElseIf->add_child(new AST( make_token(T_LIST, peek().line_number(), peek().column_number()) ));
+        rule_ClosedList(pList1);
+
+        if (peek_match(T_L_BRACE)) {
+            auto pList2 = pElseIf->add_child(new AST( make_token(T_LIST, peek().line_number(), peek().column_number()) ));
+            rule_ClosedList(pList2);
+        }
     }
 
     void rule_ClosedList(AST* pRoot) {

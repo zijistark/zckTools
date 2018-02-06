@@ -6,11 +6,11 @@
 Start      → List
 List       → StmtVal*                                                // LA: {VAL, L_BRACE, R_BRACE}
 ClosedList → L_BRACE List R_BRACE                                    // LA: {L_BRACE}
-StmtVal    → IF ClosedList ClosedList ElseIf*                        // LA: {IF}
+StmtVal    → IF ClosedList ClosedList? ElseIf*                       // LA: {IF}
            | VAL StmtCont?                                           // LA: {VAL}
            | ClosedList                                              // LA: {L_BRACE}
            ;                                                         // LA: {IF, VAL, L_BRACE}
-ElseIf     → ELSIF ClosedList ClosedList                             // LA: {ELSIF}
+ElseIf     → ELSIF ClosedList ClosedList?                            // LA: {ELSIF}
 StmtCont   → OP StmtRHS                                              // LA: {OP}
            | ClosedList                                              // LA: {L_BRACE}
            ;                                                         // LA: {OP, L_BRACE}

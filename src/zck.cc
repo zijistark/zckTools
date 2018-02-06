@@ -10,8 +10,8 @@ using namespace zck;
 namespace fs = boost::filesystem;
 
 
-char const* const TAB = "  ";
-
+const char* const TAB = "\t";
+const char* const VERSION = "v0.0.1";
 
 struct options {
     string input;
@@ -25,7 +25,7 @@ struct options {
 void
 print_help(char const* prog, ostream& out) {
     out << "USAGE:" << endl;
-    out << TAB << prog << "[-v] -i FILE [-o FILE]" << endl;
+    out << TAB << prog << " [-v|-V|-h]" << endl;
 }
 
 
@@ -100,29 +100,49 @@ private:
         const char* const which = (pNode->token().type_id() == T_IF) ? "if" : "else_if";
         auto& kids = pNode->children();
 
-        assert( kids.size() == 2 ); // should have 2 list children
+        assert( kids.size() > 0 && kids.size() <= 2 );
 
-        auto& cond_list = kids[0];
-        auto& exec_list = kids[1];
+        indent(o);
 
-        o << which << " = {\n";
-        ++_indent;
-        indent(o);
-        o << "limit = ";
-        write_list(cond_list, o);
-        o << "\n";
-        write_list(exec_list, o, true);
-        --_indent;
-        indent(o);
-        o << "}\n";
+        if (kids.size() == 2) {
+            o << which << " = {\n";
+            ++_indent;
+            indent(o);
+            o << "limit = ";
+            write_list(kids[0], o);
+            o << "\n";
+            write_list(kids[1], o, true);
+            --_indent;
+            indent(o);
+            o << "}\n";
+        }
+        else {
+            o << which << " = ";
+            write_list(kids[0], o);
+            o << "\n";
+        }
     }
 
     void write_val(AST const* pNode, ostream& o) {
         assert( pNode->children().empty() ); // scalar values should never have children!
-        assert( pNode->token().get_text() != &QUEX_NAME_TOKEN(LexemeNull) ); // should never be empty text for VAL tokens
         auto txt = (char*)pNode->token().get_text();
         assert( txt && *txt ); // likewise
-        o << txt;
+
+        /* some aliases -- as always until ZCK starts to grow into something ready to be used heavily, we're doing this
+         * shit in a silly but very easy way */
+
+        if (strcmp(txt, "save_target") == 0)
+            o << "save_event_target_as";
+        else if (strcmp(txt, "save_global_target") == 0)
+            o << "save_global_event_target_as";
+        else if (strcmp(txt, "clear_global_target") == 0)
+            o << "clear_global_event_target";
+        else if (strcmp(txt, "clear_target") == 0)
+            o << "clear_event_target";
+        else if (strncmp("target:", txt, strlen("target:")) == 0)
+            o << "event_" << txt;
+        else
+            o << txt;
         // TODO: quote text if nec.
     }
 };
@@ -145,10 +165,11 @@ bool find_root_path(fs::path& out_path) {
 
 
 int main(int argc, char* argv[]) {
-    char const* const short_opts = "vh";
+    char const* const short_opts = "vVh";
     option const long_opts[] = {
-      {"verbose", no_argument,       nullptr, 'v'},
-      {"help",    no_argument,       nullptr, 'h'},
+      {"verbose", no_argument, nullptr, 'v'},
+      {"version", no_argument, nullptr, 'V'},
+      {"help",    no_argument, nullptr, 'h'},
       {nullptr, 0, nullptr, 0}
     };
 
@@ -166,6 +187,11 @@ int main(int argc, char* argv[]) {
 
         case 'h':
             print_help(argv[0], cout);
+            return 0;
+
+        case 'V':
+            cout << "ZCK compiler " << VERSION << endl;
+            cout << "Copyright (C) 2018 Matthew D. Hall" << endl;
             return 0;
 
         case '?':
@@ -201,16 +227,18 @@ int main(int argc, char* argv[]) {
             out_file += "_ZCK.txt";
             auto out_path = in_path.parent_path() / out_file;
 
+            cout << "[COMPILE] " << in_path.generic_string() << endl;
+
+            /* parse the source & translate it into the target stream */
+            Parser parser(in_path.generic_string().c_str());
+
             /* open the target's stream */
             fs::ofstream out(out_path, std::ios::binary);
 
             if (!out)
                 throw VException("Could not open file for writing: %s", out_path.generic_string().c_str());
 
-            cout << "[COMPILE] " << in_path.generic_string() << endl;
-
-            /* parse the source & translate it into the target stream */
-            Parser parser(in_path.generic_string().c_str());
+            out << "# -*- ck2 -*-\n# Generated from ZCK source code; compiler version: " << VERSION << "\n\n";
             Translator(parser.root(), out);
         }
     }
