@@ -125,8 +125,9 @@ private:
 
     void write_val(AST const* pNode, ostream& o) {
         assert( pNode->children().empty() ); // scalar values should never have children!
-        auto txt = (char*)pNode->token().get_text();
-        assert( txt && *txt ); // likewise
+        auto& t = pNode->token();
+        auto txt = (char*)t.get_text();
+        assert( t.type_id() == T_QSTRING || *txt != '\0');
 
         /* some aliases -- as always until ZCK starts to grow into something ready to be used heavily, we're doing this
          * shit in a silly but very easy way */
@@ -141,6 +142,8 @@ private:
             o << "clear_event_target";
         else if (strncmp("target:", txt, strlen("target:")) == 0)
             o << "event_" << txt;
+        else if (t.type_id() == T_QSTRING || t.type_id() == T_QDATE)
+            o << "\"" << txt << "\"";
         else
             o << txt;
         // TODO: quote text if nec.

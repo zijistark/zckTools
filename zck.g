@@ -3,17 +3,19 @@
  * OP:  >|<|>=|<=|==|=|!= // OP_GT|OP_LT|OP_GTEQ|OP_LTEQ|OP_DEQ|OP_EQ|OP_NEQ (bit 11 in token type)
  */
 
-Start      → List
-List       → StmtVal*                                                // LA: {VAL, L_BRACE, R_BRACE}
-ClosedList → L_BRACE List R_BRACE                                    // LA: {L_BRACE}
-StmtVal    → IF ClosedList ClosedList? ElseIf*                       // LA: {IF}
+START      → Block
+Block      → StmtVal*                                                // LA: {VAL, L_BRACE, R_BRACE}
+List       → L_BRACE Block R_BRACE                                   // LA: {L_BRACE}
+StmtVal    → IF IfCont                                               // LA: {IF}
            | VAL StmtCont?                                           // LA: {VAL}
-           | ClosedList                                              // LA: {L_BRACE}
+           | List                                                    // LA: {L_BRACE}
            ;                                                         // LA: {IF, VAL, L_BRACE}
-ElseIf     → ELSIF ClosedList ClosedList?                            // LA: {ELSIF}
+IfCont     → OP_EQ? List IfEffect? ElsIf*                            // LA: {OP_EQ, L_BRACE}
+IfEffect   → (THEN|DO)? List                                         // LA: {THEN, DO, L_BRACE}
+ElsIf      → ELSIF IfCont                                            // LA: {ELSIF}
 StmtCont   → OP StmtRHS                                              // LA: {OP}
-           | ClosedList                                              // LA: {L_BRACE}
+           | List                                                    // LA: {L_BRACE}
            ;                                                         // LA: {OP, L_BRACE}
 StmtRHS    → VAL                                                     // LA: {VAL}
-           | ClosedList                                              // LA: {L_BRACE}
+           | List                                                    // LA: {L_BRACE}
            ;                                                         // LA: {VAL, L_BRACE}

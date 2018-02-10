@@ -110,23 +110,14 @@ protected:
 
     void start() {
         _pRoot = new AST( make_token(T_LIST) );
-        rule_List(_pRoot);
+        rule_Block(_pRoot);
         match(T_TERMINATION);
     }
 
     void rule_StmtVal(AST* pRoot) {
         if (peek_match(T_IF)) {
             auto pIf = pRoot->add_child( advance_and_save() );
-            auto pList1 = pIf->add_child(new AST( make_token(T_LIST, peek().line_number(), peek().column_number()) ));
-            rule_ClosedList(pList1);
-
-            if (peek_match(T_L_BRACE)) {
-                auto pList2 = pIf->add_child(new AST( make_token(T_LIST, peek().line_number(), peek().column_number()) ));
-                rule_ClosedList(pList2);
-            }
-
-            while (peek_match(T_ELSIF))
-                rule_ElseIf(pRoot);
+            rule_IfCont(pIf);
         }
         else if (peek_matchmask(TM_VAL)) {
             auto pVal = advance_and_save();
@@ -135,7 +126,7 @@ protected:
         }
         else {
             auto pList = pRoot->add_child(new AST( make_token(T_LIST, peek().line_number(), peek().column_number()) ));
-            rule_ClosedList(pList);
+            rule_List(pList);
         }
     }
 
@@ -149,36 +140,53 @@ protected:
             auto pOp = pRoot->add_child(new AST( make_token(T_OP_EQ, peek().line_number(), peek().column_number()) ));
             pOp->add_child(pLHS);
             auto pList = pOp->add_child(new AST( make_token(T_LIST, peek().line_number(), peek().column_number()) ));
-            rule_ClosedList(pList);
+            rule_List(pList);
         }
     }
 
     void rule_StmtRHS(AST* pRoot) {
-        if (peek_matchmask(TM_VAL)) pRoot->add_child( advance_and_save() );
+        if (peek_matchmask(TM_VAL))
+            pRoot->add_child( advance_and_save() );
         else {
             auto pList = pRoot->add_child(new AST( make_token(T_LIST, peek().line_number(), peek().column_number()) ));
-            rule_ClosedList(pList);
+            rule_List(pList);
         }
     }
 
-    void rule_ElseIf(AST* pRoot) {
-        auto pElseIf = pRoot->add_child( advance_and_save() );
-        auto pList1 = pElseIf->add_child(new AST( make_token(T_LIST, peek().line_number(), peek().column_number()) ));
-        rule_ClosedList(pList1);
+    void rule_IfCont(AST* pRoot) {
+        if (peek_match(T_OP_EQ)) advance();
+
+        auto pList = pRoot->add_child(new AST( make_token(T_LIST, peek().line_number(), peek().column_number()) ));
+        rule_List(pList);
+
+        if (peek_match(T_THEN) || peek_match(T_DO) || peek_match(T_L_BRACE))
+            rule_IfEffect(pRoot);
+
+        while (peek_match(T_ELSIF))
+            rule_ElsIf(pRoot->parent());
+    }
+
+    void rule_IfEffect(AST* pRoot) {
+        if (peek_match(T_THEN) || peek_match(T_DO)) advance();
 
         if (peek_match(T_L_BRACE)) {
-            auto pList2 = pElseIf->add_child(new AST( make_token(T_LIST, peek().line_number(), peek().column_number()) ));
-            rule_ClosedList(pList2);
+            auto pList2 = pRoot->add_child(new AST( make_token(T_LIST, peek().line_number(), peek().column_number()) ));
+            rule_List(pList2);
         }
     }
 
-    void rule_ClosedList(AST* pRoot) {
-        match(T_L_BRACE);
-        rule_List(pRoot);
-        match(T_R_BRACE);
+    void rule_ElsIf(AST* pRoot) {
+        auto pElsIf = pRoot->add_child( match_and_save(T_ELSIF) );
+        rule_IfCont(pElsIf);
     }
 
     void rule_List(AST* pRoot) {
+        match(T_L_BRACE);
+        rule_Block(pRoot);
+        match(T_R_BRACE);
+    }
+
+    void rule_Block(AST* pRoot) {
         while (peek_matchmask(TM_VAL) || peek_match(T_L_BRACE) || peek_match(T_IF))
             rule_StmtVal(pRoot);
     }

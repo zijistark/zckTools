@@ -34,6 +34,19 @@
 
 
 if { culture = ROOT religion = ROOT } { move_character = ROOT }
-elif { hostile_religion = ROOT } { imprison = ROOT death = { death_reason = death_execution_beheading } }
+elif { hostile_religion = ROOT } { imprison = ROOT death { death_reason = death_execution_beheading } }
 else { death = yes }
+
+if {
+    nand {
+        uses_imperial_decay = yes
+        primary_title { $[imperial_decay] > 50 }
+    }
+} then { # optional then/do between bracketed conditional and effect clauses
+    reverse_war {
+        target = target:rebel
+        casus_belli = imperial_decay_overthrow
+    }
+}
+
 
