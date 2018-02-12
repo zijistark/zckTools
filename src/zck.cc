@@ -11,14 +11,12 @@ namespace fs = boost::filesystem;
 
 
 const char* const TAB = "\t";
-const char* const VERSION = "v0.0.3";
+const char* const VERSION = "v0.0-4";
 
 struct options {
-    string input;
-    string output;
-    bool   verbose;
+    int verbose;
 
-    options() : verbose(false) {}
+    options() : verbose(0) {}
 } g_opt;
 
 
@@ -78,11 +76,48 @@ private:
         assert( kids.size() == 2 ); // binary operators ought to have exactly two children!
 
         indent(o);
+
+        if (t.type_id() == T_OP_NEQ) {
+            // operator != implementation currently only works for non-numeric triggers (i.e., those which do not support
+            // full range of comparison operators). to get it to work for numeric triggers, we need to be able to recognize
+            // numeric triggers separately in order to give them the implementation of NOT { num_trigger == X } rather than
+            // NOT { regular_trigger = X }. since != does not have very many uses for numeric triggers in practice, I'm not
+            // bothering for now.
+
+            // also: heavy usage of != will result in a lot of unnecessary NOTs that should be [intelligently] coalesced into
+            // a bigger NOR -- for some reason the NOT trigger actually consumes quite a lot of CPU cycles overall
+            // (presumably due to the very high overhead of CK2script execution and the sheer amount of negations which occur
+            // in script logic), so in the future this should be an intermediate tree rewriting step so that an optimization
+            // pass can reduce the heavy usage of NOT by using NOR.
+
+            if (kids.back()->token().type_id() != T_LIST) {
+                // this version can be a one-liner; don't normally care much about output prettiness, but helps readability
+                o << "not = { ";
+                walk(kids.front(), o);
+                o << " = ";
+                walk(kids.back(), o);
+                o << " }\n";
+            }
+            else {
+                o << "not = {\n";
+                ++_indent;
+                indent(o);
+                walk(kids.front(), o);
+                o << " = ";
+                walk(kids.back(), o);
+                o << "\n";
+                --_indent;
+                indent(o);
+                o << "}\n";
+            }
+
+            return;
+        }
+
         walk(kids.front(), o);
 
         switch (t.type_id()) {
             case T_OP_EQ:   o << " = ";  break;
-            case T_OP_NEQ:  o << " != "; break;
             case T_OP_DEQ:  o << " == "; break;
             case T_OP_LTEQ: o << " <= "; break;
             case T_OP_LT:   o << " < ";  break;
@@ -190,7 +225,7 @@ int main(int argc, char* argv[]) {
 
         switch (opt) {
         case 'v':
-            g_opt.verbose = true;
+            g_opt.verbose++;
             break;
 
         case 'h':
@@ -235,7 +270,8 @@ int main(int argc, char* argv[]) {
             out_file += "_ZCK.txt";
             auto out_path = in_path.parent_path() / out_file;
 
-            cout << "[COMPILE] " << in_path.generic_string() << endl;
+            if (g_opt.verbose >= 1)
+                cout << "[COMPILE] " << in_path.generic_string() << endl;
 
             /* parse the source & translate it into the target stream */
             Parser parser(in_path.generic_string().c_str());
