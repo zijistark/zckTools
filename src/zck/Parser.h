@@ -81,8 +81,7 @@ protected:
 
     void match(token_id_t t) {
         if (peek().type_id() != t)
-            throw VParseException(token_loc(), "Unexpected token %s (expected %s)",
-                                  peek().type_id_name(), peek().map_id_to_name(t));
+            throw VParseException(token_loc(), "Unexpected token (expected %s)", peek().map_id_to_name(t));
         advance();
     }
 
@@ -118,6 +117,20 @@ protected:
         if (peek_match(T_IF)) {
             auto pIf = pRoot->add_child( advance_and_save() );
             rule_IfCont(pIf);
+        }
+        else if (peek_match(T_WHILE)) {
+            auto pWhile = pRoot->add_child( advance_and_save() );
+
+            if (peek_match(T_OP_EQ)) advance();
+
+            auto pList = pWhile->add_child(new AST( make_token(T_LIST, peek().line_number(), peek().column_number()) ));
+            rule_List(pList);
+
+            if (peek_match(T_DO)) {
+                advance();
+                auto pList2 = pWhile->add_child(new AST( make_token(T_LIST, peek().line_number(), peek().column_number()) ));
+                rule_List(pList2);
+            }
         }
         else if (peek_matchmask(TM_VAL)) {
             auto pVal = advance_and_save();
@@ -181,7 +194,7 @@ protected:
     }
 
     void rule_Block(AST* pRoot) {
-        while (peek_matchmask(TM_VAL) || peek_match(T_L_BRACE) || peek_match(T_IF))
+        while (peek_matchmask(TM_VAL) || peek_match(T_L_BRACE) || peek_match(T_IF) || peek_match(T_WHILE))
             rule_StmtVal(pRoot);
     }
 };

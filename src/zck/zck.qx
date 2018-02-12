@@ -38,8 +38,9 @@ token {
 
   IF          = 0b0001.0001.0000.0000;
   ELSIF       = 0b0001.0001.0000.0001;
-  THEN        = 0b0001.0001.0000.0010;
-  DO          = 0b0001.0001.0000.0011;
+  WHILE       = 0b0001.0001.0000.0010;
+  THEN        = 0b0001.0001.0000.0011;
+  DO          = 0b0001.0001.0000.0100;
 
   /* AST META-TOKENS (do not occur in input, but are used for identifying certain AST elements) */
   LIST        = 0b0000.0011.0000.0000;
@@ -88,6 +89,7 @@ mode MAIN :
   "}"             => T_R_BRACE;
   "if"            => T_IF;
   {ELSIF}         => T_ELSIF;
+  "while"         => T_WHILE;
   "then"          => T_THEN;
   "do"            => T_DO;
   {SIGN}[0-9]+    => T_INTEGER(Lexeme);

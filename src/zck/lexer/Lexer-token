@@ -461,6 +461,7 @@ QUEX_NAME_TOKEN(map_id_to_name)(const QUEX_TYPE_TOKEN_ID TokenID)
    case T_STRING:        return "STRING";
    case T_THEN:          return "THEN";
    case T_TITLE_ID:      return "TITLE_ID";
+   case T_WHILE:         return "WHILE";
 
 
    }

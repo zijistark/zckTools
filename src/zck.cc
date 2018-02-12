@@ -11,7 +11,7 @@ namespace fs = boost::filesystem;
 
 
 const char* const TAB = "\t";
-const char* const VERSION = "v0.0.2";
+const char* const VERSION = "v0.0.3";
 
 struct options {
     string input;
@@ -50,8 +50,8 @@ private:
             write_op(pNode, o);
         else if (t.type_id() & Parser::TM_VAL)
             write_val(pNode, o);
-        else if (t.type_id() == T_IF || t.type_id() == T_ELSIF)
-            write_ifelsif(pNode, o);
+        else if (t.type_id() == T_IF || t.type_id() == T_ELSIF || t.type_id() == T_WHILE)
+            write_conditional_effect(pNode, o);
         else
             throw VException("Internal error: Unexpected token type %s in AST", t.type_id_name());
     }
@@ -96,16 +96,19 @@ private:
         o << "\n";
     }
 
-    void write_ifelsif(AST const* pNode, ostream& o) {
-        const char* const which = (pNode->token().type_id() == T_IF) ? "if" : "else_if";
+    void write_conditional_effect(AST const* pNode, ostream& o) {
+        auto tok_id = pNode->token().type_id();
+        const char* type = tok_id == T_WHILE ? "while" :
+                           tok_id == T_IF    ? "if"    : "else_if";
+
         auto& kids = pNode->children();
 
         assert( kids.size() > 0 && kids.size() <= 2 );
 
         indent(o);
 
-        if (kids.size() == 2) {
-            o << which << " = {\n";
+        if (kids.size() == 2) { // new syntax
+            o << type << " = {\n";
             ++_indent;
             indent(o);
             o << "limit = ";
@@ -117,7 +120,9 @@ private:
             o << "}\n";
         }
         else {
-            o << which << " = ";
+            // backward-compatible syntax + pure trigger/effect syntax (i.e., conditional block existence exclusive to
+            // effect block existence)
+            o << type << " = ";
             write_list(kids[0], o);
             o << "\n";
         }

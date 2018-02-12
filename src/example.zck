@@ -33,20 +33,25 @@
 #}
 
 
-if { culture = ROOT religion = ROOT } { move_character = ROOT }
-elif { hostile_religion = ROOT } { imprison = ROOT death { death_reason = death_execution_beheading } }
+if { culture = ROOT religion = ROOT } then { move_character = ROOT }
+elif { hostile_religion = ROOT } then { imprison = ROOT }
 else { death = yes }
 
 if {
-    nand {
-        uses_imperial_decay = yes
-        primary_title { $[imperial_decay] > 50 }
-    }
+    emf_uses_imperial_decay = yes
+    primary_title { $[imperial_decay] > 50 }
 } then { # 'then' between bracketed conditional and effect clauses ('do' for while effects)
-    reverse_war {
-        target = target:rebel
-        casus_belli = imperial_decay_overthrow
-    }
+    explode = yes
 }
 
+
+while {
+    num_of_friends < 6
+    any_close_relative { not { is_friend = ROOT } }
+} do {
+    random_close_relative {
+        limit { not { is_friend = ROOT } } # don't worry we'll get there, re: `limit` required for any_*/random_* effects
+        add_friend = ROOT
+    }
+}
 
