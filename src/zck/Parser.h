@@ -159,20 +159,14 @@ protected:
         auto pList = pRoot->add_child(new AST( make_token(T_LIST, peek().line_number(), peek().column_number()) ));
         rule_List(pList);
 
-        if (peek_match(T_THEN) || peek_match(T_DO) || peek_match(T_L_BRACE))
-            rule_IfEffect(pRoot);
-
-        while (peek_match(T_ELSIF))
-            rule_ElsIf(pRoot->parent());
-    }
-
-    void rule_IfEffect(AST* pRoot) {
-        if (peek_match(T_THEN) || peek_match(T_DO)) advance();
-
-        if (peek_match(T_L_BRACE)) {
+        if (peek_match(T_THEN)) {
+            advance();
             auto pList2 = pRoot->add_child(new AST( make_token(T_LIST, peek().line_number(), peek().column_number()) ));
             rule_List(pList2);
         }
+
+        while (peek_match(T_ELSIF))
+            rule_ElsIf(pRoot->parent());
     }
 
     void rule_ElsIf(AST* pRoot) {

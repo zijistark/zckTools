@@ -10,8 +10,7 @@ StmtVal    → IF IfCont                                               // LA: {I
            | VAL StmtCont?                                           // LA: {VAL}
            | List                                                    // LA: {L_BRACE}
            ;                                                         // LA: {IF, VAL, L_BRACE}
-IfCont     → OP_EQ? List IfEffect? ElsIf*                            // LA: {OP_EQ, L_BRACE}
-IfEffect   → (THEN|DO)? List                                         // LA: {THEN, DO, L_BRACE}
+IfCont     → OP_EQ? List (THEN List)? ElsIf*                         // LA: {OP_EQ, L_BRACE}
 ElsIf      → ELSIF IfCont                                            // LA: {ELSIF}
 StmtCont   → OP StmtRHS                                              // LA: {OP}
            | List                                                    // LA: {L_BRACE}

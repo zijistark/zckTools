@@ -42,7 +42,7 @@ if {
         uses_imperial_decay = yes
         primary_title { $[imperial_decay] > 50 }
     }
-} then { # optional then/do between bracketed conditional and effect clauses
+} then { # 'then' between bracketed conditional and effect clauses ('do' for while effects)
     reverse_war {
         target = target:rebel
         casus_belli = imperial_decay_overthrow
