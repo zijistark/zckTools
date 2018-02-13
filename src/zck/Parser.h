@@ -40,10 +40,13 @@ public:
     ErrorQueue&       error_queue()       noexcept { return _errors; }
 
     /* TM_: Token Mask (token type grouping) */
-    static const token_id_t TM_VAL   = (1<<11);
-    static const token_id_t TM_OP    = (1<<10);
-    static const token_id_t TM_META  = (1<<9);
-    static const token_id_t TM_EMPTY = (1<<8);
+
+    static const token_id_t TM_LIST_SCOPE   = (1<<13);
+    static const token_id_t TM_KEYWORD      = (1<<12);
+    static const token_id_t TM_VAL          = (1<<11);
+    static const token_id_t TM_OP           = (1<<10);
+    static const token_id_t TM_META         = (1<<9);
+    static const token_id_t TM_EMPTY        = (1<<8);
 
 protected:
     /* persistent state (i.e., still relevant/required after Parser construction) */
@@ -116,21 +119,11 @@ protected:
     void rule_StmtVal(AST* pRoot) {
         if (peek_match(T_IF)) {
             auto pIf = pRoot->add_child( advance_and_save() );
-            rule_IfCont(pIf);
+            rule_IfBody(pIf);
         }
-        else if (peek_match(T_WHILE)) {
-            auto pWhile = pRoot->add_child( advance_and_save() );
-
-            if (peek_match(T_OP_EQ)) advance();
-
-            auto pList = pWhile->add_child(new AST( make_token(T_LIST, peek().line_number(), peek().column_number()) ));
-            rule_List(pList);
-
-            if (peek_match(T_DO)) {
-                advance();
-                auto pList2 = pWhile->add_child(new AST( make_token(T_LIST, peek().line_number(), peek().column_number()) ));
-                rule_List(pList2);
-            }
+        else if (peek_matchmask(TM_LIST_SCOPE) || peek_match(T_WHILE)) {
+            auto pNode = pRoot->add_child( advance_and_save() );
+            rule_LoopBody(pNode);
         }
         else if (peek_matchmask(TM_VAL)) {
             auto pVal = advance_and_save();
@@ -166,7 +159,7 @@ protected:
         }
     }
 
-    void rule_IfCont(AST* pRoot) {
+    void rule_IfBody(AST* pRoot) {
         if (peek_match(T_OP_EQ)) advance();
 
         auto pList = pRoot->add_child(new AST( make_token(T_LIST, peek().line_number(), peek().column_number()) ));
@@ -182,9 +175,22 @@ protected:
             rule_ElsIf(pRoot->parent());
     }
 
+    void rule_LoopBody(AST* pRoot) {
+        if (peek_match(T_OP_EQ)) advance();
+
+        auto pList = pRoot->add_child(new AST( make_token(T_LIST, peek().line_number(), peek().column_number()) ));
+        rule_List(pList);
+
+        if (peek_match(T_DO)) {
+            advance();
+            auto pList2 = pRoot->add_child(new AST( make_token(T_LIST, peek().line_number(), peek().column_number()) ));
+            rule_List(pList2);
+        }
+    }
+
     void rule_ElsIf(AST* pRoot) {
         auto pElsIf = pRoot->add_child( match_and_save(T_ELSIF) );
-        rule_IfCont(pElsIf);
+        rule_IfBody(pElsIf);
     }
 
     void rule_List(AST* pRoot) {
@@ -194,8 +200,11 @@ protected:
     }
 
     void rule_Block(AST* pRoot) {
-        while (peek_matchmask(TM_VAL) || peek_match(T_L_BRACE) || peek_match(T_IF) || peek_match(T_WHILE))
-            rule_StmtVal(pRoot);
+        while (peek_matchmask(TM_VAL) ||
+               peek_matchmask(TM_LIST_SCOPE) ||
+               peek_match(T_L_BRACE) ||
+               peek_match(T_IF) ||
+               peek_match(T_WHILE)) rule_StmtVal(pRoot);
     }
 };
 

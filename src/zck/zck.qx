@@ -8,15 +8,26 @@ header {
 
 token {
   /* 
+   * bit 14 indicates a list scope (any_* / random_* keywords)
    * bit 13 indicates a keyword; keywords are only pre-recognized strings
    * bit 12 indicates a scalar value ("VAL" in grammar)
    * bit 11 indicates an operator ("OP" in grammar)
    * bit 10 indicates an AST meta-token type
    * bit 9 indicates that the token has no value associated with it (usually punctuation tokens)
    *
-   * note that the currently-used token ID type is 32-bit, so we've got a lot of room for such bitplay.
+   * note that the currently-used token ID type is 32-bit (and can be trivially resized to 64-bit), so we've got a lot of
+   * room for such bitplay.
    */
 
+  /* AST META-TOKENS (do not occur in input, but are used for identifying certain AST elements) */
+  LIST        = 0b0000.0011.0000.0000;
+
+  /* INCIDENCE TOKENS */
+  TERMINATION   = 0x00;
+  UNINITIALIZED = 0x01;
+  FAILURE       = 0x02;
+
+  /* SCALAR VALUE TOKENS */
   STRING      = 0b0000.1000.0000.0000;
   QSTRING     = 0b0000.1000.0000.0001;
   INTEGER     = 0b0000.1000.0000.0010;
@@ -26,6 +37,7 @@ token {
   TITLE_ID    = 0b0000.1000.0000.0110;
   CHAR_SCOPE  = 0b0000.1000.0000.0111;
 
+  /* PUNCTUATION TOKENS */
   OP_EQ       = 0b0000.0101.0000.0000;
   OP_DEQ      = 0b0000.0101.0000.1000;
   OP_LT       = 0b0000.0101.0000.1001;
@@ -36,28 +48,156 @@ token {
   L_BRACE     = 0b0000.0001.0000.0000;
   R_BRACE     = 0b0000.0001.0000.0001;
 
+  /* LANGUAGE KEYWORDS */
   IF          = 0b0001.0001.0000.0000;
   ELSIF       = 0b0001.0001.0000.0001;
   WHILE       = 0b0001.0001.0000.0010;
   THEN        = 0b0001.0001.0000.0011;
   DO          = 0b0001.0001.0000.0100;
 
-  /* AST META-TOKENS (do not occur in input, but are used for identifying certain AST elements) */
-  LIST        = 0b0000.0011.0000.0000;
-
-  /* INCIDENCE TOKENS */
-  TERMINATION   = 0x00;
-  UNINITIALIZED = 0x01;
-  FAILURE       = 0x02;
-
-  /* INDENTATION INCIDENCE TOKENS
-   * I haven't figured out how to get quex to stop generating these token IDs on its own, so we at least assign them explicit
-   * values that won't interfere with our convenient binary organization (which is done so that we can query token types
-   * with efficient set operations / bitmask fun).
-   */
-  NODENT        = 0x04;
-  INDENT        = 0x05;
-  DEDENT        = 0x06;
+  /* BEGIN: LIST SCOPE TOKENS */
+  ANY_ALLIED_CHARACTER                 = 0x3000;
+  ANY_ARMY                             = 0x3001;
+  ANY_ARTIFACT                         = 0x3002;
+  ANY_ATTACKER                         = 0x3003;
+  ANY_BACKED_CHARACTER                 = 0x3004;
+  ANY_CHARACTER                        = 0x3005;
+  ANY_CHILD                            = 0x3006;
+  ANY_CHILD_EVEN_IF_DEAD               = 0x3007;
+  ANY_CLAIM                            = 0x3008;
+  ANY_CLAIMANT                         = 0x3009;
+  ANY_CLOSE_RELATIVE                   = 0x300A;
+  ANY_CONSORT                          = 0x300B;
+  ANY_CONTROLLED_UNIT                  = 0x300C;
+  ANY_COURTIER                         = 0x300D;
+  ANY_COURTIER_OR_VASSAL               = 0x300E;
+  ANY_CURRENT_ENEMY                    = 0x300F;
+  ANY_DE_JURE_LIEGE_TITLE              = 0x3010;
+  ANY_DE_JURE_VASSAL                   = 0x3011;
+  ANY_DE_JURE_VASSAL_TITLE             = 0x3012;
+  ANY_DEFENDER                         = 0x3013;
+  ANY_DEMESNE_PROVINCE                 = 0x3014;
+  ANY_DEMESNE_TITLE                    = 0x3015;
+  ANY_DIRECT_DE_JURE_VASSAL_TITLE      = 0x3016;
+  ANY_DYNASTY_MEMBER                   = 0x3017;
+  ANY_DYNASTY_MEMBER_EVEN_IF_DEAD      = 0x3018;
+  ANY_ENEMY_PLOTTER                    = 0x3019;
+  ANY_FACTION_BACKER                   = 0x301A;
+  ANY_FAVOR_HOLDER                     = 0x301B;
+  ANY_FAVOR_OWER                       = 0x301C;
+  ANY_FLEET                            = 0x301D;
+  ANY_FRIEND                           = 0x301E;
+  ANY_HEIR_TITLE                       = 0x301F;
+  ANY_HOST_COURTIER                    = 0x3020;
+  ANY_INDEPENDENT_RULER                = 0x3021;
+  ANY_KNOWN_ENEMY_PLOTTER              = 0x3022;
+  ANY_KNOWN_PLOTTER                    = 0x3023;
+  ANY_LANDED_TITLE                     = 0x3024;
+  ANY_LIEGE                            = 0x3025;
+  ANY_LOVER                            = 0x3026;
+  ANY_MERCENARY_BAND                   = 0x3027;
+  ANY_NEIGHBOR_INDEPENDENT_RULER       = 0x3028;
+  ANY_NEIGHBOR_PROVINCE                = 0x3029;
+  ANY_NON_AGGRESSION_PACT_CHARACTER    = 0x302A;
+  ANY_OPINION_MODIFIER_TARGET          = 0x302B;
+  ANY_PLAYABLE_RULER                   = 0x302C;
+  ANY_PLAYER                           = 0x302D;
+  ANY_PLOT_BACKER                      = 0x302E;
+  ANY_PLOTTER                          = 0x302F;
+  ANY_POTENTIAL_TRIBAL_COUNTY          = 0x3030;
+  ANY_PRETENDER_TITLE                  = 0x3031;
+  ANY_PREVIOUS_HOLDER                  = 0x3032;
+  ANY_PROVINCE                         = 0x3033;
+  ANY_PROVINCE_CHARACTER               = 0x3034;
+  ANY_PROVINCE_HOLDING                 = 0x3035;
+  ANY_PROVINCE_LORD                    = 0x3036;
+  ANY_PUPIL                            = 0x3037;
+  ANY_QUEST_TARGET                     = 0x3038;
+  ANY_QUESTER                          = 0x3039;
+  ANY_QUESTER_TARGETTING_THIS          = 0x303A;
+  ANY_REALM_CHARACTER                  = 0x303B;
+  ANY_REALM_LORD                       = 0x303C;
+  ANY_REALM_PROVINCE                   = 0x303D;
+  ANY_REALM_TITLE                      = 0x303E;
+  ANY_RIVAL                            = 0x303F;
+  ANY_SIBLING                          = 0x3040;
+  ANY_SIBLING_EVEN_IF_DEAD             = 0x3041;
+  ANY_SOCIETY_MEMBER                   = 0x3042;
+  ANY_SPOUSE                           = 0x3043;
+  ANY_SPOUSE_EVEN_IF_DEAD              = 0x3044;
+  ANY_SUZERAIN                         = 0x3045;
+  ANY_TITLE                            = 0x3046;
+  ANY_TITLE_UNDER                      = 0x3047;
+  ANY_TRADE_POST                       = 0x3048;
+  ANY_TRADE_ROUTE_PROVINCE             = 0x3049;
+  ANY_TRIBUTARY                        = 0x304A;
+  ANY_UNIQUE_DYNASTY_VASSAL            = 0x304B;
+  ANY_UNIT                             = 0x304C;
+  ANY_UNKNOWN_ENEMY_PLOTTER            = 0x304D;
+  ANY_VASSAL                           = 0x304E;
+  ANY_VOTER                            = 0x304F;
+  ANY_WAR                              = 0x3050;
+  ANY_WARD                             = 0x3051;
+  RANDOM_ALLIED_CHARACTER              = 0x3052;
+  RANDOM_ARMY                          = 0x3053;
+  RANDOM_ARTIFACT                      = 0x3054;
+  RANDOM_BACKED_CHARACTER              = 0x3055;
+  RANDOM_CHARACTER                     = 0x3056;
+  RANDOM_CHILD                         = 0x3057;
+  RANDOM_CHILD_EVEN_IF_DEAD            = 0x3058;
+  RANDOM_CLAIM                         = 0x3059;
+  RANDOM_CLOSE_RELATIVE                = 0x305A;
+  RANDOM_CONSORT                       = 0x305B;
+  RANDOM_CONTROLLED_UNIT               = 0x305C;
+  RANDOM_COURTIER                      = 0x305D;
+  RANDOM_COURTIER_OR_VASSAL            = 0x305E;
+  RANDOM_CURRENT_ENEMY                 = 0x305F;
+  RANDOM_DEMESNE_PROVINCE              = 0x3060;
+  RANDOM_DEMESNE_TITLE                 = 0x3061;
+  RANDOM_DIRECT_DE_JURE_VASSAL_TITLE   = 0x3062;
+  RANDOM_DYNASTY_MEMBER                = 0x3063;
+  RANDOM_DYNASTY_MEMBER_EVEN_IF_DEAD   = 0x3064;
+  RANDOM_ENEMY_PLOTTER                 = 0x3065;
+  RANDOM_FLEET                         = 0x3066;
+  RANDOM_FRIEND                        = 0x3067;
+  RANDOM_HOST_COURTIER                 = 0x3068;
+  RANDOM_INDEPENDENT_RULER             = 0x3069;
+  RANDOM_KNOWN_ENEMY_PLOTTER           = 0x306A;
+  RANDOM_LANDED_TITLE                  = 0x306B;
+  RANDOM_LOVER                         = 0x306C;
+  RANDOM_NEIGHBOR_INDEPENDENT_RULER    = 0x306D;
+  RANDOM_NEIGHBOR_PROVINCE             = 0x306E;
+  RANDOM_NON_AGGRESSION_PACT_CHARACTER = 0x306F;
+  RANDOM_OPINION_MODIFIER_TARGET       = 0x3070;
+  RANDOM_PLAYABLE_RULER                = 0x3071;
+  RANDOM_PLAYER                        = 0x3072;
+  RANDOM_POTENTIAL_TRIBAL_COUNTY       = 0x3073;
+  RANDOM_PROVINCE                      = 0x3074;
+  RANDOM_PROVINCE_CHARACTER            = 0x3075;
+  RANDOM_PROVINCE_HOLDING              = 0x3076;
+  RANDOM_PROVINCE_LORD                 = 0x3077;
+  RANDOM_PUPIL                         = 0x3078;
+  RANDOM_QUEST_TARGET                  = 0x3079;
+  RANDOM_QUESTER                       = 0x307A;
+  RANDOM_QUESTER_TARGETTING_THIS       = 0x307B;
+  RANDOM_REALM_CHARACTER               = 0x307C;
+  RANDOM_REALM_LORD                    = 0x307D;
+  RANDOM_REALM_PROVINCE                = 0x307E;
+  RANDOM_REALM_TITLE                   = 0x307F;
+  RANDOM_RIVAL                         = 0x3080;
+  RANDOM_SIBLING                       = 0x3081;
+  RANDOM_SIBLING_EVEN_IF_DEAD          = 0x3082;
+  RANDOM_SOCIETY_MEMBER                = 0x3083;
+  RANDOM_SPOUSE                        = 0x3084;
+  RANDOM_SPOUSE_EVEN_IF_DEAD           = 0x3085;
+  RANDOM_TRADE_POST                    = 0x3086;
+  RANDOM_TRIBUTARY                     = 0x3087;
+  RANDOM_UNIT                          = 0x3088;
+  RANDOM_UNKNOWN_ENEMY_PLOTTER         = 0x3089;
+  RANDOM_VASSAL                        = 0x308A;
+  RANDOM_VOTER                         = 0x308B;
+  RANDOM_WARD                          = 0x308C;
+  /* END: LIST SCOPE TOKENS */
 }
 
 define {
@@ -92,6 +232,151 @@ mode MAIN :
   "while"         => T_WHILE;
   "then"          => T_THEN;
   "do"            => T_DO;
+
+  /* BEGIN: LIST SCOPE EMITTERS */
+  "any_allied_character"                 => T_ANY_ALLIED_CHARACTER(Lexeme);
+  "any_army"                             => T_ANY_ARMY(Lexeme);
+  "any_artifact"                         => T_ANY_ARTIFACT(Lexeme);
+  "any_attacker"                         => T_ANY_ATTACKER(Lexeme);
+  "any_backed_character"                 => T_ANY_BACKED_CHARACTER(Lexeme);
+  "any_character"                        => T_ANY_CHARACTER(Lexeme);
+  "any_child"                            => T_ANY_CHILD(Lexeme);
+  "any_child_even_if_dead"               => T_ANY_CHILD_EVEN_IF_DEAD(Lexeme);
+  "any_claim"                            => T_ANY_CLAIM(Lexeme);
+  "any_claimant"                         => T_ANY_CLAIMANT(Lexeme);
+  "any_close_relative"                   => T_ANY_CLOSE_RELATIVE(Lexeme);
+  "any_consort"                          => T_ANY_CONSORT(Lexeme);
+  "any_controlled_unit"                  => T_ANY_CONTROLLED_UNIT(Lexeme);
+  "any_courtier"                         => T_ANY_COURTIER(Lexeme);
+  "any_courtier_or_vassal"               => T_ANY_COURTIER_OR_VASSAL(Lexeme);
+  "any_current_enemy"                    => T_ANY_CURRENT_ENEMY(Lexeme);
+  "any_de_jure_liege_title"              => T_ANY_DE_JURE_LIEGE_TITLE(Lexeme);
+  "any_de_jure_vassal"                   => T_ANY_DE_JURE_VASSAL(Lexeme);
+  "any_de_jure_vassal_title"             => T_ANY_DE_JURE_VASSAL_TITLE(Lexeme);
+  "any_defender"                         => T_ANY_DEFENDER(Lexeme);
+  "any_demesne_province"                 => T_ANY_DEMESNE_PROVINCE(Lexeme);
+  "any_demesne_title"                    => T_ANY_DEMESNE_TITLE(Lexeme);
+  "any_direct_de_jure_vassal_title"      => T_ANY_DIRECT_DE_JURE_VASSAL_TITLE(Lexeme);
+  "any_dynasty_member"                   => T_ANY_DYNASTY_MEMBER(Lexeme);
+  "any_dynasty_member_even_if_dead"      => T_ANY_DYNASTY_MEMBER_EVEN_IF_DEAD(Lexeme);
+  "any_enemy_plotter"                    => T_ANY_ENEMY_PLOTTER(Lexeme);
+  "any_faction_backer"                   => T_ANY_FACTION_BACKER(Lexeme);
+  "any_favor_holder"                     => T_ANY_FAVOR_HOLDER(Lexeme);
+  "any_favor_ower"                       => T_ANY_FAVOR_OWER(Lexeme);
+  "any_fleet"                            => T_ANY_FLEET(Lexeme);
+  "any_friend"                           => T_ANY_FRIEND(Lexeme);
+  "any_heir_title"                       => T_ANY_HEIR_TITLE(Lexeme);
+  "any_host_courtier"                    => T_ANY_HOST_COURTIER(Lexeme);
+  "any_independent_ruler"                => T_ANY_INDEPENDENT_RULER(Lexeme);
+  "any_known_enemy_plotter"              => T_ANY_KNOWN_ENEMY_PLOTTER(Lexeme);
+  "any_known_plotter"                    => T_ANY_KNOWN_PLOTTER(Lexeme);
+  "any_landed_title"                     => T_ANY_LANDED_TITLE(Lexeme);
+  "any_liege"                            => T_ANY_LIEGE(Lexeme);
+  "any_lover"                            => T_ANY_LOVER(Lexeme);
+  "any_mercenary_band"                   => T_ANY_MERCENARY_BAND(Lexeme);
+  "any_neighbor_independent_ruler"       => T_ANY_NEIGHBOR_INDEPENDENT_RULER(Lexeme);
+  "any_neighbor_province"                => T_ANY_NEIGHBOR_PROVINCE(Lexeme);
+  "any_non_aggression_pact_character"    => T_ANY_NON_AGGRESSION_PACT_CHARACTER(Lexeme);
+  "any_opinion_modifier_target"          => T_ANY_OPINION_MODIFIER_TARGET(Lexeme);
+  "any_playable_ruler"                   => T_ANY_PLAYABLE_RULER(Lexeme);
+  "any_player"                           => T_ANY_PLAYER(Lexeme);
+  "any_plot_backer"                      => T_ANY_PLOT_BACKER(Lexeme);
+  "any_plotter"                          => T_ANY_PLOTTER(Lexeme);
+  "any_potential_tribal_county"          => T_ANY_POTENTIAL_TRIBAL_COUNTY(Lexeme);
+  "any_pretender_title"                  => T_ANY_PRETENDER_TITLE(Lexeme);
+  "any_previous_holder"                  => T_ANY_PREVIOUS_HOLDER(Lexeme);
+  "any_province"                         => T_ANY_PROVINCE(Lexeme);
+  "any_province_character"               => T_ANY_PROVINCE_CHARACTER(Lexeme);
+  "any_province_holding"                 => T_ANY_PROVINCE_HOLDING(Lexeme);
+  "any_province_lord"                    => T_ANY_PROVINCE_LORD(Lexeme);
+  "any_pupil"                            => T_ANY_PUPIL(Lexeme);
+  "any_quest_target"                     => T_ANY_QUEST_TARGET(Lexeme);
+  "any_quester"                          => T_ANY_QUESTER(Lexeme);
+  "any_quester_targetting_this"          => T_ANY_QUESTER_TARGETTING_THIS(Lexeme);
+  "any_realm_character"                  => T_ANY_REALM_CHARACTER(Lexeme);
+  "any_realm_lord"                       => T_ANY_REALM_LORD(Lexeme);
+  "any_realm_province"                   => T_ANY_REALM_PROVINCE(Lexeme);
+  "any_realm_title"                      => T_ANY_REALM_TITLE(Lexeme);
+  "any_rival"                            => T_ANY_RIVAL(Lexeme);
+  "any_sibling"                          => T_ANY_SIBLING(Lexeme);
+  "any_sibling_even_if_dead"             => T_ANY_SIBLING_EVEN_IF_DEAD(Lexeme);
+  "any_society_member"                   => T_ANY_SOCIETY_MEMBER(Lexeme);
+  "any_spouse"                           => T_ANY_SPOUSE(Lexeme);
+  "any_spouse_even_if_dead"              => T_ANY_SPOUSE_EVEN_IF_DEAD(Lexeme);
+  "any_suzerain"                         => T_ANY_SUZERAIN(Lexeme);
+  "any_title"                            => T_ANY_TITLE(Lexeme);
+  "any_title_under"                      => T_ANY_TITLE_UNDER(Lexeme);
+  "any_trade_post"                       => T_ANY_TRADE_POST(Lexeme);
+  "any_trade_route_province"             => T_ANY_TRADE_ROUTE_PROVINCE(Lexeme);
+  "any_tributary"                        => T_ANY_TRIBUTARY(Lexeme);
+  "any_unique_dynasty_vassal"            => T_ANY_UNIQUE_DYNASTY_VASSAL(Lexeme);
+  "any_unit"                             => T_ANY_UNIT(Lexeme);
+  "any_unknown_enemy_plotter"            => T_ANY_UNKNOWN_ENEMY_PLOTTER(Lexeme);
+  "any_vassal"                           => T_ANY_VASSAL(Lexeme);
+  "any_voter"                            => T_ANY_VOTER(Lexeme);
+  "any_war"                              => T_ANY_WAR(Lexeme);
+  "any_ward"                             => T_ANY_WARD(Lexeme);
+  "random_allied_character"              => T_RANDOM_ALLIED_CHARACTER(Lexeme);
+  "random_army"                          => T_RANDOM_ARMY(Lexeme);
+  "random_artifact"                      => T_RANDOM_ARTIFACT(Lexeme);
+  "random_backed_character"              => T_RANDOM_BACKED_CHARACTER(Lexeme);
+  "random_character"                     => T_RANDOM_CHARACTER(Lexeme);
+  "random_child"                         => T_RANDOM_CHILD(Lexeme);
+  "random_child_even_if_dead"            => T_RANDOM_CHILD_EVEN_IF_DEAD(Lexeme);
+  "random_claim"                         => T_RANDOM_CLAIM(Lexeme);
+  "random_close_relative"                => T_RANDOM_CLOSE_RELATIVE(Lexeme);
+  "random_consort"                       => T_RANDOM_CONSORT(Lexeme);
+  "random_controlled_unit"               => T_RANDOM_CONTROLLED_UNIT(Lexeme);
+  "random_courtier"                      => T_RANDOM_COURTIER(Lexeme);
+  "random_courtier_or_vassal"            => T_RANDOM_COURTIER_OR_VASSAL(Lexeme);
+  "random_current_enemy"                 => T_RANDOM_CURRENT_ENEMY(Lexeme);
+  "random_demesne_province"              => T_RANDOM_DEMESNE_PROVINCE(Lexeme);
+  "random_demesne_title"                 => T_RANDOM_DEMESNE_TITLE(Lexeme);
+  "random_direct_de_jure_vassal_title"   => T_RANDOM_DIRECT_DE_JURE_VASSAL_TITLE(Lexeme);
+  "random_dynasty_member"                => T_RANDOM_DYNASTY_MEMBER(Lexeme);
+  "random_dynasty_member_even_if_dead"   => T_RANDOM_DYNASTY_MEMBER_EVEN_IF_DEAD(Lexeme);
+  "random_enemy_plotter"                 => T_RANDOM_ENEMY_PLOTTER(Lexeme);
+  "random_fleet"                         => T_RANDOM_FLEET(Lexeme);
+  "random_friend"                        => T_RANDOM_FRIEND(Lexeme);
+  "random_host_courtier"                 => T_RANDOM_HOST_COURTIER(Lexeme);
+  "random_independent_ruler"             => T_RANDOM_INDEPENDENT_RULER(Lexeme);
+  "random_known_enemy_plotter"           => T_RANDOM_KNOWN_ENEMY_PLOTTER(Lexeme);
+  "random_landed_title"                  => T_RANDOM_LANDED_TITLE(Lexeme);
+  "random_lover"                         => T_RANDOM_LOVER(Lexeme);
+  "random_neighbor_independent_ruler"    => T_RANDOM_NEIGHBOR_INDEPENDENT_RULER(Lexeme);
+  "random_neighbor_province"             => T_RANDOM_NEIGHBOR_PROVINCE(Lexeme);
+  "random_non_aggression_pact_character" => T_RANDOM_NON_AGGRESSION_PACT_CHARACTER(Lexeme);
+  "random_opinion_modifier_target"       => T_RANDOM_OPINION_MODIFIER_TARGET(Lexeme);
+  "random_playable_ruler"                => T_RANDOM_PLAYABLE_RULER(Lexeme);
+  "random_player"                        => T_RANDOM_PLAYER(Lexeme);
+  "random_potential_tribal_county"       => T_RANDOM_POTENTIAL_TRIBAL_COUNTY(Lexeme);
+  "random_province"                      => T_RANDOM_PROVINCE(Lexeme);
+  "random_province_character"            => T_RANDOM_PROVINCE_CHARACTER(Lexeme);
+  "random_province_holding"              => T_RANDOM_PROVINCE_HOLDING(Lexeme);
+  "random_province_lord"                 => T_RANDOM_PROVINCE_LORD(Lexeme);
+  "random_pupil"                         => T_RANDOM_PUPIL(Lexeme);
+  "random_quest_target"                  => T_RANDOM_QUEST_TARGET(Lexeme);
+  "random_quester"                       => T_RANDOM_QUESTER(Lexeme);
+  "random_quester_targetting_this"       => T_RANDOM_QUESTER_TARGETTING_THIS(Lexeme);
+  "random_realm_character"               => T_RANDOM_REALM_CHARACTER(Lexeme);
+  "random_realm_lord"                    => T_RANDOM_REALM_LORD(Lexeme);
+  "random_realm_province"                => T_RANDOM_REALM_PROVINCE(Lexeme);
+  "random_realm_title"                   => T_RANDOM_REALM_TITLE(Lexeme);
+  "random_rival"                         => T_RANDOM_RIVAL(Lexeme);
+  "random_sibling"                       => T_RANDOM_SIBLING(Lexeme);
+  "random_sibling_even_if_dead"          => T_RANDOM_SIBLING_EVEN_IF_DEAD(Lexeme);
+  "random_society_member"                => T_RANDOM_SOCIETY_MEMBER(Lexeme);
+  "random_spouse"                        => T_RANDOM_SPOUSE(Lexeme);
+  "random_spouse_even_if_dead"           => T_RANDOM_SPOUSE_EVEN_IF_DEAD(Lexeme);
+  "random_trade_post"                    => T_RANDOM_TRADE_POST(Lexeme);
+  "random_tributary"                     => T_RANDOM_TRIBUTARY(Lexeme);
+  "random_unit"                          => T_RANDOM_UNIT(Lexeme);
+  "random_unknown_enemy_plotter"         => T_RANDOM_UNKNOWN_ENEMY_PLOTTER(Lexeme);
+  "random_vassal"                        => T_RANDOM_VASSAL(Lexeme);
+  "random_voter"                         => T_RANDOM_VOTER(Lexeme);
+  "random_ward"                          => T_RANDOM_WARD(Lexeme);
+  /* END: LIST SCOPE EMITTERS */
+
   {SIGN}[0-9]+    => T_INTEGER(Lexeme);
   {DECIMAL}       => T_DECIMAL(Lexeme);
   {DATE}          => T_DATE(Lexeme);

@@ -37,10 +37,8 @@ if { culture = ROOT religion = ROOT } then { move_character = ROOT }
 elif { hostile_religion = ROOT } then { imprison = ROOT }
 else { death = yes }
 
-while { any_close_relative { is_friend != ROOT } } do {
-    random_close_relative {
-        limit { is_friend != ROOT} # don't worry we'll get there, re: `limit` required for any_*/random_* effects
-        add_friend = ROOT
-    }
-}
+# hell of a one-liner
+while { any_claim { holder != ROOT } } do { random_claim { holder != ROOT } do { gain_title = ROOT } }
 
+# equivalent without using a while loop, which is fully unnecessary here.
+any_claim { holder != ROOT } do { gain_title = ROOT }
