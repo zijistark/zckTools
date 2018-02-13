@@ -129,6 +129,8 @@ protected:
             auto pVal = advance_and_save();
             if (peek_matchmask(TM_OP) || peek_match(T_L_BRACE))
                 rule_StmtCont(pRoot, pVal);
+            else
+                pRoot->add_child(pVal);
         }
         else {
             auto pList = pRoot->add_child(new AST( make_token(T_LIST, peek().line_number(), peek().column_number()) ));

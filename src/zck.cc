@@ -11,7 +11,7 @@ namespace fs = boost::filesystem;
 
 
 const char* const TAB = "\t";
-const char* const VERSION = "v0.0-5";
+const char* const VERSION = "v0.0-6";
 
 struct options {
     int verbose;
@@ -56,18 +56,39 @@ private:
     }
 
     void write_list(AST const* pNode, ostream& o, bool force_open = false) {
-        if (pNode->parent() && !force_open) { // if the node has no parent, it's a root list, and the curly braces are implicit
-            o << "{\n";
-            ++_indent;
+        bool closed = pNode->parent() && !force_open;
+        bool val_only = true;
+
+        for (auto pKid : pNode->children()) {
+            if ((pKid->token().type_id() & Parser::TM_VAL) == 0) {
+                val_only = false;
+                break;
+            }
         }
 
-        for (auto pKid : pNode->children())
-            walk(pKid, o);
+        if (val_only) {
+            if (closed) o << "{";
 
-        if (pNode->parent() && !force_open) {
-            --_indent;
-            indent(o);
-            o << "}";
+            for (auto pKid : pNode->children()) {
+                o << " ";
+                write_val(pKid, o);
+            }
+
+            if (closed) o << " }";
+        }
+        else {
+            if (closed) {
+                o << "{\n";
+                ++_indent;
+            }
+
+            for (auto pKid : pNode->children()) walk(pKid, o);
+
+            if (closed) {
+                --_indent;
+                indent(o);
+                o << "}";
+            }
         }
     }
 
