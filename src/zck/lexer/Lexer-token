@@ -530,13 +530,23 @@ QUEX_NAME_TOKEN(map_id_to_name)(const QUEX_TYPE_TOKEN_ID TokenID)
    case T_INTEGER:                              return "INTEGER";
    case T_LIST:                                 return "LIST";
    case T_L_BRACE:                              return "L_BRACE";
+   case T_L_PAREN:                              return "L_PAREN";
+   case T_OP_ADD:                               return "OP_ADD";
+   case T_OP_ADD_ASSIGN:                        return "OP_ADD_ASSIGN";
+   case T_OP_ASSIGN:                            return "OP_ASSIGN";
    case T_OP_DEQ:                               return "OP_DEQ";
+   case T_OP_DIV:                               return "OP_DIV";
+   case T_OP_DIV_ASSIGN:                        return "OP_DIV_ASSIGN";
    case T_OP_EQ:                                return "OP_EQ";
    case T_OP_GT:                                return "OP_GT";
    case T_OP_GTEQ:                              return "OP_GTEQ";
    case T_OP_LT:                                return "OP_LT";
    case T_OP_LTEQ:                              return "OP_LTEQ";
+   case T_OP_MUL:                               return "OP_MUL";
+   case T_OP_MUL_ASSIGN:                        return "OP_MUL_ASSIGN";
    case T_OP_NEQ:                               return "OP_NEQ";
+   case T_OP_SUB:                               return "OP_SUB";
+   case T_OP_SUB_ASSIGN:                        return "OP_SUB_ASSIGN";
    case T_QDATE:                                return "QDATE";
    case T_QSTRING:                              return "QSTRING";
    case T_RANDOM_ALLIED_CHARACTER:              return "RANDOM_ALLIED_CHARACTER";
@@ -599,9 +609,11 @@ QUEX_NAME_TOKEN(map_id_to_name)(const QUEX_TYPE_TOKEN_ID TokenID)
    case T_RANDOM_VOTER:                         return "RANDOM_VOTER";
    case T_RANDOM_WARD:                          return "RANDOM_WARD";
    case T_R_BRACE:                              return "R_BRACE";
+   case T_R_PAREN:                              return "R_PAREN";
    case T_STRING:                               return "STRING";
    case T_THEN:                                 return "THEN";
    case T_TITLE_ID:                             return "TITLE_ID";
+   case T_VAR_REF:                              return "VAR_REF";
    case T_WHILE:                                return "WHILE";
 
 

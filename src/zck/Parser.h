@@ -28,19 +28,20 @@ public:
      * for the parse results afterward. once this Parser is destroyed, so will all of the memory allocated for the parse
      * and other such things (e.g., the associated error/warning queue). thus, manage the object's lifetime with care
      * when you're referencing any memory directly from the consequent AST externally. */
-    Parser(char const* file_path);
+    Parser(const char* file_path);
 
-    char const* path() const noexcept { return _path; }
+    const char* path() const noexcept { return _path; }
 
-    AST const* root() const     noexcept { return _pRoot; }
+    const AST* root() const     noexcept { return _pRoot; }
     AST*       root()           noexcept { return _pRoot; }
     void       root(AST* pTree) noexcept { _pRoot = pTree; }
 
-    ErrorQueue const& error_queue() const noexcept { return _errors; }
+    const ErrorQueue& error_queue() const noexcept { return _errors; }
     ErrorQueue&       error_queue()       noexcept { return _errors; }
 
     /* TM_: Token Mask (token type grouping) */
 
+    static const token_id_t TM_OP_ASSIGN    = (1<<14);
     static const token_id_t TM_LIST_SCOPE   = (1<<13);
     static const token_id_t TM_KEYWORD      = (1<<12);
     static const token_id_t TM_VAL          = (1<<11);
@@ -52,13 +53,13 @@ protected:
     /* persistent state (i.e., still relevant/required after Parser construction) */
     AST*        _pRoot;
     ErrorQueue  _errors;
-    char const* _path;
+    const char* _path;
 
     /* transient state only used while constructing object (i.e., parsing a file) */
     Lexer  _lex;
     Token* _pTok; // lookahead token
 
-    auto const& peek() { return *_pTok; }
+    const auto& peek() { return *_pTok; }
 
     /* just a handy helper method for error handling */
     auto token_loc() { return FLoc(_path, peek().line_number(), peek().column_number()); }
@@ -87,6 +88,11 @@ protected:
             throw VParseException(token_loc(), "Unexpected token (expected %s)", peek().map_id_to_name(t));
         advance();
     }
+
+    // TODO: add a version of match(token_id_t...) [templated variadic function] that will match any of the token IDs that
+    // are passed to it. maybe we can also avoid directly using bitmask matching this way (assuming it can be made to compile
+    // to similar instructions), so that, e.g., we actually do know the list of next expected token types if we're throwing a
+    // parse exception when trying to match a token ID set via bitmask.
 
     void matchmask(token_id_t mask) {
         if ( (peek().type_id() & mask) == 0 )
@@ -124,6 +130,20 @@ protected:
         else if (peek_matchmask(TM_LIST_SCOPE) || peek_match(T_WHILE)) {
             auto pNode = pRoot->add_child( advance_and_save() );
             rule_LoopBody(pNode);
+        }
+        else if (peek_match(T_VAR_REF)) {
+            auto pVar = advance_and_save();
+            auto pOp = pRoot->add_child( matchmask_and_save(TM_OP_ASSIGN) );
+
+            if (pOp->token().type_id() == T_OP_EQ)
+                pOp->token().set(T_OP_ASSIGN);
+
+            pOp->add_child(pVar);
+
+            if (peek_match(T_VAR_REF) || peek_match(T_INTEGER) || peek_match(T_DECIMAL))
+                pOp->add_child( advance_and_save() );
+            else
+                throw VParseException(token_loc(), "Unexpected token (expected VAR_REF, INTEGER, or DECIMAL)");
         }
         else if (peek_matchmask(TM_VAL)) {
             auto pVal = advance_and_save();

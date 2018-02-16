@@ -33,12 +33,22 @@
 #}
 
 
-if { culture = ROOT religion = ROOT } then { move_character = ROOT }
-elif { hostile_religion = ROOT } then { imprison = ROOT }
-else { death = yes }
+#if { culture = ROOT religion = ROOT } then { move_character = ROOT }
+#elif { hostile_religion = ROOT } then { imprison = ROOT }
+#else { death = yes }
 
-# hell of a one-liner
-while { any_claim { holder != ROOT } } do { random_claim { holder != ROOT } do { gain_title = ROOT } }
+## hell of a one-liner
+#while { any_claim { holder != ROOT } } do { random_claim { holder != ROOT } do { gain_title = ROOT } }
 
-# equivalent without using a while loop, which is fully unnecessary here.
-any_claim { holder != ROOT } do { gain_title = ROOT }
+## equivalent without using a while loop, which is fully unnecessary here.
+#any_claim { holder != ROOT } do { gain_title = ROOT }
+
+$_n_alive = 0
+$_n_total = 0
+
+any_dynasty_member_even_if_dead { $_n_total += 1 }
+any_dynasty_member { $_n_alive += 1 }
+
+$_pct_alive = $_n_alive
+$_pct_alive /= $_n_total
+$_pct_alive *= 100

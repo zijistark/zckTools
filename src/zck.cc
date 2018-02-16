@@ -21,7 +21,7 @@ struct options {
 
 
 void
-print_help(char const* prog, ostream& out) {
+print_help(const char* prog, ostream& out) {
     out << "USAGE:" << endl;
     out << TAB << prog << " [-v|-V|-h]" << endl;
 }
@@ -31,7 +31,7 @@ class Translator {
     int _indent;
 
 public:
-    Translator(AST const* pRoot, ostream& out = cout) : _indent(0) { walk(pRoot, out); }
+    Translator(const AST* pRoot, ostream& out = cout) : _indent(0) { walk(pRoot, out); }
 
 private:
 
@@ -39,7 +39,7 @@ private:
         for (auto i = _indent; i > 0; --i) o << TAB;
     }
 
-    void walk(AST const* pNode, ostream& o) {
+    void walk(const AST* pNode, ostream& o) {
         auto& t = pNode->token();
 
         if (t.type_id() == T_LIST)
@@ -51,11 +51,13 @@ private:
         else if ((t.type_id() & Parser::TM_LIST_SCOPE) ||
                  t.type_id() == T_IF || t.type_id() == T_ELSIF || t.type_id() == T_WHILE)
             write_conditional_or_loop(pNode, o);
+        else if (t.type_id() & Parser::TM_OP_ASSIGN)
+            write_var_assignment(pNode, o);
         else
             throw VException("Internal error: Unexpected token type %s in AST", t.type_id_name());
     }
 
-    void write_list(AST const* pNode, ostream& o, bool force_open = false) {
+    void write_list(const AST* pNode, ostream& o, bool force_open = false) {
         bool closed = pNode->parent() && !force_open;
         bool val_only = true;
 
@@ -92,7 +94,7 @@ private:
         }
     }
 
-    void write_op(AST const* pNode, ostream& o) {
+    void write_op(const AST* pNode, ostream& o) {
         auto& kids = pNode->children();
         auto& t = pNode->token();
         assert( kids.size() == 2 ); // binary operators ought to have exactly two children!
@@ -153,7 +155,36 @@ private:
         o << "\n";
     }
 
-    void write_conditional_or_loop(AST const* pNode, ostream& o) {
+    void write_var_assignment(const AST* pNode, ostream& o) {
+        auto& kids = pNode->children();
+        auto& t = pNode->token();
+        assert( kids.size() == 2 );
+
+        const char* effect = t.type_id() == T_OP_ASSIGN     ? "set_variable" :
+                             t.type_id() == T_OP_ADD_ASSIGN ? "change_variable" :
+                             t.type_id() == T_OP_SUB_ASSIGN ? "subtract_variable" :
+                             t.type_id() == T_OP_MUL_ASSIGN ? "multiply_variable" : "divide_variable";
+
+        bool is_immediate = !(kids.back()->token().type_id() == T_VAR_REF);
+        const char* rhs_type = (is_immediate) ? "value" : "which";
+
+        indent(o);
+        o << effect << " = {\n";
+        ++_indent;
+        indent(o);
+        o << "which = ";
+        write_val(kids.front(), o);
+        o << "\n";
+        indent(o);
+        o << rhs_type << " = ";
+        write_val(kids.back(), o);
+        o << "\n";
+        --_indent;
+        indent(o);
+        o << "}\n";
+    }
+
+    void write_conditional_or_loop(const AST* pNode, ostream& o) {
         auto& t = pNode->token();
         auto& kids = pNode->children();
         assert( kids.size() > 0 && kids.size() <= 2 );
@@ -187,11 +218,29 @@ private:
         }
     }
 
-    void write_val(AST const* pNode, ostream& o) {
+    void write_var_ref(const AST* pNode, ostream& o) {
+        auto name = (char*)pNode->token().get_text();
+
+        if (name[0] == '_')
+            o << "local";
+        else if (strncmp("g_", name, strlen("g_")) == 0) {
+            o << "global";
+            ++name; // skip past the 'g' and to the '_'
+        }
+
+        o << name;
+    }
+
+    void write_val(const AST* pNode, ostream& o) {
         assert( pNode->children().empty() ); // scalar values should never have children!
         auto& t = pNode->token();
         auto txt = (char*)t.get_text();
         assert( t.type_id() == T_QSTRING || *txt != '\0');
+
+        if (pNode->token().type_id() == T_VAR_REF) {
+            write_var_ref(pNode, o);
+            return;
+        }
 
         /* some aliases -- as always until ZCK starts to grow into something ready to be used heavily, we're doing this
          * shit in a silly but very easy way */
@@ -210,7 +259,8 @@ private:
             o << "\"" << txt << "\"";
         else
             o << txt;
-        // TODO: quote text if nec.
+        // TODO: quote text if nec. (this matters only when/if we actually mutate the contents of strings with arbitrary
+        // characters -- otherwise we just trust the quotes used on input)
     }
 };
 
@@ -232,7 +282,7 @@ bool find_root_path(fs::path& out_path) {
 
 
 int main(int argc, char* argv[]) {
-    char const* const short_opts = "vVh";
+    const char* const short_opts = "vVh";
     option const long_opts[] = {
       {"verbose", no_argument, nullptr, 'v'},
       {"version", no_argument, nullptr, 'V'},
