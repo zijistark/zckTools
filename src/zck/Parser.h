@@ -140,10 +140,10 @@ protected:
 
             pOp->add_child(pVar);
 
-            if (peek_match(T_VAR_REF) || peek_match(T_INTEGER) || peek_match(T_DECIMAL))
+            if (peek_match(T_VAR_REF) || peek_match(T_INTEGER) || peek_match(T_DECIMAL) || peek_match(T_STRING))
                 pOp->add_child( advance_and_save() );
             else
-                throw VParseException(token_loc(), "Unexpected token (expected VAR_REF, INTEGER, or DECIMAL)");
+                throw VParseException(token_loc(), "Unexpected token (expected VAR_REF, INTEGER, DECIMAL, or STRING)");
         }
         else if (peek_matchmask(TM_VAL)) {
             auto pVal = advance_and_save();

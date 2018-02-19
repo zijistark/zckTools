@@ -11,7 +11,7 @@ namespace fs = boost::filesystem;
 
 
 const char* const TAB = "\t";
-const char* const VERSION = "v0.0-6";
+const char* const VERSION = "v0.0-7";
 
 struct options {
     int verbose;
@@ -25,6 +25,9 @@ print_help(const char* prog, ostream& out) {
     out << "USAGE:" << endl;
     out << TAB << prog << " [-v|-V|-h]" << endl;
 }
+
+
+int g_next_id = 0;
 
 
 class Translator {
@@ -159,13 +162,50 @@ private:
         auto& kids = pNode->children();
         auto& t = pNode->token();
         assert( kids.size() == 2 );
+        auto k1 = kids.front();
+        auto k2 = kids.back();
+
+        if (k2->token().type_id() == T_STRING) {
+            // this is an export_to_variable (we don't yet support exporting from a different scope -- user can scope
+            // themselves)
+
+            string export_var = t.type_id() == T_OP_ASSIGN ? var_to_string(k1) : "local_zck_" + to_string(g_next_id++);
+
+            indent(o);
+            o << "export_to_variable = {\n";
+            ++_indent;
+            indent(o);
+            o << "which = " << export_var << "\n";
+            indent(o);
+            // TODO: actually verify that this is a supported export_to_variable value in a symbol table
+            o << "value = " << (char*)k2->token().get_text() << "\n";
+            --_indent;
+            indent(o);
+            o << "}\n";
+
+            /* this is some voodoo crap. we should have a completely separate input model (AST) and output model (generator tree). */
+
+            if (t.type_id() != T_OP_ASSIGN) {
+                auto pOp = new AST(t);
+                Token rhs_tok;
+                rhs_tok.set(T_VAR_REF);
+                rhs_tok.text = reinterpret_cast<const uint8_t*>(export_var.c_str());
+                rhs_tok._line_n = t._line_n;
+                rhs_tok._column_n = t._column_n;
+                pOp->add_child(new AST(k1->token()));
+                pOp->add_child(new AST(rhs_tok));
+                write_var_assignment(pOp, o);
+            }
+
+            return;
+        }
 
         const char* effect = t.type_id() == T_OP_ASSIGN     ? "set_variable" :
                              t.type_id() == T_OP_ADD_ASSIGN ? "change_variable" :
                              t.type_id() == T_OP_SUB_ASSIGN ? "subtract_variable" :
                              t.type_id() == T_OP_MUL_ASSIGN ? "multiply_variable" : "divide_variable";
 
-        bool is_immediate = !(kids.back()->token().type_id() == T_VAR_REF);
+        bool is_immediate = !(k2->token().type_id() == T_VAR_REF);
         const char* rhs_type = (is_immediate) ? "value" : "which";
 
         indent(o);
@@ -173,11 +213,11 @@ private:
         ++_indent;
         indent(o);
         o << "which = ";
-        write_val(kids.front(), o);
+        write_val(k1, o);
         o << "\n";
         indent(o);
         o << rhs_type << " = ";
-        write_val(kids.back(), o);
+        write_val(k2, o);
         o << "\n";
         --_indent;
         indent(o);
@@ -218,17 +258,19 @@ private:
         }
     }
 
-    void write_var_ref(const AST* pNode, ostream& o) {
+    string var_to_string(const AST* pNode) {
         auto name = (char*)pNode->token().get_text();
+        string s;
 
         if (name[0] == '_')
-            o << "local";
+            s = "local";
         else if (strncmp("g_", name, strlen("g_")) == 0) {
-            o << "global";
+            s = "global";
             ++name; // skip past the 'g' and to the '_'
         }
 
-        o << name;
+        s += name;
+        return s;
     }
 
     void write_val(const AST* pNode, ostream& o) {
@@ -238,7 +280,7 @@ private:
         assert( t.type_id() == T_QSTRING || *txt != '\0');
 
         if (pNode->token().type_id() == T_VAR_REF) {
-            write_var_ref(pNode, o);
+            o << var_to_string(pNode);
             return;
         }
 
