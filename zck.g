@@ -11,13 +11,16 @@ List         → L_BRACE Block R_BRACE                                   // LA: 
 StmtVal      → IF IfBody                                               // LA: {IF}
              | WHILE LoopBody                                          // LA: {WHILE}
              | LIST_SCOPE LoopBody                                     // LA: {LIST_SCOPE}
-             | VAR_REF ASSIGN (VAR_REF|INTEGER|DECIMAL|STRING)         // LA: {VAR_REF}
+             | VAR_REF VRefRHS                                         // LA: {VAR_REF}
              | VAL StmtCont?                                           // LA: {VAL}
              | List                                                    // LA: {L_BRACE}
              ;                                                         // LA: {VAL, LIST_SCOPE, L_BRACE, IF, WHILE}
 IfBody       → OP_EQ? List (THEN List)? ElsIf*                         // LA: {OP_EQ, L_BRACE}
 ElsIf        → ELSIF IfBody                                            // LA: {ELSIF}
 LoopBody     → OP_EQ? List (DO List)?                                  // LA: {OP_EQ, L_BRACE}
+VRefRHS      → ASSIGN (VAR_REF|INTEGER|DECIMAL|STRING)                 // LA: {ASSIGN}
+             | OP (VAR_REF|INTEGER|DECIMAL)                            // LA: {OP(-OP_EQ)}
+             ;                                                         // LA: {ASSIGN, OP(-OP_EQ)}
 StmtCont     → OP StmtRHS                                              // LA: {OP}
              | List                                                    // LA: {L_BRACE}
              ;                                                         // LA: {OP, L_BRACE}

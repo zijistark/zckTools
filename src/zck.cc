@@ -101,6 +101,8 @@ private:
         auto& kids = pNode->children();
         auto& t = pNode->token();
         assert( kids.size() == 2 ); // binary operators ought to have exactly two children!
+        auto k1 = kids.front();
+        auto k2 = kids.back();
 
         indent(o);
 
@@ -117,21 +119,21 @@ private:
             // in script logic), so in the future this should be an intermediate tree rewriting step so that an optimization
             // pass can reduce the heavy usage of NOT by using NOR.
 
-            if (kids.back()->token().type_id() != T_LIST) {
+            if (k2->token().type_id() != T_LIST) {
                 // this version can be a one-liner; don't normally care much about output prettiness, but helps readability
                 o << "not = { ";
-                walk(kids.front(), o);
+                walk(k1, o);
                 o << " = ";
-                walk(kids.back(), o);
+                walk(k2, o);
                 o << " }\n";
             }
             else {
                 o << "not = {\n";
                 ++_indent;
                 indent(o);
-                walk(kids.front(), o);
+                walk(k1, o);
                 o << " = ";
-                walk(kids.back(), o);
+                walk(k2, o);
                 o << "\n";
                 --_indent;
                 indent(o);
@@ -141,8 +143,28 @@ private:
             return;
         }
 
-        walk(kids.front(), o);
+        if (k1->token().type_id() == T_VAR_REF) {
+            o << "check_variable = {\n";
+            ++_indent;
+            indent(o);
+            o << "which = " << (char*)k1->token().get_text() << "\n";
+            indent(o);
+            o << ((k2->token().type_id() == T_VAR_REF) ? "which" : "value");
+            write_cmp_token(t, o);
+            o << (char*)k2->token().get_text() << "\n";
+            --_indent;
+            indent(o);
+            o << "}\n";
+            return;
+        }
 
+        walk(k1, o);
+        write_cmp_token(t, o);
+        walk(k2, o);
+        o << "\n";
+    }
+
+    void write_cmp_token(const Token& t, ostream& o) {
         switch (t.type_id()) {
             case T_OP_EQ:   o << " = ";  break;
             case T_OP_DEQ:  o << " == "; break;
@@ -153,9 +175,6 @@ private:
             default:
                 throw VException("Internal error: Unexpected OP token type %s in AST", t.type_id_name());
         }
-
-        walk(kids.back(), o);
-        o << "\n";
     }
 
     void write_var_assignment(const AST* pNode, ostream& o) {
@@ -169,7 +188,7 @@ private:
             // this is an export_to_variable (we don't yet support exporting from a different scope -- user can scope
             // themselves)
 
-            string export_var = t.type_id() == T_OP_ASSIGN ? var_to_string(k1) : "local_zck_" + to_string(g_next_id++);
+            string export_var = t.type_id() == T_OP_ASSIGN ? (char*)k1->token().get_text() : "local_zck_" + to_string(g_next_id++);
 
             indent(o);
             o << "export_to_variable = {\n";
@@ -258,21 +277,6 @@ private:
         }
     }
 
-    string var_to_string(const AST* pNode) {
-        auto name = (char*)pNode->token().get_text();
-        string s;
-
-        if (name[0] == '_')
-            s = "local";
-        else if (strncmp("g_", name, strlen("g_")) == 0) {
-            s = "global";
-            ++name; // skip past the 'g' and to the '_'
-        }
-
-        s += name;
-        return s;
-    }
-
     void write_val(const AST* pNode, ostream& o) {
         assert( pNode->children().empty() ); // scalar values should never have children!
         auto& t = pNode->token();
@@ -280,7 +284,7 @@ private:
         assert( t.type_id() == T_QSTRING || *txt != '\0');
 
         if (pNode->token().type_id() == T_VAR_REF) {
-            o << var_to_string(pNode);
+            o << (char*)pNode->token().get_text();
             return;
         }
 
