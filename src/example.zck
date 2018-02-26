@@ -43,12 +43,14 @@
 ## equivalent without using a while loop, which is fully unnecessary here.
 #any_claim { holder != ROOT } do { gain_title = ROOT }
 
-$_n_alive = 0
-$_n_total = 0
+#$_n_alive = 0
+#$_n_total = 0
 
-any_dynasty_member_even_if_dead { $_n_total += 1 }
-any_dynasty_member { $_n_alive += 1 }
+#any_dynasty_member_even_if_dead { $_n_total += 1 }
+#any_dynasty_member { $_n_alive += 1 }
 
-$_pct_alive = $_n_alive
-$_pct_alive /= $_n_total
-$_pct_alive *= 100
+#$_pct_alive = $_n_alive
+#$_pct_alive /= $_n_total
+#$_pct_alive *= 100
+
+$x = 1 + 2 - 3 + 4 + 2 * 5 / 6

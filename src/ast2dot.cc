@@ -58,7 +58,8 @@ void walk_tree(AST const* pNode, int id = 0, bool has_label = false) {
 int main(int argc, char const* argv[]) {
     try {
         Parser parser( (argc == 1) ? "example.zck" : argv[1] );
-        cout << "digraph {" << endl << TAB << "rankdir=LR" << endl;
+//        cout << "digraph {" << endl << TAB << "rankdir=LR" << endl;
+        cout << "digraph {" << endl;
         walk_tree( parser.root() );
         cout << "}" << endl;
     }

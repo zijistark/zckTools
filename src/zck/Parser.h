@@ -66,12 +66,16 @@ protected:
 
     /* helper for creating new meta-tokens */
     auto make_token(token_id_t id, size_t line = 0, size_t col = 0) {
+        line = (line) ? line : peek().line_number();
+        col = (col) ? col : peek().column_number();
         Token t;
         t.set(id);
         t.set_line_number(line);
         t.set_column_number(col);
         return t;
     }
+
+    auto make_list(size_t line = 0, size_t col = 0) { return new AST(make_token(T_LIST, line, col)); }
 
     /* fundamental helper methods for parsing */
 
@@ -136,7 +140,7 @@ protected:
                 pRoot->add_child(pVal);
         }
         else
-            rule_List(pRoot->add_child(new AST( make_token(T_LIST, peek().line_number(), peek().column_number()) )));
+            rule_List(pRoot->add_child( new AST(make_token(T_LIST)) ));
     }
 
     void rule_StmtCont(AST* pRoot, AST* pLHS) {
@@ -146,9 +150,9 @@ protected:
             rule_StmtRHS(pOp);
         }
         else {
-            auto pOp = pRoot->add_child(new AST( make_token(T_OP_EQ, peek().line_number(), peek().column_number()) ));
+            auto pOp = pRoot->add_child( new AST(make_token(T_OP_EQ)) );
             pOp->add_child(pLHS);
-            rule_List(pOp->add_child(new AST( make_token(T_LIST, peek().line_number(), peek().column_number()) )));
+            rule_List(pOp->add_child( new AST(make_token(T_LIST)) ));
         }
     }
 
@@ -156,17 +160,17 @@ protected:
         if (peek_matchmask(TM_VAL))
             pRoot->add_child( advance_and_save() );
         else
-            rule_List(pRoot->add_child(new AST( make_token(T_LIST, peek().line_number(), peek().column_number()) )));
+            rule_List(pRoot->add_child( new AST(make_token(T_LIST)) ));
     }
 
     void rule_IfBody(AST* pRoot) {
         if (peek_match(T_OP_EQ)) advance();
 
-        rule_List(pRoot->add_child(new AST( make_token(T_LIST, peek().line_number(), peek().column_number()) )));
+        rule_List(pRoot->add_child( new AST(make_token(T_LIST)) ));
 
         if (peek_match(T_THEN)) {
             advance();
-            rule_List(pRoot->add_child(new AST( make_token(T_LIST, peek().line_number(), peek().column_number()) )));
+            rule_List(pRoot->add_child( new AST(make_token(T_LIST)) ));
         }
 
         while (peek_match(T_ELSIF))
@@ -176,11 +180,11 @@ protected:
     void rule_LoopBody(AST* pRoot) {
         if (peek_match(T_OP_EQ)) advance();
 
-        rule_List(pRoot->add_child(new AST( make_token(T_LIST, peek().line_number(), peek().column_number()) )));
+        rule_List(pRoot->add_child( new AST(make_token(T_LIST)) ));
 
         if (peek_match(T_DO)) {
             advance();
-            rule_List(pRoot->add_child(new AST( make_token(T_LIST, peek().line_number(), peek().column_number()) )));
+            rule_List(pRoot->add_child( new AST(make_token(T_LIST)) ));
         }
     }
 
@@ -196,12 +200,7 @@ protected:
                 pOp->token().set(T_OP_ASSIGN);
 
             pOp->add_child(pLHS);
-
-            if (peek_match(T_VAR_REF) || peek_match(T_INTEGER) || peek_match(T_DECIMAL) || peek_match(T_STRING))
-                pOp->add_child( advance_and_save() );
-            else
-                throw VParseException(token_loc(), "Unexpected token (expected VAR_REF, INTEGER, DECIMAL, or STRING)");
-
+            pOp->add_child(rule_VExpr());
             return;
         }
 
@@ -214,6 +213,46 @@ protected:
             pOp->add_child( advance_and_save() );
         else
             throw VParseException(token_loc(), "Unexpected token (expected VAR_REF, INTEGER, or DECIMAL)");
+    }
+
+    AST* rule_VExpr() {
+        auto pExpr = rule_VExprMult();
+
+        while (peek_match(T_OP_ADD) || peek_match(T_OP_SUB)) {
+            auto pOp = advance_and_save();
+            pOp->add_child(pExpr);
+            pOp->add_child(rule_VExprMult());
+            pExpr = pOp;
+        }
+
+        return pExpr;
+    }
+
+    AST* rule_VExprMult() {
+        auto pExpr = rule_VExprPrimary();
+
+        while (peek_match(T_OP_MUL) || peek_match(T_OP_DIV)) {
+            auto pOp = advance_and_save();
+            pOp->add_child(pExpr);
+            pOp->add_child(rule_VExprPrimary());
+            pExpr = pOp;
+        }
+
+        return pExpr;
+    }
+
+    AST* rule_VExprPrimary() {
+        if (peek_match(T_L_PAREN)) {
+            advance();
+            auto p = rule_VExpr();
+            match(T_R_PAREN);
+            return p;
+        }
+
+        if (peek_match(T_VAR_REF) || peek_match(T_INTEGER) || peek_match(T_DECIMAL) || peek_match(T_STRING))
+            return advance_and_save();
+        else
+            throw VParseException(token_loc(), "Unexpected token (expected VAR_REF, INTEGER, DECIMAL, or STRING)");
     }
 
     void rule_List(AST* pRoot) {

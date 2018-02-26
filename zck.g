@@ -6,56 +6,28 @@
  */
 
 START        → Block
-Block        → StmtVal*                                                // LA: {VAL, LIST_SCOPE, L_BRACE, IF, WHILE}
-List         → L_BRACE Block R_BRACE                                   // LA: {L_BRACE}
-StmtVal      → IF IfBody                                               // LA: {IF}
-             | WHILE LoopBody                                          // LA: {WHILE}
-             | LIST_SCOPE LoopBody                                     // LA: {LIST_SCOPE}
-             | VAR_REF VRefRHS                                         // LA: {VAR_REF}
-             | VAL StmtCont?                                           // LA: {VAL}
-             | List                                                    // LA: {L_BRACE}
-             ;                                                         // LA: {VAL, LIST_SCOPE, L_BRACE, IF, WHILE}
-IfBody       → OP_EQ? List (THEN List)? ElsIf*                         // LA: {OP_EQ, L_BRACE}
-ElsIf        → ELSIF IfBody                                            // LA: {ELSIF}
-LoopBody     → OP_EQ? List (DO List)?                                  // LA: {OP_EQ, L_BRACE}
-VRefRHS      → ASSIGN (VAR_REF|INTEGER|DECIMAL|STRING)                 // LA: {ASSIGN}
-             | OP (VAR_REF|INTEGER|DECIMAL)                            // LA: {OP(-OP_EQ)}
-             ;                                                         // LA: {ASSIGN, OP(-OP_EQ)}
-StmtCont     → OP StmtRHS                                              // LA: {OP}
-             | List                                                    // LA: {L_BRACE}
-             ;                                                         // LA: {OP, L_BRACE}
-StmtRHS      → VAL                                                     // LA: {VAL}
-             | List                                                    // LA: {L_BRACE}
-             ;                                                         // LA: {VAL, L_BRACE}
-
-/* for upcoming version, when we support full arithmetic expressions: */
-
-START        → Block
-Block        → StmtVal*                                                // LA: {VAL, LIST_SCOPE, L_BRACE, IF, WHILE}
-List         → L_BRACE Block R_BRACE                                   // LA: {L_BRACE}
-StmtVal      → IF IfBody                                               // LA: {IF}
-             | WHILE LoopBody                                          // LA: {WHILE}
-             | LIST_SCOPE LoopBody                                     // LA: {LIST_SCOPE}
-             | VAR_REF OP_ASSIGN VExpr                                 // LA: {VAR_REF}
-             | VAL StmtCont?                                           // LA: {VAL}
-             | List                                                    // LA: {L_BRACE}
-             ;                                                         // LA: {VAL, LIST_SCOPE, L_BRACE, IF, WHILE}
-IfBody       → OP_EQ? List (THEN List)? ElsIf*                         // LA: {OP_EQ, L_BRACE}
-ElsIf        → ELSIF IfBody                                            // LA: {ELSIF}
-LoopBody     → OP_EQ? List (DO List)?                                  // LA: {OP_EQ, L_BRACE}
-VExpr        → VExprMult ((OP_ADD|OP_SUB) VExprMult)*                  // LA: {INTEGER, DECIMAL, VAR_REF, L_PAREN}
-VExprMult    → VExprUnary ((OP_MUL|OP_DIV) VExprUnary)*                // LA: {INTEGER, DECIMAL, VAR_REF, L_PAREN}
-VExprUnary   → OP_SUB VExprUnary                                       // LA: {OP_SUB}
-             | VExprPrimary                                            // LA: {INTEGER, DECIMAL, VAR_REF, L_PAREN}
-             ;                                                         // LA: {OP_SUB, INTEGER, DECIMAL, VAR_REF, L_PAREN}
-VExprPrimary → INTEGER                                                 // LA: {INTEGER}
-             | DECIMAL                                                 // LA: {DECIMAL}
-             | VAR_REF                                                 // LA: {VAR_REF}
-             | L_PAREN VExpr R_PAREN                                   // LA: {L_PAREN}
-             ;                                                         // LA: {INTEGER, DECIMAL, VAR_REF, L_PAREN}
-StmtCont     → OP StmtRHS                                              // LA: {OP}
-             | List                                                    // LA: {L_BRACE}
-             ;                                                         // LA: {OP, L_BRACE}
-StmtRHS      → VAL                                                     // LA: {VAL}
-             | List                                                    // LA: {L_BRACE}
-             ;                                                         // LA: {VAL, L_BRACE}
+Block        → StmtVal*                                          // LA: {VAL, LIST_SCOPE, L_BRACE, IF, WHILE, VAR_REF}
+List         → L_BRACE Block R_BRACE                             // LA: {L_BRACE}
+StmtVal      → IF IfBody                                         // LA: {IF}
+             | (WHILE|LIST_SCOPE) LoopBody                       // LA: {WHILE, LIST_SCOPE}
+             | VAR_REF VRefRHS                                   // LA: {VAR_REF}
+             | VAL StmtCont?                                     // LA: {VAL}
+             | List                                              // LA: {L_BRACE}
+             ;                                                   // LA: {VAL, LIST_SCOPE, L_BRACE, IF, WHILE, VAR_REF}
+IfBody       → OP_EQ? List (THEN List)? ElsIf*                   // LA: {OP_EQ, L_BRACE}
+ElsIf        → ELSIF IfBody                                      // LA: {ELSIF}
+LoopBody     → OP_EQ? List (DO List)?                            // LA: {OP_EQ, L_BRACE}
+VRefRHS      → ASSIGN VExpr                                      // LA: {ASSIGN}
+             | OP (VAR_REF|INTEGER|DECIMAL)                      // LA: {OP}
+             ;                                                   // LA: {ASSIGN, OP}
+VExpr        → VExprMult ((OP_ADD|OP_SUB) VExprMult)*            // LA: {INTEGER, DECIMAL, VAR_REF, STRING, L_PAREN}
+VExprMult    → VExprPrimary ((OP_MUL|OP_DIV) VExprPrimary)*      // LA: {INTEGER, DECIMAL, VAR_REF, STRING, L_PAREN}
+VExprPrimary → (INTEGER|DECIMAL|VAR_REF|STRING)                  // LA: {INTEGER, DECIMAL, VAR_REF, STRING}
+             | L_PAREN VExpr R_PAREN                             // LA: {L_PAREN}
+             ;                                                   // LA: {INTEGER, DECIMAL, VAR_REF, STRING, L_PAREN}
+StmtCont     → OP StmtRHS                                        // LA: {OP}
+             | List                                              // LA: {L_BRACE}
+             ;                                                   // LA: {OP, L_BRACE}
+StmtRHS      → VAL                                               // LA: {VAL}
+             | List                                              // LA: {L_BRACE}
+             ;                                                   // LA: {VAL, L_BRACE}
