@@ -6,7 +6,7 @@
  * NOTE: This file has been created automatically by Quex.
  *       Visit quex.org for further info.
  *
- * DATE: Fri Feb 16 14:01:59 2018
+ * DATE: Thu Mar  1 10:27:09 2018
  *
  * (C) 2005-2010 Frank-Rene Schaefer
  * ABSOLUTELY NO WARRANTY                                                     */
@@ -117,21 +117,21 @@ const QUEX_TYPE_TOKEN_ID T_LIST                                 = ((QUEX_TYPE_TO
 const QUEX_TYPE_TOKEN_ID T_L_BRACE                              = ((QUEX_TYPE_TOKEN_ID)256);
 const QUEX_TYPE_TOKEN_ID T_L_PAREN                              = ((QUEX_TYPE_TOKEN_ID)258);
 const QUEX_TYPE_TOKEN_ID T_NODENT                               = ((QUEX_TYPE_TOKEN_ID)10002);
-const QUEX_TYPE_TOKEN_ID T_OP_ADD                               = ((QUEX_TYPE_TOKEN_ID)260);
+const QUEX_TYPE_TOKEN_ID T_OP_ADD                               = ((QUEX_TYPE_TOKEN_ID)33028);
 const QUEX_TYPE_TOKEN_ID T_OP_ADD_ASSIGN                        = ((QUEX_TYPE_TOKEN_ID)16641);
 const QUEX_TYPE_TOKEN_ID T_OP_ASSIGN                            = ((QUEX_TYPE_TOKEN_ID)17153);
 const QUEX_TYPE_TOKEN_ID T_OP_DEQ                               = ((QUEX_TYPE_TOKEN_ID)1288);
-const QUEX_TYPE_TOKEN_ID T_OP_DIV                               = ((QUEX_TYPE_TOKEN_ID)263);
+const QUEX_TYPE_TOKEN_ID T_OP_DIV                               = ((QUEX_TYPE_TOKEN_ID)33031);
 const QUEX_TYPE_TOKEN_ID T_OP_DIV_ASSIGN                        = ((QUEX_TYPE_TOKEN_ID)16644);
 const QUEX_TYPE_TOKEN_ID T_OP_EQ                                = ((QUEX_TYPE_TOKEN_ID)17664);
 const QUEX_TYPE_TOKEN_ID T_OP_GT                                = ((QUEX_TYPE_TOKEN_ID)1291);
 const QUEX_TYPE_TOKEN_ID T_OP_GTEQ                              = ((QUEX_TYPE_TOKEN_ID)1292);
 const QUEX_TYPE_TOKEN_ID T_OP_LT                                = ((QUEX_TYPE_TOKEN_ID)1289);
 const QUEX_TYPE_TOKEN_ID T_OP_LTEQ                              = ((QUEX_TYPE_TOKEN_ID)1290);
-const QUEX_TYPE_TOKEN_ID T_OP_MUL                               = ((QUEX_TYPE_TOKEN_ID)262);
+const QUEX_TYPE_TOKEN_ID T_OP_MUL                               = ((QUEX_TYPE_TOKEN_ID)33030);
 const QUEX_TYPE_TOKEN_ID T_OP_MUL_ASSIGN                        = ((QUEX_TYPE_TOKEN_ID)16643);
 const QUEX_TYPE_TOKEN_ID T_OP_NEQ                               = ((QUEX_TYPE_TOKEN_ID)1293);
-const QUEX_TYPE_TOKEN_ID T_OP_SUB                               = ((QUEX_TYPE_TOKEN_ID)261);
+const QUEX_TYPE_TOKEN_ID T_OP_SUB                               = ((QUEX_TYPE_TOKEN_ID)33029);
 const QUEX_TYPE_TOKEN_ID T_OP_SUB_ASSIGN                        = ((QUEX_TYPE_TOKEN_ID)16642);
 const QUEX_TYPE_TOKEN_ID T_QDATE                                = ((QUEX_TYPE_TOKEN_ID)2053);
 const QUEX_TYPE_TOKEN_ID T_QSTRING                              = ((QUEX_TYPE_TOKEN_ID)2049);

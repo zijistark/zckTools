@@ -41,6 +41,7 @@ public:
 
     /* TM_: Token Mask (token type grouping) */
 
+    static const token_id_t TM_OP_EXPR      = (1<<15);
     static const token_id_t TM_OP_ASSIGN    = (1<<14);
     static const token_id_t TM_LIST_SCOPE   = (1<<13);
     static const token_id_t TM_KEYWORD      = (1<<12);
@@ -66,16 +67,12 @@ protected:
 
     /* helper for creating new meta-tokens */
     auto make_token(token_id_t id, size_t line = 0, size_t col = 0) {
-        line = (line) ? line : peek().line_number();
-        col = (col) ? col : peek().column_number();
         Token t;
         t.set(id);
-        t.set_line_number(line);
-        t.set_column_number(col);
+        t.set_line_number( (line) ? line : peek().line_number() );
+        t.set_column_number( (col) ? col : peek().column_number() );
         return t;
     }
-
-    auto make_list(size_t line = 0, size_t col = 0) { return new AST(make_token(T_LIST, line, col)); }
 
     /* fundamental helper methods for parsing */
 
@@ -145,7 +142,7 @@ protected:
 
     void rule_StmtCont(AST* pRoot, AST* pLHS) {
         if (peek_matchmask(TM_OP)) {
-            auto pOp = pRoot->add_child( advance_and_save());
+            auto pOp = pRoot->add_child( advance_and_save() );
             pOp->add_child(pLHS);
             rule_StmtRHS(pOp);
         }

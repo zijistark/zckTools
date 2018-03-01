@@ -177,70 +177,130 @@ private:
         }
     }
 
-    void write_var_assignment(const AST* pNode, ostream& o) {
-        auto& kids = pNode->children();
-        auto& t = pNode->token();
-        assert( kids.size() == 2 );
-        auto k1 = kids.front();
-        auto k2 = kids.back();
-
-        if (k2->token().type_id() == T_STRING) {
-            // this is an export_to_variable (we don't yet support exporting from a different scope -- user can scope
-            // themselves)
-
-            string export_var = t.type_id() == T_OP_ASSIGN ? (char*)k1->token().get_text() : "local_zck_" + to_string(g_next_id++);
-
-            indent(o);
-            o << "export_to_variable = {\n";
-            ++_indent;
-            indent(o);
-            o << "which = " << export_var << "\n";
-            indent(o);
-            // TODO: actually verify that this is a supported export_to_variable value in a symbol table
-            o << "value = " << (char*)k2->token().get_text() << "\n";
-            --_indent;
-            indent(o);
-            o << "}\n";
-
-            /* this is some voodoo crap. we should have a completely separate input model (AST) and output model (generator tree). */
-
-            if (t.type_id() != T_OP_ASSIGN) {
-                auto pOp = new AST(t);
-                Token rhs_tok;
-                rhs_tok.set(T_VAR_REF);
-                rhs_tok.text = reinterpret_cast<const uint8_t*>(export_var.c_str());
-                rhs_tok._line_n = t._line_n;
-                rhs_tok._column_n = t._column_n;
-                pOp->add_child(new AST(k1->token()));
-                pOp->add_child(new AST(rhs_tok));
-                write_var_assignment(pOp, o);
-            }
-
-            return;
+    static inline const char* map_op_to_var_effect(const Token& t) {
+        switch (t.type_id()) {
+            case T_OP_ASSIGN:     return "set_variable";
+            case T_OP_ADD_ASSIGN:
+            case T_OP_ADD:        return "change_variable";
+            case T_OP_SUB_ASSIGN:
+            case T_OP_SUB:        return "subtract_variable";
+            case T_OP_MUL_ASSIGN:
+            case T_OP_MUL:        return "multiply_variable";
+            case T_OP_DIV_ASSIGN:
+            case T_OP_DIV:        return "divide_variable";
         }
 
-        const char* effect = t.type_id() == T_OP_ASSIGN     ? "set_variable" :
-                             t.type_id() == T_OP_ADD_ASSIGN ? "change_variable" :
-                             t.type_id() == T_OP_SUB_ASSIGN ? "subtract_variable" :
-                             t.type_id() == T_OP_MUL_ASSIGN ? "multiply_variable" : "divide_variable";
+        throw VException("Internal error: Unexpected token type %s when trying to map arithmetic operator", t.type_id_name());
+    }
 
-        bool is_immediate = !(k2->token().type_id() == T_VAR_REF);
-        const char* rhs_type = (is_immediate) ? "value" : "which";
-
+    void emit_var_effect(ostream& o, const char* effect, const char* var, const char* operand, bool is_immediate) {
+        const char* const operand_type = (is_immediate) ? "value" : "which";
         indent(o);
         o << effect << " = {\n";
         ++_indent;
         indent(o);
-        o << "which = ";
-        write_val(k1, o);
-        o << "\n";
+        o << "which = " << var << "\n";
         indent(o);
-        o << rhs_type << " = ";
-        write_val(k2, o);
-        o << "\n";
+        o << operand_type << " = " << operand << "\n";
         --_indent;
         indent(o);
         o << "}\n";
+    }
+
+    static inline string new_tmp_var() {
+        return "local_zck_" + to_string(g_next_id++);
+    }
+
+    void write_var_assignment(const AST* pNode, ostream& o) {
+        auto& t = pNode->token();
+        assert( t.type_id() & Parser::TM_OP_ASSIGN );
+
+        auto& kids = pNode->children();
+        assert( kids.size() == 2 );
+
+        auto  k1  = kids.front();
+        auto  k2  = kids.back();
+        auto& k2t = k2->token();
+
+        auto lhs_var = (char*)k1->token().get_text();
+
+        assert( k1->token().type_id() == T_VAR_REF && "T_VAR_REF expected on LHS of assignment operator" );
+
+        if (k2t.type_id() == T_STRING) {
+            /* a variable export */
+
+            // use direct assignment to LHS if possible, else first export to a tmp
+            auto rhs_var = (t.type_id() == T_OP_ASSIGN) ? lhs_var : new_tmp_var();
+            emit_var_effect(o, "export_to_variable", rhs_var.c_str(), (char*)k2t.get_text(), true);
+
+            if (t.type_id() != T_OP_ASSIGN)
+                emit_var_effect(o, map_op_to_var_effect(t), lhs_var, rhs_var.c_str(), false);
+
+            return;
+        }
+
+        bool is_literal = k2t.type_id() == T_INTEGER || k2t.type_id() == T_DECIMAL;
+
+        if (is_literal || k2t.type_id() == T_VAR_REF)
+            emit_var_effect(o, map_op_to_var_effect(t), lhs_var, (char*)k2t.get_text(), is_literal);
+        else
+            emit_var_effect(o, map_op_to_var_effect(t), lhs_var, walk_var_expr(k2, o).c_str(), false);
+    }
+
+    string walk_var_expr(const AST* pNode, ostream& o) {
+        auto& t = pNode->token();
+        assert( t.type_id() & Parser::TM_OP_EXPR );
+
+        auto& kids = pNode->children();
+        assert( kids.size() == 2 );
+
+        auto k1 = kids.front();
+        auto k2 = kids.back();
+
+        /* swap k1 and k2 (flip operand order) when it will produce better code via usage of commutative property */
+        if ((t.type_id() == T_OP_ADD || t.type_id() == T_OP_MUL) &&
+            (k1->token().type_id() == T_INTEGER || k1->token().type_id() == T_DECIMAL || k1->token().type_id() == T_VAR_REF) &&
+            (k2->token().type_id() == T_STRING || (k2->token().type_id() & Parser::TM_OP_EXPR))) {
+            swap(k1, k2);
+        }
+
+        auto& k1t = k1->token();
+        auto& k2t = k2->token();
+
+        bool k1_num = (k1t.type_id() == T_INTEGER || k1t.type_id() == T_DECIMAL);
+        bool k2_num = (k2t.type_id() == T_INTEGER || k2t.type_id() == T_DECIMAL);
+        bool k1_tmp = (k1t.type_id() & Parser::TM_OP_EXPR);
+        bool k2_tmp = (k2t.type_id() & Parser::TM_OP_EXPR);
+        bool k1_var = (k1t.type_id() == T_VAR_REF);
+        bool k2_var = (k2t.type_id() == T_VAR_REF);
+        bool k1_str = (k1t.type_id() == T_STRING);
+        bool k2_str = (k2t.type_id() == T_STRING);
+
+        /* setup LHS */
+
+        // we always return a temp. variable name. either reuse left child's temp or allocate a new one.
+        string var = (k1_tmp) ? walk_var_expr(k1, o) : new_tmp_var();
+
+        if (k1_num || k1_var)
+            emit_var_effect(o, "set_variable", var.c_str(), (char*)k1t.get_text(), k1_num);
+        else if (k1_str)
+            emit_var_effect(o, "export_to_variable", var.c_str(), (char*)k1t.get_text(), true);
+
+        /* setup RHS */
+        string rhs;
+
+        if (k2_num || k2_var)
+            rhs = (char*)k2t.get_text();
+        else if (k2_str) {
+            rhs = new_tmp_var();
+            emit_var_effect(o, "export_to_variable", rhs.c_str(), (char*)k2t.get_text(), true);
+        }
+        else if (k2_tmp)
+            rhs = walk_var_expr(k2, o);
+
+        /* mutate */
+        emit_var_effect(o, map_op_to_var_effect(t), var.c_str(), rhs.c_str(), k2_num);
+        return var;
     }
 
     void write_conditional_or_loop(const AST* pNode, ostream& o) {

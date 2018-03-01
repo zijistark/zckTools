@@ -8,6 +8,7 @@ header {
 
 token {
   /* 
+   * bit 16 indicates a variable expression operator ( +,-,*,/ )
    * bit 15 indicates a variable assignment operator ( +=, =, etc. )
    * bit 14 indicates a list scope (any_* / random_* keywords)
    * bit 13 indicates a keyword; keywords are only pre-recognized strings
@@ -56,10 +57,10 @@ token {
   R_BRACE         = 0b0000.0001.0000.0001;
   L_PAREN         = 0b0000.0001.0000.0010;
   R_PAREN         = 0b0000.0001.0000.0011;
-  OP_ADD          = 0b0000.0001.0000.0100;
-  OP_SUB          = 0b0000.0001.0000.0101;
-  OP_MUL          = 0b0000.0001.0000.0110;
-  OP_DIV          = 0b0000.0001.0000.0111;
+  OP_ADD          = 0b1000.0001.0000.0100;
+  OP_SUB          = 0b1000.0001.0000.0101;
+  OP_MUL          = 0b1000.0001.0000.0110;
+  OP_DIV          = 0b1000.0001.0000.0111;
 
   /* LANGUAGE KEYWORDS */
   IF          = 0b0001.0001.0000.0000;
