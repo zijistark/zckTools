@@ -193,18 +193,27 @@ private:
         throw VException("Internal error: Unexpected token type %s when trying to map arithmetic operator", t.type_id_name());
     }
 
-    void emit_var_effect(ostream& o, const char* effect, const char* var, const char* operand, bool is_immediate) {
-        const char* const operand_type = (is_immediate) ? "value" : "which";
+    void emit_comment(ostream& o, const string& text) {
+        indent(o);
+        o << "# " << text << "\n";
+    }
+
+    void emit_var_effect(ostream& o, const char* effect,
+                         const string& var, const string& operand, bool op_immediate = false) {
         indent(o);
         o << effect << " = {\n";
         ++_indent;
         indent(o);
         o << "which = " << var << "\n";
         indent(o);
-        o << operand_type << " = " << operand << "\n";
+        o << ((op_immediate) ? "value" : "which") << " = " << operand << "\n";
         --_indent;
         indent(o);
         o << "}\n";
+    }
+
+    void emit_var_export(ostream& o, const string& var, const string& val) {
+        emit_var_effect(o, "export_to_variable", var, val, true);
     }
 
     static inline string new_tmp_var() {
@@ -224,27 +233,20 @@ private:
 
         auto lhs_var = (char*)k1->token().get_text();
 
-        assert( k1->token().type_id() == T_VAR_REF && "T_VAR_REF expected on LHS of assignment operator" );
-
-        if (k2t.type_id() == T_STRING) {
-            /* a variable export */
-
+        if (k2t.type_id() == T_STRING) { // property export
             // use direct assignment to LHS if possible, else first export to a tmp
-            auto rhs_var = (t.type_id() == T_OP_ASSIGN) ? lhs_var : new_tmp_var();
-            emit_var_effect(o, "export_to_variable", rhs_var.c_str(), (char*)k2t.get_text(), true);
+            auto export_var = (t.type_id() == T_OP_ASSIGN) ? lhs_var : new_tmp_var();
+            emit_var_export(o, export_var, (char*)k2t.get_text());
 
             if (t.type_id() != T_OP_ASSIGN)
-                emit_var_effect(o, map_op_to_var_effect(t), lhs_var, rhs_var.c_str(), false);
+                emit_var_effect(o, map_op_to_var_effect(t), lhs_var, export_var);
 
             return;
         }
 
-        bool is_literal = k2t.type_id() == T_INTEGER || k2t.type_id() == T_DECIMAL;
-
-        if (is_literal || k2t.type_id() == T_VAR_REF)
-            emit_var_effect(o, map_op_to_var_effect(t), lhs_var, (char*)k2t.get_text(), is_literal);
-        else
-            emit_var_effect(o, map_op_to_var_effect(t), lhs_var, walk_var_expr(k2, o).c_str(), false);
+        bool is_num = (k2t.type_id() == T_INTEGER || k2t.type_id() == T_DECIMAL);
+        string rhs = (is_num || k2t.type_id() == T_VAR_REF) ? (char*)k2t.get_text() : walk_var_expr(k2, o);
+        emit_var_effect(o, map_op_to_var_effect(t), lhs_var, rhs, is_num);
     }
 
     string walk_var_expr(const AST* pNode, ostream& o) {
@@ -258,23 +260,31 @@ private:
         auto k2 = kids.back();
 
         /* swap k1 and k2 (flip operand order) when it will produce better code via usage of commutative property */
-        if ((t.type_id() == T_OP_ADD || t.type_id() == T_OP_MUL) &&
-            (k1->token().type_id() == T_INTEGER || k1->token().type_id() == T_DECIMAL || k1->token().type_id() == T_VAR_REF) &&
-            (k2->token().type_id() == T_STRING || (k2->token().type_id() & Parser::TM_OP_EXPR))) {
+
+        bool commutative = (t.type_id() == T_OP_ADD || t.type_id() == T_OP_MUL);
+
+        bool left_immutable = (k1->token().type_id() == T_INTEGER ||
+                               k1->token().type_id() == T_DECIMAL ||
+                               k1->token().type_id() == T_VAR_REF);
+
+        bool right_mutable = (k2->token().type_id() == T_STRING || (k2->token().type_id() & Parser::TM_OP_EXPR));
+
+        if (commutative && left_immutable && right_mutable)
             swap(k1, k2);
-        }
+
+        /* on with the show, with possibly flipped operands */
 
         auto& k1t = k1->token();
         auto& k2t = k2->token();
 
         bool k1_num = (k1t.type_id() == T_INTEGER || k1t.type_id() == T_DECIMAL);
         bool k2_num = (k2t.type_id() == T_INTEGER || k2t.type_id() == T_DECIMAL);
-        bool k1_tmp = (k1t.type_id() & Parser::TM_OP_EXPR);
-        bool k2_tmp = (k2t.type_id() & Parser::TM_OP_EXPR);
-        bool k1_var = (k1t.type_id() == T_VAR_REF);
-        bool k2_var = (k2t.type_id() == T_VAR_REF);
         bool k1_str = (k1t.type_id() == T_STRING);
         bool k2_str = (k2t.type_id() == T_STRING);
+        bool k1_var = (k1t.type_id() == T_VAR_REF);
+        bool k2_var = (k2t.type_id() == T_VAR_REF);
+        bool k1_tmp = (k1t.type_id() & Parser::TM_OP_EXPR);
+        // bool k2_tmp = (k2t.type_id() & Parser::TM_OP_EXPR); // unused
 
         /* setup LHS */
 
@@ -282,9 +292,9 @@ private:
         string var = (k1_tmp) ? walk_var_expr(k1, o) : new_tmp_var();
 
         if (k1_num || k1_var)
-            emit_var_effect(o, "set_variable", var.c_str(), (char*)k1t.get_text(), k1_num);
+            emit_var_effect(o, "set_variable", var, (char*)k1t.get_text(), k1_num);
         else if (k1_str)
-            emit_var_effect(o, "export_to_variable", var.c_str(), (char*)k1t.get_text(), true);
+            emit_var_export(o, var, (char*)k1t.get_text());
 
         /* setup RHS */
         string rhs;
@@ -293,9 +303,9 @@ private:
             rhs = (char*)k2t.get_text();
         else if (k2_str) {
             rhs = new_tmp_var();
-            emit_var_effect(o, "export_to_variable", rhs.c_str(), (char*)k2t.get_text(), true);
+            emit_var_export(o, rhs, (char*)k2t.get_text());
         }
-        else if (k2_tmp)
+        else
             rhs = walk_var_expr(k2, o);
 
         /* mutate */
