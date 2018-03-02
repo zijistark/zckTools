@@ -11,7 +11,7 @@ namespace fs = boost::filesystem;
 
 
 const char* const TAB = "\t";
-const char* const VERSION = "v0.0-7";
+const char* const VERSION = "v0.0-8";
 
 struct options {
     int verbose;
