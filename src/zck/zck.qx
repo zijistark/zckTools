@@ -221,7 +221,7 @@ define {
   QSTRING    "\""[^"\r\n]*"\""
   CHAR_ID    c_[0-9]+
   TITLE_ID   [bcdek]_[a-zA-Z][a-zA-Z0-9_\-]+
-  STRING     [^ \t\r\n<=>\{\}#\"]+
+  STRING     [^ \t\r\n\-+/\*!<=>\{\}\(\)#\"]+
   ELSIF      el(s(e_)?)?if
   STRICT_ID  [a-zA-Z_][a-zA-Z0-9_]*
 }

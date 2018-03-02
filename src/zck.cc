@@ -261,16 +261,16 @@ private:
 
         /* swap k1 and k2 (flip operand order) when it will produce better code via usage of commutative property */
 
-        bool commutative = (t.type_id() == T_OP_ADD || t.type_id() == T_OP_MUL);
+        if (t.type_id() == T_OP_ADD || t.type_id() == T_OP_MUL) { // operation is indeed commutative
 
-        bool left_immutable = (k1->token().type_id() == T_INTEGER ||
-                               k1->token().type_id() == T_DECIMAL ||
-                               k1->token().type_id() == T_VAR_REF);
+            bool left_immutable = (k1->token().type_id() == T_INTEGER ||
+                                   k1->token().type_id() == T_DECIMAL ||
+                                   k1->token().type_id() == T_VAR_REF);
 
-        bool right_mutable = (k2->token().type_id() == T_STRING || (k2->token().type_id() & Parser::TM_OP_EXPR));
+            bool right_mutable = (k2->token().type_id() == T_STRING || (k2->token().type_id() & Parser::TM_OP_EXPR));
 
-        if (commutative && left_immutable && right_mutable)
-            swap(k1, k2);
+            if (left_immutable && right_mutable) swap(k1, k2);
+        }
 
         /* on with the show, with possibly flipped operands */
 
@@ -309,7 +309,7 @@ private:
             rhs = walk_var_expr(k2, o);
 
         /* mutate */
-        emit_var_effect(o, map_op_to_var_effect(t), var.c_str(), rhs.c_str(), k2_num);
+        emit_var_effect(o, map_op_to_var_effect(t), var, rhs, k2_num);
         return var;
     }
 

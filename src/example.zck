@@ -53,4 +53,51 @@
 #$_pct_alive /= $_n_total
 #$_pct_alive *= 100
 
-$x = 1 + 2 - 3 + 4 + 2 * 5 / 6
+$dip = diplomacy
+$mar = martial
+$ste = stewardship
+
+$i   = 0.5
+$j   = 1/$i
+
+$x0  = (stewardship + 5) / 2 * diplomacy + martial / $i
+$x1  = 10 + 1 # 11
+$x2  = 10 + diplomacy
+$x3  = 10 + $i # 10.5
+$x4  = 10 + $i * $j # 11
+$x5  = diplomacy - 10
+$x6  = stewardship + diplomacy
+$x7  = diplomacy + $i # 0.5 + dip
+$x8  = diplomacy + $i / $i # 1 + dip
+$x9  = $j * 2 # 4
+$x10 = $j * diplomacy # 2 * dip
+$x11 = $i * $j # 1
+$x12 = $j * $j / $i # 8
+$x13 = ($i + 1.5) / 2 # 1
+$x14 = $j * $i + diplomacy # 1 + dip
+$x15 = ($j + $i) * $j # 5
+$x16 = ($j + $i) / ($i + $j) # 1
+
+log = "$dip = [This.dip.GetValue]"
+log = "$mar = [This.mar.GetValue]"
+log = "$ste = [This.ste.GetValue]"
+log = "$i   = [This.i.GetValue]"
+log = "$j   = [This.j.GetValue]"
+log = "$x0  = [This.x0.GetValue]"
+log = "$x1  = [This.x1.GetValue]"
+log = "$x2  = [This.x2.GetValue]"
+log = "$x3  = [This.x3.GetValue]"
+log = "$x4  = [This.x4.GetValue]"
+log = "$x5  = [This.x5.GetValue]"
+log = "$x6  = [This.x6.GetValue]"
+log = "$x7  = [This.x7.GetValue]"
+log = "$x8  = [This.x8.GetValue]"
+log = "$x9  = [This.x9.GetValue]"
+log = "$x10 = [This.x10.GetValue]"
+log = "$x11 = [This.x11.GetValue]"
+log = "$x12 = [This.x12.GetValue]"
+log = "$x13 = [This.x13.GetValue]"
+log = "$x14 = [This.x14.GetValue]"
+log = "$x15 = [This.x15.GetValue]"
+log = "$x16 = [This.x16.GetValue]"
+
