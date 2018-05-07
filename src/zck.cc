@@ -11,7 +11,7 @@ namespace fs = boost::filesystem;
 
 
 const char* const TAB = "\t";
-const char* const VERSION = "v0.0-8";
+const char* const VERSION = "v0.0-9";
 
 struct options {
     int verbose;
@@ -38,7 +38,7 @@ public:
 
 private:
 
-    void indent(ostream& o) const noexcept {
+    void indent(ostream& o) const {
         for (auto i = _indent; i > 0; --i) o << TAB;
     }
 
@@ -385,7 +385,7 @@ bool find_root_path(fs::path& out_path) {
     auto p = fs::current_path();
 
     while (true) {
-        if (exists(p / "config.zck")) {
+        if (exists(p / ".zck")) {
             out_path = p;
             return true;
         }
@@ -451,13 +451,13 @@ int main(int argc, char* argv[]) {
 
         for (auto&& e : fs::recursive_directory_iterator(".")) {
             const auto& p = e.path();
-            if (fs::is_regular_file(p) && p.extension() == ".zck" && p.filename() != "config.zck")
+            if (fs::is_regular_file(p) && p.extension() == ".zck" && p.filename() != ".zck")
                 in_paths.emplace_back(p);
         }
 
         for (const auto& in_path : in_paths) {
             auto out_file = in_path.stem();
-            out_file += "_ZCK.txt";
+            out_file += "_zck.txt";
             auto out_path = in_path.parent_path() / out_file;
 
             if (g_opt.verbose >= 1)

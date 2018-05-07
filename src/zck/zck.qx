@@ -412,6 +412,3 @@ mode MAIN :
   {TITLE_ID}      => T_TITLE_ID(Lexeme);
   {STRING}        => T_STRING(Lexeme);
 }
-
-
-
