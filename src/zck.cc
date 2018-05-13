@@ -11,7 +11,7 @@ namespace fs = boost::filesystem;
 
 
 const char* const TAB = "\t";
-const char* const VERSION = "v0.0-9";
+const char* const VERSION = "v0.0-10";
 
 struct options {
     int verbose;
@@ -103,6 +103,8 @@ private:
         assert( kids.size() == 2 ); // binary operators ought to have exactly two children!
         auto k1 = kids.front();
         auto k2 = kids.back();
+        auto& k1t = k1->token();
+        auto& k2t = k2->token();
 
         indent(o);
 
@@ -119,7 +121,7 @@ private:
             // in script logic), so in the future this should be an intermediate tree rewriting step so that an optimization
             // pass can reduce the heavy usage of NOT by using NOR.
 
-            if (k2->token().type_id() != T_LIST) {
+            if (k2t.type_id() != T_LIST) {
                 // this version can be a one-liner; don't normally care much about output prettiness, but helps readability
                 o << "not = { ";
                 walk(k1, o);
@@ -134,7 +136,7 @@ private:
                 walk(k1, o);
                 o << " = ";
                 walk(k2, o);
-                o << "\n";
+                o << '\n';
                 --_indent;
                 indent(o);
                 o << "}\n";
@@ -143,25 +145,61 @@ private:
             return;
         }
 
-        if (k1->token().type_id() == T_VAR_REF) {
+        if (k1t.type_id() == T_VAR_REF) {
             o << "check_variable = {\n";
             ++_indent;
             indent(o);
-            o << "which = " << (char*)k1->token().get_text() << "\n";
+            o << "which = " << (char*)k1t.get_text() << '\n';
             indent(o);
             o << ((k2->token().type_id() == T_VAR_REF) ? "which" : "value");
             write_cmp_token(t, o);
-            o << (char*)k2->token().get_text() << "\n";
+            o << (char*)k2->token().get_text() << '\n';
             --_indent;
             indent(o);
             o << "}\n";
             return;
         }
 
+        // support for all comparison operators on the `tier` trigger
+        if (t.type_id() != T_OP_EQ && k1t.type_id() == T_STRING && k2t.type_id() == T_STRING) {
+
+            auto trigger = (char*)k1t.get_text(), tier = (char*)k2t.get_text();
+            auto is_tier = !strcmp(trigger, "tier"), is_real_tier = !strcmp(trigger, "real_tier");
+
+            if (is_tier || is_real_tier) {
+                if (t.type_id() == T_OP_DEQ) {
+                    o << trigger << " = " << tier << '\n';
+                    return;
+                }
+
+                const auto cmp_trigger = (t.type_id() == T_OP_LT || t.type_id() == T_OP_LTEQ) ?
+                                         (is_tier ? "lower_tier_than" : "lower_real_tier_than") :
+                                         (is_tier ? "higher_tier_than" : "higher_real_tier_than");
+
+                if (t.type_id() == T_OP_LT || t.type_id() == T_OP_GT)
+                    o << cmp_trigger << " = " << tier << '\n';
+                else if (t.type_id() == T_OP_LTEQ || t.type_id() == T_OP_GTEQ) {
+                    o << "or = {\n";
+                    ++_indent;
+                    indent(o);
+                    o << cmp_trigger << " = " << tier << '\n';
+                    indent(o);
+                    o << trigger << " = " << tier << '\n';
+                    --_indent;
+                    indent(o);
+                    o << "}\n";
+                }
+                else
+                    throw VException("Internal error: Unexpected OP token type %s for trigger '%s' in AST",
+                                     t.type_id_name(), trigger);
+                return;
+            }
+        }
+
         walk(k1, o);
         write_cmp_token(t, o);
         walk(k2, o);
-        o << "\n";
+        o << '\n';
     }
 
     void write_cmp_token(const Token& t, ostream& o) {
@@ -195,7 +233,7 @@ private:
 
     void emit_comment(ostream& o, const string& text) {
         indent(o);
-        o << "# " << text << "\n";
+        o << "# " << text << '\n';
     }
 
     void emit_var_effect(ostream& o, const char* effect,
@@ -204,9 +242,9 @@ private:
         o << effect << " = {\n";
         ++_indent;
         indent(o);
-        o << "which = " << var << "\n";
+        o << "which = " << var << '\n';
         indent(o);
-        o << ((op_immediate) ? "value" : "which") << " = " << operand << "\n";
+        o << ((op_immediate) ? "value" : "which") << " = " << operand << '\n';
         --_indent;
         indent(o);
         o << "}\n";
@@ -332,7 +370,7 @@ private:
             indent(o);
             o << "limit = ";
             write_list(kids[0], o);
-            o << "\n";
+            o << '\n';
             write_list(kids[1], o, true);
             --_indent;
             indent(o);
@@ -343,7 +381,7 @@ private:
             // effect block existence)
             o << name << " = ";
             write_list(kids[0], o);
-            o << "\n";
+            o << '\n';
         }
     }
 
