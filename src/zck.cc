@@ -11,7 +11,7 @@ namespace fs = boost::filesystem;
 
 
 const char* const TAB = "\t";
-const char* const VERSION = "v0.0-10";
+const char* const VERSION = "v0.0-12";
 
 struct options {
     int verbose;
@@ -58,6 +58,20 @@ private:
             write_var_assignment(pNode, o);
         else
             throw VException("Internal error: Unexpected token type %s in AST", t.type_id_name());
+    }
+
+    auto canonical_var_name(const Token& token) {
+        string s = (const char*)token.get_text();
+        assert( !s.empty() );
+
+        if (s.size() > 1 && s[0] == '_')
+            s.replace(0, 1, "local_");
+        else if (s.size() > 2 && s[0] == 'l' && s[1] == '_')
+            s.replace(0, 2, "local_");
+        else if (s.size() > 2 && s[0] == 'g' && s[1] == '_')
+            s.replace(0, 2, "global_");
+
+        return s;
     }
 
     void write_list(const AST* pNode, ostream& o, bool force_open = false) {
@@ -149,11 +163,23 @@ private:
             o << "check_variable = {\n";
             ++_indent;
             indent(o);
-            o << "which = " << (char*)k1t.get_text() << '\n';
+            o << "which = " << canonical_var_name(k1t) << '\n';
+
+            string operand_type, operand;
+
+            if (k2t.type_id() == T_VAR_REF) {
+                operand_type = "which";
+                operand = canonical_var_name(k2t);
+            }
+            else {
+                operand_type = "value";
+                operand = (char*)k2t.get_text();
+            }
+
             indent(o);
-            o << ((k2->token().type_id() == T_VAR_REF) ? "which" : "value");
+            o << operand_type;
             write_cmp_token(t, o);
-            o << (char*)k2->token().get_text() << '\n';
+            o << operand << '\n';
             --_indent;
             indent(o);
             o << "}\n";
@@ -163,12 +189,14 @@ private:
         // support for all comparison operators on the `tier` trigger
         if (t.type_id() != T_OP_EQ && k1t.type_id() == T_STRING && k2t.type_id() == T_STRING) {
 
-            auto trigger = (char*)k1t.get_text(), tier = (char*)k2t.get_text();
+            auto trigger = (char*)k1t.get_text();
             auto is_tier = !strcmp(trigger, "tier"), is_real_tier = !strcmp(trigger, "real_tier");
 
             if (is_tier || is_real_tier) {
                 if (t.type_id() == T_OP_DEQ) {
-                    o << trigger << " = " << tier << '\n';
+                    o << trigger << " = ";
+                    write_val(k2, o);
+                    o << '\n';
                     return;
                 }
 
@@ -176,15 +204,22 @@ private:
                                          (is_tier ? "lower_tier_than" : "lower_real_tier_than") :
                                          (is_tier ? "higher_tier_than" : "higher_real_tier_than");
 
-                if (t.type_id() == T_OP_LT || t.type_id() == T_OP_GT)
-                    o << cmp_trigger << " = " << tier << '\n';
+                if (t.type_id() == T_OP_LT || t.type_id() == T_OP_GT) {
+                    o << cmp_trigger << " = ";
+                    write_val(k2, o);
+                    o << '\n';
+                }
                 else if (t.type_id() == T_OP_LTEQ || t.type_id() == T_OP_GTEQ) {
                     o << "or = {\n";
                     ++_indent;
                     indent(o);
-                    o << cmp_trigger << " = " << tier << '\n';
+                    o << cmp_trigger << " = ";
+                    write_val(k2, o);
+                    o << '\n';
                     indent(o);
-                    o << trigger << " = " << tier << '\n';
+                    o << trigger << " = ";
+                    write_val(k2, o);
+                    o << '\n';
                     --_indent;
                     indent(o);
                     o << "}\n";
@@ -269,7 +304,7 @@ private:
         auto  k2  = kids.back();
         auto& k2t = k2->token();
 
-        auto lhs_var = (char*)k1->token().get_text();
+        auto lhs_var = canonical_var_name(k1->token());
 
         if (k2t.type_id() == T_STRING) { // property export
             // use direct assignment to LHS if possible, else first export to a tmp
@@ -283,7 +318,9 @@ private:
         }
 
         bool is_num = (k2t.type_id() == T_INTEGER || k2t.type_id() == T_DECIMAL);
-        string rhs = (is_num || k2t.type_id() == T_VAR_REF) ? (char*)k2t.get_text() : walk_var_expr(k2, o);
+        string rhs = (k2t.type_id() == T_VAR_REF) ? canonical_var_name(k2t) :
+                                                    (is_num) ? (char*)k2t.get_text() : walk_var_expr(k2, o);
+
         emit_var_effect(o, map_op_to_var_effect(t), lhs_var, rhs, is_num);
     }
 
@@ -329,16 +366,20 @@ private:
         // we always return a temp. variable name. either reuse left child's temp or allocate a new one.
         string var = (k1_tmp) ? walk_var_expr(k1, o) : new_tmp_var();
 
-        if (k1_num || k1_var)
+        if (k1_num)
             emit_var_effect(o, "set_variable", var, (char*)k1t.get_text(), k1_num);
+        else if (k1_var)
+            emit_var_effect(o, "set_variable", var, canonical_var_name(k1t), k1_num);
         else if (k1_str)
             emit_var_export(o, var, (char*)k1t.get_text());
 
         /* setup RHS */
         string rhs;
 
-        if (k2_num || k2_var)
+        if (k2_num)
             rhs = (char*)k2t.get_text();
+        else if (k2_var)
+            rhs = canonical_var_name(k2t);
         else if (k2_str) {
             rhs = new_tmp_var();
             emit_var_export(o, rhs, (char*)k2t.get_text());
@@ -391,8 +432,8 @@ private:
         auto txt = (char*)t.get_text();
         assert( t.type_id() == T_QSTRING || *txt != '\0');
 
-        if (pNode->token().type_id() == T_VAR_REF) {
-            o << (char*)pNode->token().get_text();
+        if (t.type_id() == T_VAR_REF) {
+            o << canonical_var_name(t);
             return;
         }
 
@@ -409,6 +450,8 @@ private:
             o << "clear_event_target";
         else if (strncmp("target:", txt, strlen("target:")) == 0)
             o << "event_" << txt;
+        else if (strncmp("t:", txt, strlen("t:")) == 0)
+            o << "event_target:" << &txt[strlen("t:")];
         else if (t.type_id() == T_QSTRING || t.type_id() == T_QDATE)
             o << "\"" << txt << "\"";
         else

@@ -8,15 +8,18 @@ vars.Add(
 		ignorecase=2)
 )
 
+
+import os
+
 env = Environment(variables = vars)
-env.Append(CXXFLAGS='--std=c++17 -Wconversion -Wall -Werror -W')
+env.Append(CXXFLAGS='--std=c++14 -fpermissive')
 
 if env['BUILD_TYPE'] == 'debugmax':
 	env.Append(CXXFLAGS='-ggdb -O0')
 elif env['BUILD_TYPE'] == 'debug':
-	env.Append(CXXFLAGS='-ggdb -O2')
+	env.Append(CXXFLAGS='-ggdb -O1')
 elif env['BUILD_TYPE'] == 'release':
-	env.Append(CXXFLAGS='-g0 -s -O3')
+	env.Append(CXXFLAGS='-g0 -s -Ofast')
 
 Help(vars.GenerateHelpText(env))
 Export('env')

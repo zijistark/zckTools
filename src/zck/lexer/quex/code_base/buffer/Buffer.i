@@ -156,7 +156,7 @@ QUEX_NAME(Buffer_construct_included)(QUEX_NAME(Buffer)*        including,
          * Inclusion happens in a 'terminal' or external to the lexer step.   
          * => Position registers = empty set.                                 */
         (void)QUEX_NAME(Buffer_move_away_passed_content)(including, 
-                                                         (QUEX_TYPE_LEXATOM)0, 0); 
+                                                         (QUEX_TYPE_LEXATOM)0, 0x0); 
         including->input.lexatom_index_end_of_stream = backup_ios;
 
         /* After 'move away' possibly:
