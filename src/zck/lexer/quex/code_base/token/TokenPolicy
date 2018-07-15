@@ -62,12 +62,12 @@
  * The 'self_token_take_text' only works if the token class provides a corres-
  * ponding member function. Quex generated token classes do so.               */
 #define self_token_get_id()                                  \
-        (self_write_token_p()->_id)
+        (self_write_token_p()->id)
 
 #define self_token_set_id(ID)                                \
         do {                                                 \
             QUEX_ACTION_TOKEN_STAMP(self);                   \
-            self_write_token_p()->_id = (ID);                \
+            self_write_token_p()->id = (ID);                \
         } while(0)
 
 #define self_token_take_text(Begin, End) \
@@ -79,7 +79,7 @@
 #else 
 #  define self_token_repetition_n_set(N)                                                   \
           do {                                                                             \
-              self.error_code = E_Error_TokenRepetitionNSetButNotSupportedByGeneratedCode; \
+              QUEX_NAME(error_code_set_if_first)(&self, E_Error_TokenRepetitionNSetButNotSupportedByGeneratedCode); \
               QUEX_NAME(TokenQueue_set_token_TERMINATION)(&self._token_queue);             \
               RETURN;                                                                      \
           } while(0)

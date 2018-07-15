@@ -88,8 +88,8 @@ QUEX_NAME(ByteLoader_load)(QUEX_NAME(ByteLoader)* me, void* begin_p, const size_
  * before actually reading zero bytes. It may spare a unnecessary load-cycle
  * which ends up with no load at all.                                        */
 {
-    size_t loaded_n;
-    size_t try_n = 0;
+    size_t    loaded_n;
+    ptrdiff_t try_n = 0;
    
     *end_of_stream_f = false;
 
@@ -98,20 +98,16 @@ QUEX_NAME(ByteLoader_load)(QUEX_NAME(ByteLoader)* me, void* begin_p, const size_
     }
 
     do {
+        ++try_n;
+
         /* Try to load 'N' bytes.                                            */
         loaded_n = me->derived.load(me, begin_p, N, end_of_stream_f);
         if( loaded_n ) {
             /* If at least some bytes could be loaded, return 'success'.     */
             return loaded_n;
         }
-        else if( ! me->on_nothing ) {
-            /* No plan for absence of data, return 'failure', EOS.           */
-            *end_of_stream_f = true;
-            return 0;
-        }
-        ++try_n;
 
-    } while( me->on_nothing(me, try_n, N) );
+    } while( me->on_nothing && me->on_nothing(me, (size_t)try_n, N) );
 
     /* If user's on nothing returns 'false' no further attemps to read.      */
     *end_of_stream_f = true;

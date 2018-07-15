@@ -235,9 +235,9 @@ QUEX_NAME(LexatomLoader_Converter_load_lexatoms)(QUEX_NAME(LexatomLoader)* alter
     (void)encoding_error_f;
     (void)raw;
 
-    __quex_assert(me->converter);
-    __quex_assert(alter_ego); 
-    __quex_assert(RegionBeginP); 
+    __quex_assert(0 != me->converter);
+    __quex_assert(0 != alter_ego); 
+    __quex_assert(0 != RegionBeginP); 
     QUEX_ASSERT_RAW_BUFFER(raw);
 
     /* NOT: QUEX_IF_ASSERTS_poison(RegionBeginP, &RegionBeginP[N]);
@@ -293,7 +293,7 @@ QUEX_NAME(LexatomLoader_Converter_load_lexatoms)(QUEX_NAME(LexatomLoader)* alter
             /* Nothing can be loaded; Everything is converted.               */
 
             break;
-        case E_LoadResult_BAD_LEXATOM:
+        case E_LoadResult_ENCODING_ERROR:
             *encoding_error_f = true;
             break;
 
@@ -386,7 +386,7 @@ QUEX_NAME(LexatomLoader_call_converter)(QUEX_NAME(LexatomLoader_Converter)* me,
     /* A converter does not load => It cannot report 'end of stream'     */
     __quex_assert(   load_result == E_LoadResult_COMPLETE
                   || load_result == E_LoadResult_INCOMPLETE
-                  || load_result == E_LoadResult_BAD_LEXATOM);
+                  || load_result == E_LoadResult_ENCODING_ERROR);
     
     if( *insertion_p > RegionBeginP ) {
         QUEX_NAME(LexatomLoader_remove_spurious_BOM)(me, insertion_p, RegionBeginP);

@@ -16,24 +16,37 @@ QUEX_INLINE void
 QUEX_NAME(BufferMemory_construct)(QUEX_NAME(BufferMemory)*  me, 
                                   QUEX_TYPE_LEXATOM*        Memory, 
                                   const size_t              Size,
-                                  E_Ownership               Ownership) 
+                                  E_Ownership               Ownership,
+                                  QUEX_NAME(Buffer)*        IncludingBuffer) 
 {
-    if( Memory ) {
-        /* "Memory size > QUEX_SETTING_BUFFER_MIN_FALLBACK_N + 2" is reqired.
-         * Maybe, define '-DQUEX_SETTING_BUFFER_MIN_FALLBACK_N=0' for 
-         * compilation (assumed no pre-contexts.)                             */
-        __quex_assert(Size > QUEX_SETTING_BUFFER_MIN_FALLBACK_N + 2);
+    __quex_assert(E_Ownership_is_valid(Ownership));    
 
+    if( Memory ) {
+        /* If following assertion fails.
+         * =>  May, define '-DQUEX_SETTING_BUFFER_MIN_FALLBACK_N=0'           */
+        __quex_assert(Size >= QUEX_SETTING_BUFFER_MIN_FALLBACK_N + 2);
+        /* '>=' to allow a totally empty buffer, too.                         */
+        
         me->_front    = Memory;
         me->_back     = &Memory[Size-1];
         me->ownership = Ownership;
-        *(me->_front) = QUEX_SETTING_BUFFER_LIMIT_CODE;
-        *(me->_back)  = QUEX_SETTING_BUFFER_LIMIT_CODE;
+        me->_front[0] = QUEX_SETTING_BUFFER_LIMIT_CODE;
+        me->_back[0]  = QUEX_SETTING_BUFFER_LIMIT_CODE;
     } else {
         me->_front    = (QUEX_TYPE_LEXATOM*)0;
         me->_back     = me->_front;
         me->ownership = Ownership;
     }
+    
+    if( Ownership == E_Ownership_INCLUDING_BUFFER ) { 
+        __quex_assert(0 != IncludingBuffer); 
+    }
+    else { 
+        __quex_assert(0 == IncludingBuffer); 
+        __quex_assert(me != &IncludingBuffer->_memory); 
+    }
+
+    me->including_buffer = IncludingBuffer;
 }
 
 QUEX_INLINE void 
@@ -41,12 +54,24 @@ QUEX_NAME(BufferMemory_destruct)(QUEX_NAME(BufferMemory)* me)
 /* Does not set 'me->_front' to zero, if it is not deleted. Thus, the user
  * may detect wether it needs to be deleted or not.                           */
 {
-    if( me->_front && me->ownership == E_Ownership_LEXICAL_ANALYZER ) {
-        QUEXED(MemoryManager_free)((void*)me->_front, 
-                                   E_MemoryObjectType_BUFFER_MEMORY);
+    if( me->_front ) {
+        switch( me->ownership ) {
+        case E_Ownership_LEXICAL_ANALYZER:
+            __quex_assert(0 == me->including_buffer);
+            QUEXED(MemoryManager_free)((void*)me->_front, 
+                                       E_MemoryObjectType_BUFFER_MEMORY);
+            break;
+        case E_Ownership_INCLUDING_BUFFER:
+            __quex_assert(0 != me->including_buffer);
+            __quex_assert(&me->_front[0] == &me->including_buffer->_memory._back[1]);
+            me->including_buffer->_memory._back = me->_back;
+        default: 
+            break;
+        }
     }
     QUEX_NAME(BufferMemory_resources_absent_mark)(me);
 }
+
 
 QUEX_INLINE void 
 QUEX_NAME(BufferMemory_resources_absent_mark)(QUEX_NAME(BufferMemory)* me) 
@@ -54,8 +79,9 @@ QUEX_NAME(BufferMemory_resources_absent_mark)(QUEX_NAME(BufferMemory)* me)
  * then the concerned memory is no longer referred by this buffer.            */
 {
     /* 'me->_front == 0' prevents 'MemoryManager_free()'                      */
-    me->_front = me->_back = (QUEX_TYPE_LEXATOM*)0x0;
-    me->ownership = E_Ownership_LEXICAL_ANALYZER;
+    me->_front = me->_back = (QUEX_TYPE_LEXATOM*)0;
+    me->ownership        = E_Ownership_LEXICAL_ANALYZER;
+    me->including_buffer = (QUEX_NAME(Buffer)*)0;
 }
 
 QUEX_INLINE bool 
@@ -63,7 +89,8 @@ QUEX_NAME(BufferMemory_resources_absent)(QUEX_NAME(BufferMemory)* me)
 {
     /* Ownership is irrelevant.                                               */
     return    (me->_front == me->_back) 
-           && (me->_front == (QUEX_TYPE_LEXATOM*)0x0);
+           && (me->_front == (QUEX_TYPE_LEXATOM*)0)
+           && (me->including_buffer == (QUEX_NAME(Buffer)*)0);
 }
 
 QUEX_INLINE size_t          

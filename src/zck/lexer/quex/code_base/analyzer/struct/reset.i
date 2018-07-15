@@ -31,7 +31,7 @@
  *        Only then, the lexer object is assigned new content.
  * 
  * The *pivot point* of 'success granted' is inside the function 
- * 'include_push_all_but_buffer()'. If it returns != NULL, success is granted.
+ * 'reset_all_but_buffer()'. If it returns != NULL, success is granted.
  * Anything that might fail, *must happen before* the call to this function.
  * The exact 'pivot point' is marked in a comment by '[PIVOT POINT]'.
  *______________________________________________________________________________
@@ -93,7 +93,7 @@ QUEX_NAME(reset_file_name)(QUEX_TYPE_ANALYZER*   me,
     /* NEW: ByteLoader.                                                       */
     new_byte_loader = QUEX_NAME(ByteLoader_FILE_new_from_file_name)(FileName);
     if( ! new_byte_loader ) {
-        me->error_code = E_Error_Allocation_ByteLoader_Failed; 
+        QUEX_NAME(error_code_set_if_first)(me, E_Error_File_OpenFailed);
         goto ERROR_0;
     }
 
@@ -101,7 +101,7 @@ QUEX_NAME(reset_file_name)(QUEX_TYPE_ANALYZER*   me,
         goto ERROR_1;
     }
     else if( ! QUEX_NAME(input_name_set)(me, FileName) ) {
-        me->error_code = E_Error_InputName_Set_Failed;
+QUEX_NAME(error_code_set_if_first)(me, E_Error_InputName_Set_Failed);
         goto ERROR_0;
     }
 
@@ -142,13 +142,13 @@ QUEX_NAME(reset_ByteLoader)(QUEX_TYPE_ANALYZER*     me,
     QUEX_NAME(LexatomLoader)* new_filler;
 
     if( me->error_code != E_Error_None ) {
-        me->error_code = E_Error_Reset_OnError;
+        QUEX_NAME(error_code_set_if_first)(me, E_Error_Reset_OnError);
         goto ERROR_0;
     }
      
     new_filler = QUEX_NAME(LexatomLoader_new)(new_byte_loader, new_converter);
     if( ! new_filler ) {
-        me->error_code = E_Error_Allocation_LexatomLoader_Failed;
+        QUEX_NAME(error_code_set_if_first)(me, E_Error_Allocation_LexatomLoader_Failed);
         goto ERROR_0;
     }
     if( me->buffer.filler ) {
@@ -192,11 +192,11 @@ QUEX_NAME(reset_memory)(QUEX_TYPE_ANALYZER*  me,
  *          false, in case of failure.                                        */
 {
     if( ! QUEX_NAME(BufferMemory_check_chunk)(Memory, MemorySize, EndOfFileP) ) {
-        me->error_code = E_Error_ProvidedExternal_Memory_Corrupt;
+        QUEX_NAME(error_code_set_if_first)(me, E_Error_ProvidedExternal_Memory_Corrupt);
         goto ERROR_0;
     }
     else if( me->error_code != E_Error_None ) {
-        me->error_code = E_Error_Reset_OnError;
+        QUEX_NAME(error_code_set_if_first)(me, E_Error_Reset_OnError);
         goto ERROR_0;
     }
 
@@ -211,7 +211,8 @@ QUEX_NAME(reset_memory)(QUEX_TYPE_ANALYZER*  me,
     QUEX_NAME(Buffer_construct)(&me->buffer, 
                                 (QUEX_NAME(LexatomLoader)*)0,
                                 Memory, MemorySize, EndOfFileP,
-                                E_Ownership_EXTERNAL);
+                                E_Ownership_EXTERNAL,
+                                (QUEX_NAME(Buffer)*)0);
     return true;
 
     /* ERROR CASES: Free Resources ___________________________________________*/
@@ -247,7 +248,7 @@ QUEX_NAME(reset_all_but_buffer)(QUEX_TYPE_ANALYZER*  me)
      *________________________________________________________________________*/
 
     if( ! QUEX_NAME(user_reset)(me) ) {
-        me->error_code = E_Error_UserReset_Failed;
+        QUEX_NAME(error_code_set_if_first)(me, E_Error_UserReset_Failed);
         goto ERROR_0;
     }
     else if( ! QUEX_NAME(construct_all_but_buffer)(me, false) ) {

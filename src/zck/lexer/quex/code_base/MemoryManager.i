@@ -29,6 +29,26 @@ QUEXED_DEF(MemoryManager_allocate)(const size_t       ByteN,
 #   endif
     return me;
 }
+
+uint8_t*
+QUEXED_DEF(MemoryManager_reallocate)(void*              old_memory,
+                                     const size_t       NewByteN, 
+                                     E_MemoryObjectType Type)
+/* Attempts to find a bigger chunk of memory for 'old_memory'--if possible 
+ * at the same location, so that copying is not necessary.
+ *
+ * RETURNS: pointer == old_memory, if memory could be extended.
+ *                     (old_memory REMAINS allocated)
+ *                  == 0, if memory could neither be extended nor new 
+ *                        memory could be allocated.
+ *                     (old_memory REMAINS allocated)
+ *                  != old_memory, if new memory has been allocated, 
+ *                     content has been copied.
+ *                     (old_memory is DEALLOCATED)                            */
+{
+    (void)Type;
+    return (uint8_t*)__QUEX_STD_realloc(old_memory, NewByteN);
+}
        
 void 
 QUEXED_DEF(MemoryManager_free)(void*              alter_ego, 

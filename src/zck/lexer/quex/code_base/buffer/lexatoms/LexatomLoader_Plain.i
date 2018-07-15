@@ -135,9 +135,9 @@ QUEX_NAME(LexatomLoader_Plain_load_lexatoms)(QUEX_NAME(LexatomLoader)*  alter_eg
     size_t                          loaded_n;
     (void)encoding_error_f;
 
-    __quex_assert(alter_ego); 
-    __quex_assert(RegionBeginP); 
-    __quex_assert(me->base.byte_loader); 
+    __quex_assert(0 != alter_ego); 
+    __quex_assert(0 != RegionBeginP); 
+    __quex_assert(0 != me->base.byte_loader); 
     /* NOT: QUEX_IF_ASSERTS_poison(RegionBeginP, &RegionBeginP[N]);
      * The buffer must remain intact, in case that not all is loaded.        */
     loaded_byte_n = me->base.byte_loader->load(me->base.byte_loader, 

@@ -1,6 +1,6 @@
 Import('*')
 
-env.Append(CXXFLAGS='-DQUEX_OPTION_ASSERTS_DISABLED')
+env.Append(CCFLAGS='-DQUEX_OPTION_ASSERTS_DISABLED')
 env.Append(CPPPATH=['zck/lexer'])
 env.Append(LIBPATH='../build')
 
@@ -13,4 +13,4 @@ sources.append('zck/lexer/Lexer.cpp')
 env.StaticLibrary('zck', sources)
 
 env.Program('ast2dot', ['ast2dot.cc'], LIBS=['zck'])
-env.Program('zck', ['zck.cc'], LIBS=['zck', 'boost_filesystem', 'boost_system'])
+env.Program('zck', ['zck.cc'], LIBS=['zck', 'boost_filesystem-mt', 'boost_system-mt'])

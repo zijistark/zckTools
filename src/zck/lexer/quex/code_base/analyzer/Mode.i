@@ -9,7 +9,7 @@
 
 QUEX_NAMESPACE_MAIN_OPEN
 
-    QUEX_INLINE __QUEX_TYPE_ANALYZER_RETURN_VALUE
+    QUEX_INLINE void
     QUEX_NAME(Mode_uncallable_analyzer_function)(QUEX_TYPE_ANALYZER* me)
     { 
         __quex_assert(0); 
@@ -31,16 +31,37 @@ QUEX_NAMESPACE_MAIN_OPEN
     { (void)me; (void)TheMode; }
 
     QUEX_INLINE bool
-    QUEX_NAME(ModeStack_construct)(QUEX_NAME(ModeStack)* me)
+    QUEX_NAME(ModeStack_construct)(QUEX_NAME(ModeStack)* me,
+                                   const size_t          N)
     {
-        me->end        = &me->begin[0];
-        me->memory_end = &me->begin[QUEX_SETTING_MODE_STACK_SIZE];
-        return true;
+        me->begin = (QUEX_NAME(Mode)**)QUEXED(MemoryManager_allocate)(
+                                    N * sizeof(QUEX_NAME(Mode)*),
+                                    E_MemoryObjectType_MODE_STACK);
+        if( ! me->begin ) {
+            QUEX_NAME(ModeStack_resources_absent_mark)(me);
+            return false;
+        }
+        else {
+            me->end        = &me->begin[0];
+            me->memory_end = &me->begin[N];
+            return true;
+        }
+    }
+
+    QUEX_INLINE void
+    QUEX_NAME(ModeStack_destruct)(QUEX_NAME(ModeStack)* me)
+    {
+        if( me->begin ) {
+            QUEXED(MemoryManager_free)((void*)&me->begin[0],
+                                       E_MemoryObjectType_MODE_STACK);
+        }
+        QUEX_NAME(ModeStack_resources_absent_mark)(me);
     }
 
     QUEX_INLINE void
     QUEX_NAME(ModeStack_resources_absent_mark)(QUEX_NAME(ModeStack)* me)
     {
+        me->begin      = (QUEX_NAME(Mode)**)0;
         me->end        = (QUEX_NAME(Mode)**)0;
         me->memory_end = (QUEX_NAME(Mode)**)0;
     }
@@ -64,8 +85,13 @@ QUEX_NAMESPACE_MAIN_OPEN
             __QUEX_STD_printf("    size:    %i;\n",
                               (int)(me->memory_end - me->begin));
             __QUEX_STD_printf("    content: [");
-            for(iterator=me->end-1; iterator >= me->begin; --iterator) {
-                __QUEX_STD_printf("%s, ", (*iterator)->name);
+            if( me->end > me->memory_end || me->end < me->begin ) {
+                __QUEX_STD_printf("<pointer corrupted>");
+            }
+            else {
+                for(iterator=&me->end[-1]; iterator >= me->begin; --iterator) {
+                    __QUEX_STD_printf("%s, ", (*iterator)->name);
+                }
             }
             __QUEX_STD_printf("]\n");
             __QUEX_STD_printf("  }\n");

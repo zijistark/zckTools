@@ -15,7 +15,7 @@ CCFLAG_ASSERTS=-DQUEX_OPTION_ASSERTS_DISABLED
 # (*) COMPILER SETTINGS ________________________________________________________
 #     (change COMPILER to whatever you use as compiler on the command line,
 #      e.g. "make COMPILER=icpc" will use intel's c++ compiler)
-COMPILER = g++ -g0 -Os -fpermissive --std=c++17
+COMPILER = g++ -g0 -Os -Wall -Wconversion -Wno-register -std=c++17
 
 QUEX_DEFINES = $(CCFLAG_ASSERTS)
 # Other useful options for debugging:
@@ -39,7 +39,7 @@ test_lexer.o: test_lexer.cpp lexer/Lexer.cpp
 	$(CC) $< -o $@ 
 
 lexer/Lexer.cpp: zck.qx 
-	$(QUEX_PATH)/quex.bat -i zck.qx -o Lexer --sma --token-id-prefix T_ --encoding cp1252 --sp lexer
+	$(QUEX_PATH)/quex-exe.py -i zck.qx -o Lexer --sma --token-id-prefix T_ --encoding cp1252 --sp lexer
 
 # Macro expansions (only for debugging):
 lexer/%.E: lexer/%.cpp    

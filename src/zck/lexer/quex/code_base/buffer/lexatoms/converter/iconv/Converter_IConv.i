@@ -222,7 +222,7 @@ QUEX_NAME(Converter_IConv_convert)(QUEX_NAME(Converter)*  alter_ego,
         QUEX_ERROR_EXIT("Unexpected setting of 'errno' after call to GNU's iconv().");
 
     case EILSEQ:
-        return E_LoadResult_BAD_LEXATOM;
+        return E_LoadResult_ENCODING_ERROR;
 
     case EINVAL:
         /* Incomplete byte sequence for lexatom conversion.

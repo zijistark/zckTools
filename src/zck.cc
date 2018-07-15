@@ -1,6 +1,7 @@
 
 #include "zck.h"
 
+#include <string_view>
 #include <cstdio>
 #include <getopt.h>
 #include <boost/filesystem.hpp>
@@ -11,7 +12,7 @@ namespace fs = boost::filesystem;
 
 
 const char* const TAB = "\t";
-const char* const VERSION = "v0.0-12";
+const char* const VERSION = "v0.0-13";
 
 struct options {
     int verbose;
@@ -440,6 +441,8 @@ private:
         /* some aliases -- as always until ZCK starts to grow into something ready to be used heavily, we're doing this
          * shit in a silly but very easy way */
 
+        std::string_view sv(txt);
+
         if (strcmp(txt, "save_target") == 0)
             o << "save_event_target_as";
         else if (strcmp(txt, "save_global_target") == 0)
@@ -452,6 +455,10 @@ private:
             o << "event_" << txt;
         else if (strncmp("t:", txt, strlen("t:")) == 0)
             o << "event_target:" << &txt[strlen("t:")];
+        else if (auto pos = sv.rfind("@target:"); pos != string_view::npos)
+            o << sv.substr(0, pos) << "@event_target:" << sv.substr(pos + strlen("@target:"));
+        else if (auto pos = sv.rfind("@t:"); pos != string_view::npos)
+            o << sv.substr(0, pos) << "@event_target:" << sv.substr(pos + strlen("@t:"));
         else if (t.type_id() == T_QSTRING || t.type_id() == T_QDATE)
             o << "\"" << txt << "\"";
         else

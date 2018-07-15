@@ -9,6 +9,7 @@
 #endif
 #include <quex/code_base/token/TokenPolicy>
 #include <quex/code_base/buffer/Buffer_print>
+#include <quex/code_base/buffer/lexatoms/LexatomLoader>
 
 QUEX_NAMESPACE_MAIN_OPEN
 
@@ -24,11 +25,33 @@ QUEX_INLINE void
 QUEX_NAME(input_pointer_set)(QUEX_TYPE_ANALYZER* me, QUEX_TYPE_LEXATOM* Adr)
 { me->buffer._read_p = Adr; }
 
-QUEX_INLINE void        
-QUEX_NAME(set_callback_on_buffer_content_change)(QUEX_TYPE_ANALYZER*  me,
-                                                 void               (*callback)(const QUEX_TYPE_LEXATOM*, 
-                                                                                const QUEX_TYPE_LEXATOM*))
-{ me->buffer.on_content_change = callback; }
+#ifdef QUEX_OPTION_INDENTATION_TRIGGER
+QUEX_INLINE void 
+QUEX_NAME(indentation_handler_switch)(QUEX_TYPE_ANALYZER* me, bool ActiveF)
+{ me->_indentation_handler_active_f = ActiveF; }
+
+QUEX_INLINE bool 
+QUEX_NAME(indentation_handler_is_active)(QUEX_TYPE_ANALYZER* me)
+{ return me->_indentation_handler_active_f; }
+#endif
+
+QUEX_INLINE void 
+QUEX_NAME(error_code_clear)(QUEX_TYPE_ANALYZER* me)
+{ me->error_code = E_Error_None; }
+
+QUEX_INLINE void 
+QUEX_NAME(error_code_set_void)(QUEX_TYPE_ANALYZER* me)
+{ me->error_code = E_Error_Uninitialized; }
+
+QUEX_INLINE bool 
+QUEX_NAME(error_code_is_void)(QUEX_TYPE_ANALYZER* me)
+{ return me->error_code == E_Error_Uninitialized; }
+
+QUEX_INLINE void 
+QUEX_NAME(error_code_set_if_first)(QUEX_TYPE_ANALYZER* me, E_Error ErrorCode)
+/* Never overwrite an error code
+ * => original error is maintained.                                           */
+{ if( me->error_code == E_Error_None ) me->error_code = ErrorCode; }
 
 QUEX_INLINE QUEX_TYPE_TOKEN*  
 QUEX_NAME(token_p)(QUEX_TYPE_ANALYZER* me)
@@ -63,14 +86,14 @@ QUEX_NAME(version)(QUEX_TYPE_ANALYZER* me)
 QUEX_INLINE bool
 QUEX_NAME(byte_order_reversion)(QUEX_TYPE_ANALYZER* me)
 { 
-    __quex_assert(me->buffer.filler);
+    __quex_assert(0 != me->buffer.filler);
     return me->buffer.filler->_byte_order_reversion_active_f; 
 }
 
 QUEX_INLINE void     
 QUEX_NAME(byte_order_reversion_set)(QUEX_TYPE_ANALYZER* me, bool Value)
 { 
-    __quex_assert(me->buffer.filler);
+    __quex_assert(0 != me->buffer.filler);
     me->buffer.filler->_byte_order_reversion_active_f = Value; 
 }
 
@@ -93,6 +116,10 @@ QUEX_NAME(print_this)(QUEX_TYPE_ANALYZER* me)
     }
 
     __QUEX_IF_COUNT(QUEX_NAME(Counter_print_this)(&me->counter));
+#   ifdef QUEX_OPTION_INDENTATION_TRIGGER
+    __QUEX_STD_printf("  _indentation_handler_active_f: %s;\n" , 
+                      me->_indentation_handler_active_f ? "true" : "false");
+#   endif
 
     __QUEX_STD_printf("  _mode_stack: ");
     QUEX_NAME(ModeStack_print)(&me->_mode_stack);

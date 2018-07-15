@@ -70,6 +70,7 @@
 #   define __QUEX_STD_strcpy   std::strcpy
 #   define __QUEX_STD_strlen   std::strlen
 #   define __QUEX_STD_malloc   std::malloc
+#   define __QUEX_STD_realloc  std::realloc
 #   define __QUEX_STD_free     std::free  
 
 #   define QUEX_INLINE     inline
@@ -98,6 +99,7 @@
 #   define __QUEX_STD_strlen   strlen
 #   define __QUEX_STD_sprintf  sprintf
 #   define __QUEX_STD_malloc   malloc
+#   define __QUEX_STD_realloc  realloc
 #   define __QUEX_STD_free     free  
 
 #   define QUEX_INLINE             /* static */
@@ -112,38 +114,55 @@ typedef enum {
     E_LoadResult_DONE,              /* Complete or incomplete, load happened. */
     E_LoadResult_COMPLETE,          /* Load filled drain completely.          */
     E_LoadResult_INCOMPLETE,        /* Drain not filled completely.           */
-    E_LoadResult_BAD_LEXATOM,       /* Encoding error in stream.              */
+    E_LoadResult_ENCODING_ERROR,    /* Encoding error in stream.              */
     E_LoadResult_NO_MORE_DATA,      /* No more data to fill drain.            */
-    E_LoadResult_NO_SPACE_FOR_LOAD, /* No space to load content into.         */
+    E_LoadResult_OVERFLOW,          /* No more data to fill drain.            */
     E_LoadResult_FAILURE,           /* General low-level load failure.        */ 
+    E_LoadResult_SEEK_FAILURE,      /* General low-level load failure.        */ 
     E_LoadResult_VOID               /* General low-level load failure.        */ 
 } E_LoadResult;
 #endif
 
 #define E_LoadResult_NAME(LR) \
-            (  (LR) == E_LoadResult_DONE              ? "DONE"              \
-             : (LR) == E_LoadResult_COMPLETE          ? "COMPLETE"          \
-             : (LR) == E_LoadResult_INCOMPLETE        ? "INCOMPLETE"        \
-             : (LR) == E_LoadResult_BAD_LEXATOM       ? "BAD LEXATOM"       \
-             : (LR) == E_LoadResult_NO_MORE_DATA      ? "NO MORE DATA"      \
-             : (LR) == E_LoadResult_NO_SPACE_FOR_LOAD ? "NO SPACE FOR LOAD" \
-             : (LR) == E_LoadResult_FAILURE           ? "FAILURE"           \
-             : (LR) == E_LoadResult_VOID              ? "VOID"              \
-             :                                          "<error>")
+            (  (LR) == E_LoadResult_DONE           ? "DONE"              \
+             : (LR) == E_LoadResult_COMPLETE       ? "COMPLETE"          \
+             : (LR) == E_LoadResult_INCOMPLETE     ? "INCOMPLETE"        \
+             : (LR) == E_LoadResult_ENCODING_ERROR ? "ENCODING_ERROR"    \
+             : (LR) == E_LoadResult_NO_MORE_DATA   ? "NO MORE DATA"      \
+             : (LR) == E_LoadResult_FAILURE        ? "FAILURE"           \
+             : (LR) == E_LoadResult_VOID           ? "VOID"              \
+             :                                       "<error>")
+
 
 #ifndef QUEX_TYPE_DEFINITIONS_E_ERROR
 #define QUEX_TYPE_DEFINITIONS_E_ERROR
 typedef enum {
+    E_Error_File_OpenFailed,
+    E_Error_File_SeekFailed,
+    E_Error_File_ReadInconsistent,
+    /* --------------------------------------------------*/
     E_Error_Allocation_BufferMemory_Failed,
     E_Error_Allocation_ByteLoader_Failed,
     E_Error_Allocation_LexatomLoader_Failed,
-    E_Error_Buffer_CannotAbsorbMoreContent,
     E_Error_Constructor_Accumulator_Failed,
     E_Error_Constructor_Counter_Failed,
     E_Error_Constructor_PostCategorizer_Failed,
     E_Error_IncludePopOnEmptyStack,
     E_Error_IncludePush_OnError,
     E_Error_InputName_Set_Failed,
+    /* --------------------------------------------------*/
+    E_Error_Buffer_Feeder_CannotAbsorbMoreContent,
+    E_Error_Buffer_Overflow_LexemeTooLong,
+    /* --------------------------------------------------*/
+    E_Error_DFA_DropIntoOtherState,
+    E_Error_StateRouter_Empty,
+    E_Error_StateRouter_UnkownStateIndex,
+    /* --------------------------------------------------*/
+    E_Error_Indentation_StackOverflow,
+    E_Error_Indentation_DedentNotOnIndentationBorder,
+    /* --------------------------------------------------*/
+    E_Error_Accumulator_OutOfMemory,
+    /* --------------------------------------------------*/
     E_Error_NoHandler_OnBadLexatom,
     E_Error_NoHandler_OnEndOfStream,
     E_Error_NoHandler_OnFailure,
@@ -151,8 +170,17 @@ typedef enum {
     E_Error_NoHandler_OnLoadFailure,
     E_Error_NoHandler_OnOverflow,
     E_Error_NoHandler_OnSkipRangeOpen,
+    /* Flags to be set even if handlers are implemented. */
+    E_Error_OnBadLexatom,
+    E_Error_OnFailure,
+    E_Error_OnIndentationBad,
+    E_Error_OnLoadFailure,
+    E_Error_OnOverflow,
+    E_Error_OnSkipRangeOpen,
+    /* --------------------------------------------------*/
     E_Error_None,
     E_Error_ProvidedExternal_Memory_Corrupt,
+    E_Error_ProvidedExternal_Memory_Intersects,
     E_Error_Reset_OnError,
     E_Error_TokenRepetitionNSetButNotSupportedByGeneratedCode,
     E_Error_TokenQueueNoMoreTokensAvailable,
@@ -160,20 +188,39 @@ typedef enum {
     E_Error_UnitTest_Termination,
     E_Error_UserConstructor_Failed,
     E_Error_UserMementoPack_Failed,
-    E_Error_UserReset_Failed
+    E_Error_UserReset_Failed,
+    /*---------------------------------------------------*/
+    E_Error_ModeStack_PopOnTopLevel,
+    E_Error_ModeStack_Overflow,
 } E_Error;
 
 #define E_Error_NAME(E) \
-    (  (E) == E_Error_Allocation_BufferMemory_Failed     ? "Allocation_BufferMemory_Failed"     \
+    (  (E) == E_Error_File_OpenFailed                    ? "File_OpenFailed"                 \
+     : (E) == E_Error_File_SeekFailed                    ? "File_SeekFailed"                    \
+     : (E) == E_Error_File_ReadInconsistent                    ? "File_ReadInconsistent"                    \
+     : (E) == E_Error_Allocation_BufferMemory_Failed     ? "Allocation_BufferMemory_Failed"     \
      : (E) == E_Error_Allocation_ByteLoader_Failed       ? "Allocation_ByteLoader_Failed"       \
      : (E) == E_Error_Allocation_LexatomLoader_Failed    ? "Allocation_LexatomLoader_Failed"    \
-     : (E) == E_Error_Buffer_CannotAbsorbMoreContent     ? "Buffer_CannotAbsorbMoreContent"     \
+     : (E) == E_Error_Buffer_Feeder_CannotAbsorbMoreContent     ? "Buffer_Feeder_CannotAbsorbMoreContent"    \
+     : (E) == E_Error_Buffer_Overflow_LexemeTooLong      ? "Buffer_Overflow_LexemeTooLong"      \
      : (E) == E_Error_Constructor_Accumulator_Failed     ? "Constructor_Accumulator_Failed"     \
      : (E) == E_Error_Constructor_Counter_Failed         ? "Constructor_Counter_Failed"         \
      : (E) == E_Error_Constructor_PostCategorizer_Failed ? "Constructor_PostCategorizer_Failed" \
+     : (E) == E_Error_DFA_DropIntoOtherState             ? "DFA_DropIntoOtherState"             \
      : (E) == E_Error_IncludePopOnEmptyStack             ? "IncludePopOnEmptyStack"             \
      : (E) == E_Error_IncludePush_OnError                ? "IncludePush_OnError"                \
+     : (E) == E_Error_StateRouter_Empty                  ? "StateRouter_Empty"                  \
+     : (E) == E_Error_StateRouter_UnkownStateIndex       ? "StateRouter_UnkownStateIndex"       \
+     : (E) == E_Error_Indentation_StackOverflow          ? "Indentation_StackOverflow"                       \
+     : (E) == E_Error_Indentation_DedentNotOnIndentationBorder ? "Indentation_DedentNotOnIndentationBorder"  \
      : (E) == E_Error_InputName_Set_Failed               ? "InputName_Set_Failed"               \
+     : (E) == E_Error_Accumulator_OutOfMemory            ? "Accumulator_OutOfMemory"            \
+     : (E) == E_Error_OnBadLexatom                       ? "OnBadLexatom"                       \
+     : (E) == E_Error_OnFailure                          ? "OnFailure"                          \
+     : (E) == E_Error_OnIndentationBad                   ? "OnIndentationBad"                   \
+     : (E) == E_Error_OnLoadFailure                      ? "OnLoadFailure"                      \
+     : (E) == E_Error_OnOverflow                         ? "OnOverflow"                         \
+     : (E) == E_Error_OnSkipRangeOpen                    ? "OnSkipRangeOpen"                    \
      : (E) == E_Error_NoHandler_OnBadLexatom             ? "NoHandler_OnBadLexatom"             \
      : (E) == E_Error_NoHandler_OnEndOfStream            ? "NoHandler_OnEndOfStream"            \
      : (E) == E_Error_NoHandler_OnFailure                ? "NoHandler_OnFailure"                \
@@ -183,14 +230,17 @@ typedef enum {
      : (E) == E_Error_NoHandler_OnSkipRangeOpen          ? "NoHandler_OnSkipRangeOpen"          \
      : (E) == E_Error_None                               ? "None"                               \
      : (E) == E_Error_ProvidedExternal_Memory_Corrupt    ? "ProvidedExternal_Memory_Corrupt"    \
+     : (E) == E_Error_ProvidedExternal_Memory_Intersects ? "ProvidedExternal_Memory_Intersects" \
      : (E) == E_Error_Reset_OnError                      ? "Reset_OnError"                      \
      : (E) == E_Error_TokenRepetitionNSetButNotSupportedByGeneratedCode ? "TokenRepetitionNSetButNotSupportedByGeneratedCode" \
-     : (E) == E_Error_TokenQueueNoMoreTokensAvailable    ? "TokenQueueNoMoreTokensAvailable" \
+     : (E) == E_Error_TokenQueueNoMoreTokensAvailable    ? "TokenQueueNoMoreTokensAvailable"    \
      : (E) == E_Error_Uninitialized                      ? "Uninitialized"                      \
      : (E) == E_Error_UnitTest_Termination               ? "UnitTest_Termination"               \
      : (E) == E_Error_UserConstructor_Failed             ? "UserConstructor_Failed"             \
      : (E) == E_Error_UserMementoPack_Failed             ? "UserMementoPack_Failed"             \
-     : (E) == E_Error_UserReset_Failed                   ? "E_Error_UserReset_Failed"           \
+     : (E) == E_Error_UserReset_Failed                   ? "UserReset_Failed"                   \
+     : (E) == E_Error_ModeStack_PopOnTopLevel            ? "ModeStack_PopOnTopLevel"            \
+     : (E) == E_Error_ModeStack_Overflow                 ? "ModeStack_Overflow"                 \
      :                                                     "<Error Void>")
 
 #define E_Error_MISSING_HANDLER_NAME(E) \
@@ -198,7 +248,7 @@ typedef enum {
       : (E) == E_Error_NoHandler_OnFailure        ? "on_failure"         \
       : (E) == E_Error_NoHandler_OnIndentationBad ? "on_indentation_bad" \
       : (E) == E_Error_NoHandler_OnLoadFailure    ? "on_load_failure"    \
-      : (E) == E_Error_NoHandler_OnOverflow       ? "on_overflow"        \
+      : (E) == E_Error_NoHandler_OnOverflow       ? "on_buffer_overflow"        \
       : (E) == E_Error_NoHandler_OnSkipRangeOpen  ? "on_skip_range_open" \
       :                                             (const char*)0)
 
@@ -341,6 +391,15 @@ typedef enum {
            __quex_debug_core(StateIdx, "__________");  \
            __quex_debug_input(StateIdx)
 
+#   if __STDC_VERSION__ >= 199901L
+#   define __quex_debug_init_state(StateIdx)           \
+           __quex_debug_core(StateIdx, "__________");  \
+           __quex_debug2("Init State: %s", __func__)
+#   else
+#   define __quex_debug_init_state(StateIdx)           \
+           __quex_debug_core(StateIdx, "__________ Init State:")
+#   endif
+
 #   define __quex_debug_path_walker_state(PathWalkerIdx, PathBase, PathIterator)               \
            __quex_debug_path_walker_core(PathWalkerIdx, PathBase, PathIterator, "__________"); \
            __quex_debug_input(__QUEX_DEBUG_MAP_STATE_KEY_TO_STATE(PathIterator-PathBase))
@@ -381,7 +440,6 @@ typedef enum {
 #   define __quex_debug_counter()                        \
            QUEX_NAME(Counter_print_this)(&self.counter)
 
-
 #else /* not defined(QUEX_OPTION_DEBUG_SHOW) */
 
 #   define __quex_debug(FormatStr)                /* empty */
@@ -390,6 +448,8 @@ typedef enum {
 #   define __quex_debug3(FormatStr, Arg0, Arg1)   /* empty */
 
 #   define __quex_debug_state(StateIdx)           \
+           __quex_optional_statistics(StateIdx)
+#   define __quex_debug_init_state(StateIdx)      \
            __quex_optional_statistics(StateIdx)
 #   define __quex_debug_path_walker_state(PathWalkerIdx, PathBase, PathIterator) \
            __quex_optional_statistics(StateIdx)
@@ -435,9 +495,18 @@ typedef enum {
 #    define __quex_optional_statistics(StateIdx) /* empty */
 #endif
 
-#define __QUEX_MESSAGE_CHARACTER_ENCODING_SPECIFIED_WITHOUT_CONVERTER \
-        "A character encoding name '%s' has been specified while the analyzer is not\n" \
-        "setup to run with a converter (icu or iconv).\n" 
+#ifdef     QUEX_OPTION_DEBUG_SHOW_MODES
+#    define __quex_debug_show_mode_transition(me, ModeP)                                       \
+        if( me->__current_mode_p != 0x0 ) {                                                    \
+            __QUEX_STD_fprintf(stderr, "| Mode change from %s\n", me->__current_mode_p->name); \
+            __QUEX_STD_fprintf(stderr, "|             to   %s\n", ModeP->name);                \
+        } else {                                                                               \
+            __QUEX_STD_fprintf(stderr, "| Mode change to %s\n", ModeP->name);                  \
+        }                                                                                
+#else
+#    define __quex_debug_show_mode_transition(me, ModeP)                                       \
+        /* empty */
+#endif
 
 #define __QUEX_MESSAGE_ASSERTS_INFO \
         "## Disable this message by compile option\n"                               \
@@ -445,7 +514,7 @@ typedef enum {
         "##\n"                                                                      \
         "## Asserts activated! Lexical analyzer is 'paranoid'!\n"                   \
         "## => Even smallest misbehavior causes program exit.\n"                    \
-        "##    This helps to find subtile errors.\n"                                \
+        "##    This helps to find subtle errors.\n"                                 \
         "##\n"                                                                      \
         "## Note however: the paranoia is a heavy load on performance!\n"           \
         "##\n"                                                                      \
@@ -453,16 +522,6 @@ typedef enum {
         "##\n"                                                                      \
         "## Report any bug at\n"                                                    \
         "##        http://sourceforge.net/tracker/?group_id=168259&atid=846112\n" 
-
-#define __QUEX_MESSAGE_MODE_STACK_OVERFLOW \
-        "Error: Mode stack overflow. Adapt size of mode stack via the macro\n"      \
-        "Error: QUEX_SETTING_MODE_STACK_SIZE, or review mode transitions.\n"        \
-        "Error: I.e. check that for every GOSUB (push), there is a correspondent\n" \
-        "Error: GOUP (pop)."
-
-#define QUEX_ERROR_DEPRECATED(NAME, REPLACEMENT) \
-        QUEX_ERROR_EXIT(NAME " has been deprecated\n"   \
-                        "Please, use " REPLACEMENT ".")
 
 #define ____QUEX_APPEND(X, Y)  X ## Y
 #define __QUEX_APPEND(X, Y)    ____QUEX_APPEND(X, Y)
@@ -473,15 +532,21 @@ typedef enum {
 
 #if ! defined(QUEX_OPTION_TERMINATION_ZERO_DISABLED)
 
-#   define QUEX_LEXEME_TERMINATING_ZERO_SET(BUFFER)        \
-        (BUFFER)->_lexatom_at_lexeme_start = *((BUFFER)->_read_p); \
-        *((BUFFER)->_read_p) = '\0';
+#   define QUEX_LEXEME_TERMINATING_ZERO_SET(BUFFER)                \
+        (BUFFER)->_lexatom_at_lexeme_start = (BUFFER)->_read_p[0]; \
+        (BUFFER)->_read_p[0]               = (QUEX_TYPE_LEXATOM)0;
 
-#   define QUEX_LEXEME_TERMINATING_ZERO_UNDO(BUFFER)                   \
-        /* only need to reset, in case that the terminating zero was set*/        \
-        if( (BUFFER)->_lexatom_at_lexeme_start != (QUEX_TYPE_LEXATOM)'\0' ) { \
-            *((BUFFER)->_read_p) = (BUFFER)->_lexatom_at_lexeme_start;         \
-            (BUFFER)->_lexatom_at_lexeme_start = (QUEX_TYPE_LEXATOM)'\0';     \
+#   define QUEX_LEXEME_TERMINATING_ZERO_UNDO(BUFFER)                                 \
+        /* only need to reset, in case that the terminating zero was set*/           \
+        if( (BUFFER)->_lexatom_at_lexeme_start != (QUEX_TYPE_LEXATOM)0 ) {           \
+            /* NOTE:                                                              */ \
+            /*                                                                    */ \
+            /*    __quex_assert(*((BUFFER)->_read_p) == (QUEX_TYPE_LEXATOM)0);    */ \
+            /*                                                                    */ \
+            /* CANNOT hold, since by 'seeking' during backward lexing the read_p  */ \
+            /* might actually be loaded out and in again without setting zero.    */ \
+            (BUFFER)->_read_p[0]               = (BUFFER)->_lexatom_at_lexeme_start; \
+            (BUFFER)->_lexatom_at_lexeme_start = (QUEX_TYPE_LEXATOM)0;               \
         }
 #else
 

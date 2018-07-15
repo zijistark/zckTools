@@ -38,8 +38,5 @@
 #ifdef      QUEX_OPTION_INCLUDE_STACK
 #   include <quex/code_base/analyzer/struct/include-stack.i>
 #endif
-#ifdef      QUEX_OPTION_INDENTATION_TRIGGER
-#   include <quex/code_base/analyzer/member/on_indentation.i>
-#endif
 
 #endif /* __QUEX_INCLUDE_GUARD__ANALYZER__HEADERS_I */

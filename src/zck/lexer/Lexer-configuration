@@ -23,8 +23,8 @@
 #   define __QUEX_INCLUDE_INDICATOR__ANALYZER__CONFIGURATION
 #endif
 
-#define QUEX_SETTING_VERSION           "0.67.5"
-#define QUEX_SETTING_BUILD_DATE        "Wed Jun 13 13:58:58 2018"
+#define QUEX_SETTING_VERSION           "0.68.2"
+#define QUEX_SETTING_BUILD_DATE        "Sun Jul 15 13:50:53 2018"
 #define QUEX_SETTING_ANALYZER_VERSION  "0.0.0-pre-release"
 
 #ifndef    __QUEX_OPTION_PLAIN_C
@@ -147,11 +147,18 @@
 #    define QUEX_SETTING_BUFFER_SIZE                                      131072
 #endif
 
-/* Upon 'include_push' the current buffer may be split to contain data of an
- * included stream. If the remaining space is less than the following macro,
- * a new buffer is allocated.                                                 */
-#ifndef     QUEX_SETTING_BUFFER_INCLUDE_MIN_SIZE 
-#    define QUEX_SETTING_BUFFER_INCLUDE_MIN_SIZE                           32768
+/* Lowest buffer size to consider, such that when a buffer is smaller, then 
+ * the resulting frequency of buffer reloads causes a 'unbearable' performance
+ * decrease.
+ *
+ * A fine-tuned setting of this values considers: the memory read-access speed, 
+ * the I/O speed, the max. expected lexeme sizem, and the expected average size 
+ * of input streams. In most cases 32K will do well.     
+ *
+ * Tuning this value only makes sense in environment where lots of files are
+ * included or where lexemes can become very large.                          */
+#ifndef     QUEX_SETTING_BUFFER_SIZE_MIN 
+#    define QUEX_SETTING_BUFFER_SIZE_MIN                                  32768
 #endif
 
 #ifndef    QUEX_SETTING_BUFFER_FILLER_SEEK_TEMP_BUFFER_SIZE
@@ -224,7 +231,7 @@
  * would make this goal harder achievable.
  *                                                                            */
 #ifndef    QUEX_TYPE_LEXATOM
-#   define QUEX_TYPE_LEXATOM          uint8_t
+#   define QUEX_TYPE_LEXATOM          uint16_t
 #endif 
 #ifndef    QUEX_SETTING_CHARACTER_CODEC   
 #   define QUEX_SETTING_CHARACTER_CODEC cp1252
