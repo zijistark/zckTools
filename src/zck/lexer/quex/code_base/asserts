@@ -9,7 +9,7 @@
 #       include <assert.h>
 #   endif
 #   define  __quex_assert(X)              assert(X)
-#   define  __quex_assert_no_passage()    do { QUEX_NAME(error_code_set_if_first)(&self, E_Error_DFA_DropIntoOtherState); return; } while ( 0 )
+#   define  __quex_assert_no_passage()    do { QUEX_ERROR_EXIT("Illegal 'drop-into' other state"); } while ( 0 )
 #   define  __QUEX_IF_ASSERTS(EXPRESSION) EXPRESSION
 #   define  QUEX_IF_ASSERTS_poison(BEGIN, END) \
             do { \

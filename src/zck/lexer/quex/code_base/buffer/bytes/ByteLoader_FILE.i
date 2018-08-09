@@ -93,9 +93,6 @@ QUEX_INLINE void
 QUEX_NAME(ByteLoader_FILE_seek)(QUEX_NAME(ByteLoader)* alter_ego, QUEX_TYPE_STREAM_POSITION Pos) 
 { 
     QUEX_NAME(ByteLoader_FILE)* me = (QUEX_NAME(ByteLoader_FILE)*)(alter_ego);
-#   if 0
-    printf("#seek from: %i to: %i;\n", (int)ftell(me->input_handle), (int)Pos);
-#   endif
     fseek(me->input_handle, (long)Pos, SEEK_SET); 
 }
 
@@ -109,8 +106,8 @@ QUEX_NAME(ByteLoader_FILE_load)(QUEX_NAME(ByteLoader)* alter_ego,
     size_t                      loaded_byte_n = fread(buffer, 1, ByteN, me->input_handle); 
 #   if 0
     int    i;
-    printf("#load @%i:         [", (int)ftell(me->input_handle));
-    for(i=0; i<(int)loaded_byte_n; ++i) printf("%02X.", ((uint8_t*)buffer)[i]);
+    printf("#load @%i:         [", (int)ftell(((QUEX_NAME(ByteLoader_FILE)*)me)->input_handle));
+    for(i=0; i<loaded_byte_n; ++i) printf("%02X.", ((uint8_t*)buffer)[i]);
     printf("]\n");
 #   endif
     *end_of_stream_f = feof(me->input_handle) ? true : false;

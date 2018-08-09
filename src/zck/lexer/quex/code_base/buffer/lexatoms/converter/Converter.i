@@ -34,12 +34,12 @@ QUEX_NAME(Converter_construct)(QUEX_NAME(Converter)* me,
  * RETURNS: true  -- construction succesful
  *          false -- else.                                                    */
 {
-    __quex_assert(0 != initialize);           /* All functions MUST be defined.    */
-    __quex_assert(0 != initialize_by_bom_id); /* All functions MUST be defined.    */
-    __quex_assert(0 != convert);
-    __quex_assert(0 != delete_self);
-    __quex_assert(0 != stomach_byte_n);
-    __quex_assert(0 != stomach_clear);
+    __quex_assert(initialize);           /* All functions MUST be defined.    */
+    __quex_assert(initialize_by_bom_id); /* All functions MUST be defined.    */
+    __quex_assert(convert);
+    __quex_assert(delete_self);
+    __quex_assert(stomach_byte_n);
+    __quex_assert(stomach_clear);
 
     me->initialize           = initialize;
     me->initialize_by_bom_id = initialize_by_bom_id;

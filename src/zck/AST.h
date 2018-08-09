@@ -10,7 +10,7 @@
 #include <Lexer>
 
 
-_ZCK_NAMESPACE_BEGIN;
+NAMESPACE_ZCK;
 
 
 using namespace ::quex;
@@ -54,4 +54,4 @@ private:
 };
 
 
-_ZCK_NAMESPACE_END;
+NAMESPACE_ZCK_END;

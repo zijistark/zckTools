@@ -9,7 +9,7 @@ vars.Add(
 )
 
 env = Environment(variables = vars)
-env.Append(CCFLAGS='-Wall -Wconversion -Wno-register -Werror')
+env.Append(CCFLAGS='-Wall -Wconversion -Wno-register -fpermissive')
 env.Append(CXXFLAGS='-std=c++17')
 
 if env['BUILD_TYPE'] == 'debug_max':
@@ -25,7 +25,9 @@ elif env['BUILD_TYPE'] == 'release':
     env.Append(CPPDEFINES=['RELEASE', 'NDEBUG'])
     env.Append(CXXFLAGS='-g0 -s -Ofast -ffast-math')
 
-env.Append(LINKFLAGS='-static')
+import sys
+if not sys.platform.startswith('cygwin'):
+    env.Append(LINKFLAGS='-static')
 
 Help(vars.GenerateHelpText(env))
 Export('env')

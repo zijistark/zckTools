@@ -54,7 +54,7 @@ QUEX_NAME(Buffer_print_content_detailed)(QUEX_NAME(Buffer)* me)
         return;
     }
 
-    __QUEX_STD_fprintf(QUEX_SETTING_DEBUG_OUTPUT_CHANNEL, "_________________________________________________________________\n");
+    __QUEX_STD_fprintf(stderr, "_________________________________________________________________\n");
     QUEX_NAME(Buffer_print_content_detailed_lines)(&iterator, me->_memory._front,      total_end, me);
     QUEX_NAME(Buffer_print_content_detailed_lines)(&iterator, me->_lexeme_start_p - 2, total_end, me);
     QUEX_NAME(Buffer_print_content_detailed_lines)(&iterator, me->_read_p        - 2, total_end, me);
@@ -62,7 +62,7 @@ QUEX_NAME(Buffer_print_content_detailed)(QUEX_NAME(Buffer)* me)
         QUEX_NAME(Buffer_print_content_detailed_lines)(&iterator, me->input.end_p - 4, total_end, me);
     }
     QUEX_NAME(Buffer_print_content_detailed_lines)(&iterator, me->_memory._back   - 4, total_end, me);
-    __QUEX_STD_fprintf(QUEX_SETTING_DEBUG_OUTPUT_CHANNEL, "_________________________________________________________________\n");
+    __QUEX_STD_fprintf(stderr, "_________________________________________________________________\n");
 }
 
 QUEX_INLINE void  
@@ -151,96 +151,52 @@ QUEX_NAME(Buffer_print_content_detailed_lines)(QUEX_TYPE_LEXATOM** iterator,
 
     if( Begin > *iterator ) {
         *iterator = Begin;
-        __QUEX_STD_fprintf(QUEX_SETTING_DEBUG_OUTPUT_CHANNEL, "                                           ...\n");
+        __QUEX_STD_fprintf(stderr, "                                           ...\n");
     } else if( *iterator >= end ) {
         return;
     }
 
     for(; *iterator < end; ++*iterator) {
         length = 0;
-        __QUEX_STD_fprintf(QUEX_SETTING_DEBUG_OUTPUT_CHANNEL, "   ");
+        __QUEX_STD_fprintf(stderr, "   ");
 
         if( *iterator == buffer->_memory._front ) {
-            __QUEX_STD_fprintf(QUEX_SETTING_DEBUG_OUTPUT_CHANNEL, "buffer front");
+            __QUEX_STD_fprintf(stderr, "buffer front");
             length += 12;
         }
         if( *iterator == buffer->_lexeme_start_p ) {
-            if( length ) { __QUEX_STD_fprintf(QUEX_SETTING_DEBUG_OUTPUT_CHANNEL, ", "); length += 2; }
-            __QUEX_STD_fprintf(QUEX_SETTING_DEBUG_OUTPUT_CHANNEL, "lexeme start");
+            if( length ) { __QUEX_STD_fprintf(stderr, ", "); length += 2; }
+            __QUEX_STD_fprintf(stderr, "lexeme start");
             length += 12;
         }
         if( *iterator == buffer->_read_p ) {
-            if( length ) { __QUEX_STD_fprintf(QUEX_SETTING_DEBUG_OUTPUT_CHANNEL, ", "); length += 2; }
-            __QUEX_STD_fprintf(QUEX_SETTING_DEBUG_OUTPUT_CHANNEL, "input");
+            if( length ) { __QUEX_STD_fprintf(stderr, ", "); length += 2; }
+            __QUEX_STD_fprintf(stderr, "input");
             length += 5;
         }
         if( *iterator == buffer->input.end_p ) {
-            if( length ) { __QUEX_STD_fprintf(QUEX_SETTING_DEBUG_OUTPUT_CHANNEL, ", "); length += 2; }
-            __QUEX_STD_fprintf(QUEX_SETTING_DEBUG_OUTPUT_CHANNEL, "end of file");
+            if( length ) { __QUEX_STD_fprintf(stderr, ", "); length += 2; }
+            __QUEX_STD_fprintf(stderr, "end of file");
             length += 11;
         }
         if( *iterator == buffer->_memory._back ) {
-            if( length ) { __QUEX_STD_fprintf(QUEX_SETTING_DEBUG_OUTPUT_CHANNEL, ", "); length += 2; }
-            __QUEX_STD_fprintf(QUEX_SETTING_DEBUG_OUTPUT_CHANNEL, "buffer back");
+            if( length ) { __QUEX_STD_fprintf(stderr, ", "); length += 2; }
+            __QUEX_STD_fprintf(stderr, "buffer back");
             length += 11;
         }
         if( length ) {
             for(; length < 39; ++length)
-                __QUEX_STD_fprintf(QUEX_SETTING_DEBUG_OUTPUT_CHANNEL, "-");
-            __QUEX_STD_fprintf(QUEX_SETTING_DEBUG_OUTPUT_CHANNEL, ">");
+                __QUEX_STD_fprintf(stderr, "-");
+            __QUEX_STD_fprintf(stderr, ">");
         } else {
-            __QUEX_STD_fprintf(QUEX_SETTING_DEBUG_OUTPUT_CHANNEL, "                                        ");
+            __QUEX_STD_fprintf(stderr, "                                        ");
         }
 
         /* Print the character information */
-        __QUEX_STD_fprintf(QUEX_SETTING_DEBUG_OUTPUT_CHANNEL, "[%04X] 0x%04X\n", 
+        __QUEX_STD_fprintf(stderr, "[%04X] 0x%04X\n", 
                            (int)(*iterator - buffer->_memory._front),
                            (int)(**iterator));
     }
-}
-
-QUEX_INLINE void
-QUEX_NAME(Buffer_print_overflow_message)(QUEX_NAME(Buffer)* me)
-{
-    (void)me; 
-#   ifdef QUEX_OPTION_INFORMATIVE_BUFFER_OVERFLOW_MESSAGE
-    uint8_t                   utf8_encoded_str[512]; 
-    char                      message[1024];
-    char*                     it         = &message[0];
-    const char*               MessageEnd = &message[1024];
-    uint8_t*                  WEnd       = 0x0;
-    uint8_t*                  witerator  = 0x0;
-    QUEX_TYPE_LEXATOM*        End        = 0x0;
-    const QUEX_TYPE_LEXATOM*  iterator   = 0x0;
-
-    /* Print out the lexeme start, so that the user has a hint. */
-    WEnd        = utf8_encoded_str + 512 - 7;
-    witerator   = utf8_encoded_str; 
-    End         = me->_memory._back; 
-    iterator    = me->_lexeme_start_p; 
-
-    QUEX_CONVERTER_STRING(QUEX_SETTING_CHARACTER_CODEC, utf8)(&iterator, End, &witerator, WEnd);
-
-    /* No use of 'snprintf()' because not all systems seem to support it propperly. */
-    it += __QUEX_STD_strlcpy(it, 
-              "Distance between lexeme start and current pointer exceeds buffer size.\n"
-              "(tried to load buffer",
-              MessageEnd - it);
-    it += __QUEX_STD_strlcpy(it, "forward)", MessageEnd - it);
-    it += __QUEX_STD_strlcpy(it, "As a hint consider the beginning of the lexeme:\n[[", 
-                             MessageEnd - it);
-    it += __QUEX_STD_strlcpy(it, (char*)utf8_encoded_str, MessageEnd - it);
-    it += __QUEX_STD_strlcpy(it, "]]\n", MessageEnd - it);
-
-    QUEX_ERROR_EXIT(message);
-#   else
-    QUEX_ERROR_EXIT("Distance between lexeme start and current pointer exceeds buffer size.\n"
-                    "(tried to load buffer forward). Please, compile with option\n\n"
-                    "    QUEX_OPTION_INFORMATIVE_BUFFER_OVERFLOW_MESSAGE\n\n"
-                    "in order to get a more informative output. Most likely, one of your patterns\n"
-                    "eats more than you intended. Alternatively you might want to set the buffer\n"
-                    "size to a greater value or use skippers (<skip: [ \\n\\t]> for example).\n");
-#   endif /* QUEX_OPTION_INFORMATIVE_BUFFER_OVERFLOW_MESSAGE */
 }
 
 QUEX_NAMESPACE_MAIN_CLOSE

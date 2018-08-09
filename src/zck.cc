@@ -12,7 +12,7 @@ namespace fs = boost::filesystem;
 
 
 const char* const TAB = "\t";
-const char* const VERSION = "v0.0-13";
+const char* const VERSION = "v0.0-14";
 
 struct options {
     int verbose;
@@ -122,6 +122,25 @@ private:
         auto& k2t = k2->token();
 
         indent(o);
+
+        if (k1t.type_id() == T_IS_NULL) {
+            assert(k2t.type_id() == T_TARGET_REF ||
+                   k2t.type_id() == T_STRING || // currrently includes all non-any/random-scopes
+                   k2t.type_id() == T_TITLE_ID ||
+                   k2t.type_id() == T_CHAR_SCOPE);
+
+            if (t.type_id() == T_OP_EQ)
+                o << "not = { ";
+
+            walk(k2, o);
+            o << " { always = yes }";
+
+            if (t.type_id() == T_OP_EQ)
+                o << " }";
+
+            o << "\n";
+            return;
+        }
 
         if (t.type_id() == T_OP_NEQ) {
             // operator != implementation currently only works for non-numeric triggers (i.e., those which do not support
@@ -419,8 +438,8 @@ private:
             o << "}\n";
         }
         else {
-            // backward-compatible syntax + pure trigger/effect syntax (i.e., conditional block existence exclusive to
-            // effect block existence)
+            // backward-compatible syntax + pure trigger/effect syntax (i.e., conditional block existence
+            // exclusive to effect block existence)
             o << name << " = ";
             write_list(kids[0], o);
             o << '\n';
@@ -438,8 +457,8 @@ private:
             return;
         }
 
-        /* some aliases -- as always until ZCK starts to grow into something ready to be used heavily, we're doing this
-         * shit in a silly but very easy way */
+        // some aliases -- as always until ZCK starts to grow into something ready to be used heavily, we're
+        // doing this shit in a silly but very easy way
 
         std::string_view sv(txt);
 
@@ -463,8 +482,8 @@ private:
             o << "\"" << txt << "\"";
         else
             o << txt;
-        // TODO: quote text if nec. (this matters only when/if we actually mutate the contents of strings with arbitrary
-        // characters -- otherwise we just trust the quotes used on input)
+        // TODO: quote text if nec. (this matters only when/if we actually mutate the contents of strings with
+        // arbitrary characters -- otherwise we just trust the quotes used on input)
     }
 };
 

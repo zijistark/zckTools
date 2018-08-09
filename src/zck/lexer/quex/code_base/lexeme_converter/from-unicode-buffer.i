@@ -57,7 +57,7 @@ QUEX_CONVERTER_CHAR_DEF(unicode, utf8)(const QUEX_TYPE_LEXATOM**  input_pp,
 { 
     switch( sizeof(QUEX_TYPE_LEXATOM) )
     {
-    case 1:  QUEX_CONVERTER_CHAR(utf8, utf8)(input_pp, output_pp);  break;
+    case 1:  QUEX_CONVERTER_CHAR(utf8, utf8)(input_pp, output_pp);   break;
     case 2:  QUEX_CONVERTER_CHAR(utf16, utf8)(input_pp, output_pp); break;
     case 4:  QUEX_CONVERTER_CHAR(utf32, utf8)(input_pp, output_pp); break;
     default: QUEX_ERROR_EXIT("Cannot derive converter for given element size.");
@@ -70,7 +70,7 @@ QUEX_CONVERTER_CHAR_DEF(unicode, utf16)(const QUEX_TYPE_LEXATOM**  input_pp,
 { 
     switch( sizeof(QUEX_TYPE_LEXATOM) )
     {
-    case 1:  QUEX_CONVERTER_CHAR(utf8, utf16)(input_pp, output_pp);  break;
+    case 1:  QUEX_CONVERTER_CHAR(utf8, utf16)(input_pp, output_pp);   break;
     case 2:  QUEX_CONVERTER_CHAR(utf16, utf16)(input_pp, output_pp); break;
     case 4:  QUEX_CONVERTER_CHAR(utf32, utf16)(input_pp, output_pp); break;
     default: QUEX_ERROR_EXIT("Cannot derive converter for given element size.");

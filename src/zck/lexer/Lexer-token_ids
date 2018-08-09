@@ -6,7 +6,7 @@
  * NOTE: This file has been created automatically by Quex.
  *       Visit quex.org for further info.
  *
- * DATE: Sun Jul 15 13:50:44 2018
+ * DATE: Wed Aug  8 10:48:27 2018
  *
  * (C) 2005-2010 Frank-Rene Schaefer
  * ABSOLUTELY NO WARRANTY                                                     */
@@ -113,6 +113,7 @@ const QUEX_TYPE_TOKEN_ID T_FAILURE                              = ((QUEX_TYPE_TO
 const QUEX_TYPE_TOKEN_ID T_IF                                   = ((QUEX_TYPE_TOKEN_ID)4352);
 const QUEX_TYPE_TOKEN_ID T_INDENT                               = ((QUEX_TYPE_TOKEN_ID)10001);
 const QUEX_TYPE_TOKEN_ID T_INTEGER                              = ((QUEX_TYPE_TOKEN_ID)2050);
+const QUEX_TYPE_TOKEN_ID T_IS_NULL                              = ((QUEX_TYPE_TOKEN_ID)69893);
 const QUEX_TYPE_TOKEN_ID T_LIST                                 = ((QUEX_TYPE_TOKEN_ID)768);
 const QUEX_TYPE_TOKEN_ID T_L_BRACE                              = ((QUEX_TYPE_TOKEN_ID)256);
 const QUEX_TYPE_TOKEN_ID T_L_PAREN                              = ((QUEX_TYPE_TOKEN_ID)258);
@@ -197,6 +198,7 @@ const QUEX_TYPE_TOKEN_ID T_RANDOM_WARD                          = ((QUEX_TYPE_TO
 const QUEX_TYPE_TOKEN_ID T_R_BRACE                              = ((QUEX_TYPE_TOKEN_ID)257);
 const QUEX_TYPE_TOKEN_ID T_R_PAREN                              = ((QUEX_TYPE_TOKEN_ID)259);
 const QUEX_TYPE_TOKEN_ID T_STRING                               = ((QUEX_TYPE_TOKEN_ID)2048);
+const QUEX_TYPE_TOKEN_ID T_TARGET_REF                           = ((QUEX_TYPE_TOKEN_ID)2057);
 const QUEX_TYPE_TOKEN_ID T_TERMINATION                          = ((QUEX_TYPE_TOKEN_ID)0);
 const QUEX_TYPE_TOKEN_ID T_THEN                                 = ((QUEX_TYPE_TOKEN_ID)4355);
 const QUEX_TYPE_TOKEN_ID T_TITLE_ID                             = ((QUEX_TYPE_TOKEN_ID)2054);

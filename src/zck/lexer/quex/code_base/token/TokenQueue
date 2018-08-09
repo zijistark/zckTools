@@ -32,7 +32,8 @@ QUEX_NAMESPACE_MAIN_OPEN
     QUEX_INLINE void             QUEX_NAME(TokenQueue_init)(QUEX_NAME(TokenQueue)* me, 
                                                             QUEX_TYPE_TOKEN*       Memory, 
                                                             QUEX_TYPE_TOKEN*       MemoryEnd); 
-    QUEX_INLINE bool             QUEX_NAME(TokenQueue_construct)(QUEX_NAME(TokenQueue)* me, 
+    QUEX_INLINE void             QUEX_NAME(TokenQueue_construct)(QUEX_NAME(TokenQueue)* me, 
+                                                                 QUEX_TYPE_TOKEN*       Memory,
                                                                  const size_t           N);
     QUEX_INLINE QUEX_TYPE_TOKEN* QUEX_NAME(TokenQueue_last_token)(QUEX_NAME(TokenQueue)* me);
 
@@ -73,7 +74,7 @@ QUEX_NAMESPACE_MAIN_OPEN
             __quex_assert((me)->write_iterator != (me)->end);                                       \
             /* No token sending after 'TERMINATION'.                          */                    \
             __quex_assert(   (me)->write_iterator         == (me)->begin                            \
-                          || (me)->write_iterator[-1].id != QUEX_TOKEN_ID(TERMINATION) ); \
+                          || (me)->write_iterator[-1]._id != QUEX_TOKEN_ID(TERMINATION) ); \
         } while( 0 )
 
 #   define QUEX_ASSERT_TOKEN_QUEUE_AFTER_SENDING(me) \

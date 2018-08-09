@@ -23,22 +23,18 @@ QUEX_NAMESPACE_MAIN_OPEN
 
     QUEX_INLINE void 
     QUEX_NAME(set_mode_brutally)(QUEX_TYPE_ANALYZER* me, QUEX_NAME(Mode)* ModeP) 
-    /* Core of all mode setting functions. 
-     *
-     * ADAPTS: -- current mode pointer.
-     *         -- current analyzer function pointer
-     *         -- setting the buffer's handlers for 'on_buffer_overflow' and 
-     *            'on_buffer_before_change'                                   */
     { 
-        __quex_debug_show_mode_transition(me, ModeP);
+#       ifdef     QUEX_OPTION_DEBUG_SHOW_MODES
+        if( me->__current_mode_p != 0x0 ) {
+            __QUEX_STD_fprintf(stderr, "| Mode change from %s\n", me->__current_mode_p->name);
+            __QUEX_STD_fprintf(stderr, "|             to   %s\n", ModeP->name);
+        } else {
+            __QUEX_STD_fprintf(stderr, "| Mode change to %s\n", ModeP->name);
+        }
+#       endif
 
         me->__current_mode_p          = ModeP;
         me->current_analyzer_function = ModeP->analyzer_function; 
-
-        QUEX_NAME(Buffer_set_event_handlers)(&me->buffer, 
-                                             me->__current_mode_p->buffer_callbacks.on_buffer_before_change,
-                                             me->__current_mode_p->buffer_callbacks.on_buffer_overflow,
-                                             (void*)me);
     }
 
     QUEX_INLINE void
@@ -82,38 +78,29 @@ QUEX_NAMESPACE_MAIN_OPEN
     QUEX_INLINE void 
     QUEX_NAME(pop_mode)(QUEX_TYPE_ANALYZER* me) 
     { 
-        if( me->_mode_stack.end == me->_mode_stack.begin ) {
-            QUEX_NAME(error_code_set_if_first)(me, E_Error_ModeStack_PopOnTopLevel);
-        }
-        else {
-            --(me->_mode_stack.end);
-            QUEX_NAME(enter_mode)(me, *me->_mode_stack.end); 
-        }
+        __quex_assert(me->_mode_stack.end != me->_mode_stack.begin);
+        --(me->_mode_stack.end);
+        QUEX_NAME(enter_mode)(me, *me->_mode_stack.end); 
     }
 
     QUEX_INLINE void
     QUEX_NAME(pop_drop_mode)(QUEX_TYPE_ANALYZER* me) 
     { 
-        if( me->_mode_stack.end == me->_mode_stack.begin ) {
-            QUEX_NAME(error_code_set_if_first)(me, E_Error_ModeStack_PopOnTopLevel);
-        }
-        else {
-            --(me->_mode_stack.end);
-            /* do not care about what was popped */
-        }
+        __quex_assert(me->_mode_stack.end != me->_mode_stack.begin);
+        --(me->_mode_stack.end);
+        /* do not care about what was popped */
     }
         
     QUEX_INLINE void       
     QUEX_NAME(push_mode)(QUEX_TYPE_ANALYZER* me, QUEX_NAME(Mode)* new_mode) 
     { 
-        if( me->_mode_stack.end == me->_mode_stack.memory_end ) {
-            QUEX_NAME(error_code_set_if_first)(me, E_Error_ModeStack_Overflow);
-        }
-        else {
-            *me->_mode_stack.end = me->__current_mode_p;
-            ++(me->_mode_stack.end);
-            QUEX_NAME(enter_mode)(me, new_mode); 
-        }
+#       ifdef QUEX_OPTION_ASSERTS
+        if( me->_mode_stack.end == me->_mode_stack.memory_end ) 
+            QUEX_ERROR_EXIT(__QUEX_MESSAGE_MODE_STACK_OVERFLOW);
+#       endif
+        *me->_mode_stack.end = me->__current_mode_p;
+        ++(me->_mode_stack.end);
+        QUEX_NAME(enter_mode)(me, new_mode); 
     }
 
 QUEX_NAMESPACE_MAIN_CLOSE

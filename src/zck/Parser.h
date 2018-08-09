@@ -8,11 +8,12 @@
 #include "FileLocation.h"
 #include "ErrorQueue.h"
 #include "Exception.h"
+#include "Tracer.h"
 
 #include <Lexer>
 
 
-_ZCK_NAMESPACE_BEGIN;
+NAMESPACE_ZCK;
 
 
 using namespace ::quex;
@@ -41,14 +42,16 @@ public:
 
     /* TM_: Token Mask (token type grouping) */
 
-    static const token_id_t TM_OP_EXPR      = (1<<15);
-    static const token_id_t TM_OP_ASSIGN    = (1<<14);
-    static const token_id_t TM_LIST_SCOPE   = (1<<13);
-    static const token_id_t TM_KEYWORD      = (1<<12);
-    static const token_id_t TM_VAL          = (1<<11);
-    static const token_id_t TM_OP           = (1<<10);
-    static const token_id_t TM_META         = (1<<9);
-    static const token_id_t TM_EMPTY        = (1<<8);
+    static const token_id_t TM_KW_EFFECT  = (1<<17);
+    static const token_id_t TM_KW_TRIGGER = (1<<16);
+    static const token_id_t TM_OP_EXPR    = (1<<15);
+    static const token_id_t TM_OP_ASSIGN  = (1<<14);
+    static const token_id_t TM_LIST_SCOPE = (1<<13);
+    static const token_id_t TM_KEYWORD    = (1<<12);
+    static const token_id_t TM_VAL        = (1<<11);
+    static const token_id_t TM_OP         = (1<<10);
+    static const token_id_t TM_META       = (1<<9);
+    static const token_id_t TM_EMPTY      = (1<<8);
 
 protected:
     /* persistent state (i.e., still relevant/required after Parser construction) */
@@ -57,8 +60,10 @@ protected:
     const char* _path;
 
     /* transient state only used while constructing object (i.e., parsing a file) */
-    Lexer  _lex;
-    Token* _pTok; // lookahead token
+    Lexer    _lex;
+    Token*   _pTok; // lookahead token
+
+    Tracer<false> _tracer;
 
     const auto& peek() { return *_pTok; }
 
@@ -123,10 +128,22 @@ protected:
     }
 
     void rule_StmtVal(AST* pRoot) {
+        _tracer.push("StmtVal //");
+
         if (peek_match(T_IF))
             rule_IfBody(pRoot->add_child( advance_and_save() ));
         else if (peek_matchmask(TM_LIST_SCOPE) || peek_match(T_WHILE))
             rule_LoopBody(pRoot->add_child( advance_and_save() ));
+        else if (peek_match(T_IS_NULL)) {
+            auto pTrigger = advance_and_save();
+
+            if (!peek_match(T_OP_EQ) && !peek_match(T_OP_NEQ))
+                throw VParseException(token_loc(), "Unexpected token after IS_NULL (expected OP_EQ or OP_NEQ)");
+
+            auto pOp = pRoot->add_child( advance_and_save() );
+            pOp->add_child(pTrigger);
+            pOp->add_child( matchmask_and_save(TM_VAL) );
+        }
         else if (peek_match(T_VAR_REF))
             rule_VRefRHS( pRoot, advance_and_save() );
         else if (peek_matchmask(TM_VAL)) {
@@ -138,9 +155,13 @@ protected:
         }
         else
             rule_List(pRoot->add_child( new AST(make_token(T_LIST)) ));
+
+        _tracer.pop("// StmtVal");
     }
 
     void rule_StmtCont(AST* pRoot, AST* pLHS) {
+        _tracer.push("StmtCont //");
+
         if (peek_matchmask(TM_OP)) {
             auto pOp = pRoot->add_child( advance_and_save() );
             pOp->add_child(pLHS);
@@ -151,16 +172,24 @@ protected:
             pOp->add_child(pLHS);
             rule_List(pOp->add_child( new AST(make_token(T_LIST)) ));
         }
+
+        _tracer.pop("// StmtCont");
     }
 
     void rule_StmtRHS(AST* pRoot) {
+        _tracer.push("StmtRHS //");
+
         if (peek_matchmask(TM_VAL))
             pRoot->add_child( advance_and_save() );
         else
             rule_List(pRoot->add_child( new AST(make_token(T_LIST)) ));
+
+        _tracer.pop("// StmtRHS");
     }
 
     void rule_IfBody(AST* pRoot) {
+        _tracer.push("IfBody //");
+
         if (peek_match(T_OP_EQ)) advance();
 
         rule_List(pRoot->add_child( new AST(make_token(T_LIST)) ));
@@ -172,9 +201,13 @@ protected:
 
         while (peek_match(T_ELSIF))
             rule_ElsIf(pRoot->parent());
+
+        _tracer.pop("// IfBody");
     }
 
     void rule_LoopBody(AST* pRoot) {
+        _tracer.push("LoopBody //");
+
         if (peek_match(T_OP_EQ)) advance();
 
         rule_List(pRoot->add_child( new AST(make_token(T_LIST)) ));
@@ -183,13 +216,21 @@ protected:
             advance();
             rule_List(pRoot->add_child( new AST(make_token(T_LIST)) ));
         }
+
+        _tracer.pop("// LoopBody");
     }
 
     void rule_ElsIf(AST* pRoot) {
+        _tracer.push("ElsIf //");
+
         rule_IfBody(pRoot->add_child( match_and_save(T_ELSIF) ));
+
+        _tracer.pop("// ElsIf");
     }
 
     void rule_VRefRHS(AST* pRoot, AST* pLHS) {
+        _tracer.push("VRefRHS //");
+
         if (peek_matchmask(TM_OP_ASSIGN)) {
             auto pOp = pRoot->add_child( advance_and_save() );
 
@@ -210,9 +251,13 @@ protected:
             pOp->add_child( advance_and_save() );
         else
             throw VParseException(token_loc(), "Unexpected token (expected VAR_REF, INTEGER, or DECIMAL)");
+
+        _tracer.pop("// VRefRHS");
     }
 
     AST* rule_VExpr() {
+        _tracer.push("VExpr //");
+
         auto pExpr = rule_VExprMult();
 
         while (peek_match(T_OP_ADD) || peek_match(T_OP_SUB)) {
@@ -222,10 +267,13 @@ protected:
             pExpr = pOp;
         }
 
+        _tracer.pop("// VExpr");
         return pExpr;
     }
 
     AST* rule_VExprMult() {
+        _tracer.push("VExprMult //");
+
         auto pExpr = rule_VExprPrimary();
 
         while (peek_match(T_OP_MUL) || peek_match(T_OP_DIV)) {
@@ -235,10 +283,13 @@ protected:
             pExpr = pOp;
         }
 
+        _tracer.pop("// VExprMult");
         return pExpr;
     }
 
     AST* rule_VExprPrimary() {
+        _tracer.push("VExprPrimary //");
+
         if (peek_match(T_L_PAREN)) {
             advance();
             auto p = rule_VExpr();
@@ -247,25 +298,38 @@ protected:
         }
 
         if (peek_match(T_VAR_REF) || peek_match(T_INTEGER) || peek_match(T_DECIMAL) || peek_match(T_STRING))
+        {
+            _tracer.pop("// VExprPrimary");
             return advance_and_save();
+        }
         else
             throw VParseException(token_loc(), "Unexpected token (expected VAR_REF, INTEGER, DECIMAL, or STRING)");
+
     }
 
     void rule_List(AST* pRoot) {
+        _tracer.push("List //");
+
         match(T_L_BRACE);
         rule_Block(pRoot);
         match(T_R_BRACE);
+
+        _tracer.pop("// List");
     }
 
     void rule_Block(AST* pRoot) {
-        while (peek_matchmask(TM_VAL) ||
-               peek_matchmask(TM_LIST_SCOPE) ||
-               peek_match(T_L_BRACE) ||
-               peek_match(T_IF) ||
-               peek_match(T_WHILE)) rule_StmtVal(pRoot);
+        _tracer.push("Block //");
+
+        while ( peek_matchmask(TM_VAL) ||
+                peek_matchmask(TM_LIST_SCOPE) ||
+                peek_match(T_L_BRACE) ||
+                peek_match(T_IF) ||
+                peek_match(T_WHILE) ||
+                peek_match(T_IS_NULL) ) rule_StmtVal(pRoot);
+
+        _tracer.pop("// Block");
     }
 };
 
 
-_ZCK_NAMESPACE_END;
+NAMESPACE_ZCK_END;

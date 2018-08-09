@@ -10,7 +10,7 @@
 #include <cstdio>
 
 
-_ZCK_NAMESPACE_BEGIN;
+NAMESPACE_ZCK;
 
 
 struct Error {
@@ -54,4 +54,4 @@ public:
 };
 
 
-_ZCK_NAMESPACE_END;
+NAMESPACE_ZCK_END;

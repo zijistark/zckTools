@@ -234,7 +234,7 @@ QUEX_NAME(Converter_ICU_convert)(QUEX_NAME(Converter)*       alter_ego,
     
     if( me->status == U_INVALID_CHAR_FOUND ) {
         me->status = U_ZERO_ERROR;
-        return E_LoadResult_ENCODING_ERROR;
+        return E_LoadResult_BAD_LEXATOM;
     }
     me->status = U_ZERO_ERROR;
 

@@ -24,10 +24,6 @@ QUEX_NAME(Buffer_print_content_core)(const size_t   ElementSize,
                                      const uint8_t* ReadP,
                                      const uint8_t* InputEnd,
                                      bool           BordersF);
-
-QUEX_INLINE void
-QUEX_NAME(Buffer_print_overflow_message)(QUEX_NAME(Buffer)* buffer); 
-
 QUEX_NAMESPACE_MAIN_CLOSE
 
 

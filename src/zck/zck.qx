@@ -8,6 +8,8 @@ header {
 
 token {
   /* 
+   * bit 18 indicates an effect keyword
+   * bit 17 indicates a trigger keyword
    * bit 16 indicates a variable expression operator ( +,-,*,/ )
    * bit 15 indicates a variable assignment operator ( +=, =, etc. )
    * bit 14 indicates a list scope (any_* / random_* keywords)
@@ -27,47 +29,49 @@ token {
   FAILURE         = 0x02;
 
   /* AST META-TOKENS (do not occur in input, but are used for identifying certain AST elements) */
-  LIST            = 0b0000.0011.0000.0000;
-  OP_ASSIGN       = 0b0100.0011.0000.0001; // for when we *know* the OP_EQ is an assignment and not something else.
+  LIST            = 0b0000.0000.0011.0000.0000;
+  OP_ASSIGN       = 0b0000.0100.0011.0000.0001; // for when we *know* the OP_EQ is an assignment and not something else.
 
   /* SCALAR VALUE TOKENS */
-  STRING          = 0b0000.1000.0000.0000;
-  QSTRING         = 0b0000.1000.0000.0001;
-  INTEGER         = 0b0000.1000.0000.0010;
-  DECIMAL         = 0b0000.1000.0000.0011;
-  DATE            = 0b0000.1000.0000.0100;
-  QDATE           = 0b0000.1000.0000.0101;
-  TITLE_ID        = 0b0000.1000.0000.0110;
-  CHAR_SCOPE      = 0b0000.1000.0000.0111;
-  VAR_REF         = 0b0000.1000.0000.1000;
+  STRING          = 0b0000.0000.1000.0000.0000;
+  QSTRING         = 0b0000.0000.1000.0000.0001;
+  INTEGER         = 0b0000.0000.1000.0000.0010;
+  DECIMAL         = 0b0000.0000.1000.0000.0011;
+  DATE            = 0b0000.0000.1000.0000.0100;
+  QDATE           = 0b0000.0000.1000.0000.0101;
+  TITLE_ID        = 0b0000.0000.1000.0000.0110;
+  CHAR_SCOPE      = 0b0000.0000.1000.0000.0111;
+  VAR_REF         = 0b0000.0000.1000.0000.1000;
+  TARGET_REF      = 0b0000.0000.1000.0000.1001;
 
   /* PUNCTUATION TOKENS */
-  OP_EQ           = 0b0100.0101.0000.0000;
-  OP_ADD_ASSIGN   = 0b0100.0001.0000.0001;
-  OP_SUB_ASSIGN   = 0b0100.0001.0000.0010;
-  OP_MUL_ASSIGN   = 0b0100.0001.0000.0011;
-  OP_DIV_ASSIGN   = 0b0100.0001.0000.0100;
-  OP_DEQ          = 0b0000.0101.0000.1000;
-  OP_LT           = 0b0000.0101.0000.1001;
-  OP_LTEQ         = 0b0000.0101.0000.1010;
-  OP_GT           = 0b0000.0101.0000.1011;
-  OP_GTEQ         = 0b0000.0101.0000.1100;
-  OP_NEQ          = 0b0000.0101.0000.1101;
-  L_BRACE         = 0b0000.0001.0000.0000;
-  R_BRACE         = 0b0000.0001.0000.0001;
-  L_PAREN         = 0b0000.0001.0000.0010;
-  R_PAREN         = 0b0000.0001.0000.0011;
-  OP_ADD          = 0b1000.0001.0000.0100;
-  OP_SUB          = 0b1000.0001.0000.0101;
-  OP_MUL          = 0b1000.0001.0000.0110;
-  OP_DIV          = 0b1000.0001.0000.0111;
+  OP_EQ           = 0b0000.0100.0101.0000.0000;
+  OP_ADD_ASSIGN   = 0b0000.0100.0001.0000.0001;
+  OP_SUB_ASSIGN   = 0b0000.0100.0001.0000.0010;
+  OP_MUL_ASSIGN   = 0b0000.0100.0001.0000.0011;
+  OP_DIV_ASSIGN   = 0b0000.0100.0001.0000.0100;
+  OP_DEQ          = 0b0000.0000.0101.0000.1000;
+  OP_LT           = 0b0000.0000.0101.0000.1001;
+  OP_LTEQ         = 0b0000.0000.0101.0000.1010;
+  OP_GT           = 0b0000.0000.0101.0000.1011;
+  OP_GTEQ         = 0b0000.0000.0101.0000.1100;
+  OP_NEQ          = 0b0000.0000.0101.0000.1101;
+  L_BRACE         = 0b0000.0000.0001.0000.0000;
+  R_BRACE         = 0b0000.0000.0001.0000.0001;
+  L_PAREN         = 0b0000.0000.0001.0000.0010;
+  R_PAREN         = 0b0000.0000.0001.0000.0011;
+  OP_ADD          = 0b0000.1000.0001.0000.0100;
+  OP_SUB          = 0b0000.1000.0001.0000.0101;
+  OP_MUL          = 0b0000.1000.0001.0000.0110;
+  OP_DIV          = 0b0000.1000.0001.0000.0111;
 
   /* LANGUAGE KEYWORDS */
-  IF          = 0b0001.0001.0000.0000;
-  ELSIF       = 0b0001.0001.0000.0001;
-  WHILE       = 0b0001.0001.0000.0010;
-  THEN        = 0b0001.0001.0000.0011;
-  DO          = 0b0001.0001.0000.0100;
+  IF          = 0b0000.0001.0001.0000.0000;
+  ELSIF       = 0b0000.0001.0001.0000.0001;
+  WHILE       = 0b0000.0001.0001.0000.0010;
+  THEN        = 0b0000.0001.0001.0000.0011;
+  DO          = 0b0000.0001.0001.0000.0100;
+  IS_NULL     = 0b0001.0001.0001.0000.0101; // could start sequence over here due to trigger bit
 
   /* BEGIN: LIST SCOPE TOKENS */
   ANY_ALLIED_CHARACTER                 = 0x3000;
@@ -224,6 +228,7 @@ define {
   STRING     [^ \t\r\n\-+/\*!<=>\{\}\(\)#\"]+
   ELSIF      el(s(e_)?)?if
   STRICT_ID  [a-zA-Z_][a-zA-Z0-9_]*
+  TARGET_REF (event_)?t(arget)?:{STRICT_ID}
 }
 
 
@@ -257,7 +262,9 @@ mode MAIN :
   "while"         => T_WHILE;
   "then"          => T_THEN;
   "do"            => T_DO;
+  "is_null"       => T_IS_NULL;
   "$"{STRICT_ID}  => T_VAR_REF(LexemeBegin+1, LexemeEnd);
+  {TARGET_REF}    => T_TARGET_REF(Lexeme);
 
   /* BEGIN: LIST SCOPE EMITTERS */
   "any_allied_character"                 => T_ANY_ALLIED_CHARACTER(Lexeme);

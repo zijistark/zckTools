@@ -162,11 +162,7 @@ QUEX_NAME(Accumulator__add)(QUEX_NAME(Accumulator)* me,
     if( me->text.memory_end <= me->text.end + L ) {
         /* L + 1 we need space for the string + the terminating zero */
         if( QUEX_NAME(Accumulator__extend)(me, L + 1) == false ) {
-            if( me->the_lexer ) {
-                QUEX_NAME(error_code_set_if_first)(me->the_lexer, 
-                                                   E_Error_Accumulator_OutOfMemory);
-                return;
-            }
+            QUEX_ERROR_EXIT("Quex Engine: Out of Memory. Accumulator could not be further extended.\n");
         }
     }
 
@@ -192,11 +188,7 @@ QUEX_NAME(Accumulator__add_character)(QUEX_NAME(Accumulator)*     me,
     if( me->text.memory_end <= me->text.end + 1 ) {
         /* 1 + 1 we need space for the character + the terminating zero */
         if( QUEX_NAME(Accumulator__extend)(me, 2) == false ) {
-            if( me->the_lexer ) {
-                QUEX_NAME(error_code_set_if_first)(me->the_lexer, 
-                                                   E_Error_Accumulator_OutOfMemory);
-                return;
-            }
+            QUEX_ERROR_EXIT("Quex Engine: Out of Memory. Accumulator could not be further extended.\n");
         }
     }
 
@@ -213,8 +205,7 @@ QUEX_NAME(Accumulator__flush)(QUEX_NAME(Accumulator)*   me,
     QUEX_TYPE_LEXATOM* end_p;
 
     if( ! token_p ) {
-        QUEX_NAME(error_code_set_if_first)(me->the_lexer, 
-                                           E_Error_TokenQueueNoMoreTokensAvailable);
+        me->the_lexer->error_code = E_Error_TokenQueueNoMoreTokensAvailable;
         return false;
     }
 
@@ -226,7 +217,7 @@ QUEX_NAME(Accumulator__flush)(QUEX_NAME(Accumulator)*   me,
     /*          QUEX_TOKEN_POLICY_PREPARE_NEXT();                             */             
     /*          BUT: We clear the text of the otherwise void token.           */             
     QUEX_ACTION_TOKEN_STAMP(*(me->the_lexer));   
-    token_p->id = TokenID;
+    token_p->_id = TokenID;
     if( me->text.begin == me->text.end ) {               
         begin_p = &QUEX_LEXEME_NULL;
         end_p   = &QUEX_LEXEME_NULL;                  /* -> terminating zero. */

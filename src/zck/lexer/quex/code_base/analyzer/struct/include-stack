@@ -36,10 +36,9 @@ QUEX_INLINE bool QUEX_NAME(include_push_memory)(
 
 /* Basic constructions ________________________________________________________
  *                                                                           */
-QUEX_INLINE bool   QUEX_NAME(include_push_core)(QUEX_TYPE_ANALYZER*       me,
-                                                const char*               InputNameP,
-                                                QUEX_NAME(Buffer)*        new_buffer,
-                                                QUEX_NAME(LexatomLoader)* new_filler);
+QUEX_INLINE struct QUEX_NAME(Memento_tag)*   
+                   QUEX_NAME(include_push_all_but_buffer)(QUEX_TYPE_ANALYZER* me,
+                                                          const char*         InputName);
 QUEX_INLINE bool   QUEX_NAME(include_pop)(QUEX_TYPE_ANALYZER* me);
 QUEX_INLINE void   QUEX_NAME(include_stack_delete)(QUEX_TYPE_ANALYZER* me);
 QUEX_INLINE bool   QUEX_NAME(include_detect_recursion)(QUEX_TYPE_ANALYZER* me,

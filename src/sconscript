@@ -10,7 +10,11 @@ sources.append('zck/lexer/Lexer.cpp')
 #boost_fs_lib = File('/usr/lib/x86_64-linux-gnu/' + env['LIBPREFIX'] + 'boost_filesystem' + env['LIBSUFFIX'])
 #boost_sys_lib = File('/usr/lib/x86_64-linux-gnu/' + env['LIBPREFIX'] + 'boost_system' + env['LIBSUFFIX'])
 
+
 env.StaticLibrary('zck', sources)
 
+import sys
+extra_boost_lib_suffix = '' if sys.platform.startswith('cygwin') else '-mt'
+
 env.Program('ast2dot', ['ast2dot.cc'], LIBS=['zck'])
-env.Program('zck', ['zck.cc'], LIBS=['zck', 'boost_filesystem-mt', 'boost_system-mt'])
+env.Program('zck', ['zck.cc'], LIBS=['zck', 'boost_filesystem' + extra_boost_lib_suffix, 'boost_system' + extra_boost_lib_suffix])

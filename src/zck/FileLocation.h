@@ -4,7 +4,7 @@
 #include "common.h"
 
 
-_ZCK_NAMESPACE_BEGIN;
+NAMESPACE_ZCK;
 
 
 class FileLocation {
@@ -36,4 +36,4 @@ public:
 using FLoc = FileLocation;
 
 
-_ZCK_NAMESPACE_END;
+NAMESPACE_ZCK_END;

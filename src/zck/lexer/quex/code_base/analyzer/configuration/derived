@@ -79,12 +79,8 @@
 #   define __QUEX_IF_TOKEN_REPETITION_SUPPORT_DISABLED(EXPRESSION) EXPRESSION
 #endif
 
+#define __QUEX_TYPE_ANALYZER_RETURN_VALUE            void
 #define __QUEX_RETURN                                return
-
-#if      defined(QUEX_OPTION_INDENTATION_TRIGGER) \
-    && ! defined(QUEX_OPTION_COUNTER_COLUMN)
-#     error "QUEX_OPTION_COUNTER_COLUMN must be set for indentation handling."
-#endif
 
 #if    defined(QUEX_OPTION_COUNTER_LINE)   \
     || defined(QUEX_OPTION_COUNTER_COLUMN) \

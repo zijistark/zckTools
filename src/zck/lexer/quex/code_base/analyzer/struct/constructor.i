@@ -53,12 +53,10 @@ QUEX_NAME(from_file_name)(QUEX_TYPE_ANALYZER*     me,
 {
     QUEX_NAME(ByteLoader)*   new_byte_loader;
 
-    QUEX_NAME(error_code_clear)(me);
-
     new_byte_loader = QUEX_NAME(ByteLoader_FILE_new_from_file_name)(FileName);
 
     if( ! new_byte_loader ) {
-        QUEX_NAME(error_code_set_if_first)(me, E_Error_File_OpenFailed);
+        me->error_code = E_Error_Allocation_ByteLoader_Failed;
         goto ERROR_2;
     }
     QUEX_NAME(from_ByteLoader)(me, new_byte_loader, converter); 
@@ -67,7 +65,7 @@ QUEX_NAME(from_file_name)(QUEX_TYPE_ANALYZER*     me,
         goto ERROR_1;
     }
     else if( ! QUEX_NAME(input_name_set)(me, FileName) ) {
-        QUEX_NAME(error_code_set_if_first)(me, E_Error_InputName_Set_Failed);
+        me->error_code = E_Error_InputName_Set_Failed;
         goto ERROR_0;
     }
 
@@ -100,13 +98,11 @@ QUEX_NAME(from_ByteLoader)(QUEX_TYPE_ANALYZER*     me,
     QUEX_NAME(LexatomLoader)* new_filler;
     QUEX_TYPE_LEXATOM*        new_memory;
 
-    QUEX_NAME(error_code_clear)(me);
-
     /* NEW: Filler.                                                           */
     new_filler = QUEX_NAME(LexatomLoader_new)(byte_loader, converter);
 
     if( ! new_filler ) {
-        QUEX_NAME(error_code_set_if_first)(me, E_Error_Allocation_LexatomLoader_Failed);
+        me->error_code = E_Error_Allocation_LexatomLoader_Failed; 
         goto ERROR_0;
     }
 
@@ -115,15 +111,14 @@ QUEX_NAME(from_ByteLoader)(QUEX_TYPE_ANALYZER*     me,
                        QUEX_SETTING_BUFFER_SIZE * sizeof(QUEX_TYPE_LEXATOM), 
                        E_MemoryObjectType_BUFFER_MEMORY);
     if( ! new_memory ) {
-        QUEX_NAME(error_code_set_if_first)(me, E_Error_Allocation_BufferMemory_Failed);
+        me->error_code = E_Error_Allocation_BufferMemory_Failed;
         goto ERROR_1;
     }
 
     QUEX_NAME(Buffer_construct)(&me->buffer, new_filler,
                                 new_memory, QUEX_SETTING_BUFFER_SIZE, 
                                 (QUEX_TYPE_LEXATOM*)0,
-                                E_Ownership_LEXICAL_ANALYZER,
-                                (QUEX_NAME(Buffer)*)0);
+                                E_Ownership_LEXICAL_ANALYZER);
 
     QUEX_NAME(construct_all_but_buffer)(me, true);
     if( me->error_code != E_Error_None ) {
@@ -157,18 +152,15 @@ QUEX_NAME(from_memory)(QUEX_TYPE_ANALYZER* me,
  * for filling it. There is no 'file/stream handle', no 'ByteLoader', and no
  * 'LexatomLoader'.                                                           */
 {
-    QUEX_NAME(error_code_clear)(me);
-
     if( ! QUEX_NAME(BufferMemory_check_chunk)(Memory, MemorySize, EndOfFileP) ) {
-        QUEX_NAME(error_code_set_if_first)(me, E_Error_ProvidedExternal_Memory_Corrupt);
+        me->error_code = E_Error_ProvidedExternal_Memory_Corrupt;
         goto ERROR_0;
     }
 
     QUEX_NAME(Buffer_construct)(&me->buffer, 
                                 (QUEX_NAME(LexatomLoader)*)0,
                                 Memory, MemorySize, EndOfFileP,
-                                E_Ownership_EXTERNAL,
-                                (QUEX_NAME(Buffer)*)0);
+                                E_Ownership_EXTERNAL);
 
     if( ! QUEX_NAME(construct_all_but_buffer)(me, true) ) {
         goto ERROR_1;
@@ -196,24 +188,19 @@ QUEX_NAME(construct_all_but_buffer)(QUEX_TYPE_ANALYZER* me,
 
     __QUEX_IF_INCLUDE_STACK(me->_parent_memento = (QUEX_NAME(Memento)*)0);
 
-    if( ! QUEX_NAME(TokenQueue_construct)(&me->_token_queue, 
-                                          QUEX_SETTING_TOKEN_QUEUE_SIZE) ) {
-        goto ERROR_0;
-    }
-    else if( ! QUEX_NAME(ModeStack_construct)(&me->_mode_stack, 
-                                              QUEX_SETTING_MODE_STACK_SIZE) ) {
+    QUEX_NAME(TokenQueue_construct)(&me->_token_queue, 
+                                    (QUEX_TYPE_TOKEN*)&me->__memory_token_queue,
+                                    QUEX_SETTING_TOKEN_QUEUE_SIZE);
+
+    if( ! QUEX_NAME(ModeStack_construct)(&me->_mode_stack) ) {
         goto ERROR_1;
     }
 #   ifdef QUEX_OPTION_COUNTER
     else if( ! QUEX_NAME(Counter_construct)(&me->counter) ) {
-        QUEX_NAME(error_code_set_if_first)(me, E_Error_Constructor_Counter_Failed);
-        goto ERROR_2;
+        me->error_code = E_Error_Constructor_Counter_Failed;
+        goto ERROR_4;
     }
 #   endif
-#   ifdef QUEX_OPTION_INDENTATION_TRIGGER
-    me->_indentation_handler_active_f = true;
-#   endif
-
 
     /* A user's mode change callbacks may be called as a consequence of the 
      * call to 'set_mode_brutally_by_id()'. The current mode must be set to '0'
@@ -222,23 +209,23 @@ QUEX_NAME(construct_all_but_buffer)(QUEX_TYPE_ANALYZER* me,
     QUEX_NAME(set_mode_brutally_by_id)(me, __QUEX_SETTING_INITIAL_LEXER_MODE_ID);
 
     if( CallUserConstructorF && ! QUEX_NAME(user_constructor)(me) ) {
-        QUEX_NAME(error_code_set_if_first)(me, E_Error_UserConstructor_Failed);
-        goto ERROR_3;
+        me->error_code = E_Error_UserConstructor_Failed;
+        goto ERROR_5;
     }
 
-    QUEX_NAME(error_code_clear)(me);
+    me->error_code = E_Error_None;
     return true;
 
     /* ERROR CASES: Free Resources ___________________________________________*/
-ERROR_3:
+ERROR_5:
     /* NO ALLOCATED RESOURCES IN: 'me->counter'                               */
 #   ifdef QUEX_OPTION_COUNTER
-ERROR_2:
+ERROR_4:
 #   endif
-    QUEX_NAME(ModeStack_destruct)(&me->_mode_stack);
+    /* NO ALLOCATED RESOURCES IN: 'me->mode_stack'                            */
 ERROR_1:
     QUEX_NAME(TokenQueue_destruct)(&me->_token_queue);
-ERROR_0:
+    /* NO ALLOCATED RESOURCES IN: 'me->_parent_memento = 0'                   */
     QUEX_NAME(all_but_buffer_resources_absent_mark)(me);
     return false;
 }
@@ -267,7 +254,6 @@ QUEX_NAME(destruct_all_but_buffer)(QUEX_TYPE_ANALYZER* me)
      * popped and destructed, until only the outest state remains. This
      * is then the state that is destructed here.                             */
     QUEX_NAME(TokenQueue_destruct)(&me->_token_queue);
-    QUEX_NAME(ModeStack_destruct)(&me->_mode_stack);
 
     if( me->__input_name ) {
         QUEXED(MemoryManager_free)(me->__input_name, E_MemoryObjectType_BUFFER_MEMORY);

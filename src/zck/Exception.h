@@ -12,7 +12,7 @@
 #include <cstdlib>
 
 
-_ZCK_NAMESPACE_BEGIN;
+NAMESPACE_ZCK;
 
 
 class VException : public std::exception {
@@ -42,6 +42,17 @@ class ParseException : public std::exception {};
 class VParseException : public ParseException {
     char msg[1024];
 
+#if defined(__CYGWIN__) && !defined(_WIN32)
+    /* Cygwin POSIX under Microsoft Windows. */
+    #define SIZE_F "%lu"
+    static_assert(sizeof(size_t) == sizeof(long unsigned int));
+#else
+    #define SIZE_F "%llu"
+    static_assert(sizeof(size_t) == sizeof(long long unsigned int));
+#endif
+    static inline constexpr char const* SIZE_FMT = (sizeof(size_t) == sizeof(long long unsigned int)) ?
+                                                    "%llu" : "%lu";
+
 public:
     VParseException() = delete;
 
@@ -55,7 +66,7 @@ public:
         assert(len >= 0);
         buf_sz_left -= len;
 
-        snprintf(&msg[len], buf_sz_left, " in '%s' at line %llu, column %llu", fl.pathname(), fl.line(), fl.column());
+        snprintf(&msg[len], buf_sz_left, " in '%s' at line " SIZE_F ", column " SIZE_F, fl.pathname(), fl.line(), fl.column());
     }
 
     const char* what() const noexcept {
@@ -63,7 +74,9 @@ public:
     }
 
     ~VParseException() noexcept {}
+
+#undef SIZE_F
 };
 
 
-_ZCK_NAMESPACE_END;
+NAMESPACE_ZCK_END;

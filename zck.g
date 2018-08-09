@@ -8,9 +8,9 @@
 START        → Block
 Block        → StmtVal*                                          // LA: {VAL, LIST_SCOPE, L_BRACE, IF, WHILE, VAR_REF}
 List         → L_BRACE Block R_BRACE                             // LA: {L_BRACE}
-PList        → L_PAREN (VAL COMMA?)+ R_PAREN                     // LA: {L_PAREN}
 StmtVal      → IF IfBody                                         // LA: {IF}
              | (WHILE|LIST_SCOPE) LoopBody                       // LA: {WHILE, LIST_SCOPE}
+             | IS_NULL (OP_EQ|OP_NEQ) VAL                        // LA: {IS_NULL}
              | VAR_REF VRefRHS                                   // LA: {VAR_REF}
              | VAL StmtCont?                                     // LA: {VAL}
              | List                                              // LA: {L_BRACE}
@@ -30,6 +30,5 @@ StmtCont     → OP StmtRHS                                        // LA: {OP}
              | List                                              // LA: {L_BRACE}
              ;                                                   // LA: {OP, L_BRACE}
 StmtRHS      → VAL                                               // LA: {VAL}
-             | LOGIC_OP PList                                    // LA: {LOGIC_OP}
              | List                                              // LA: {L_BRACE}
              ;                                                   // LA: {VAL, L_PAREN, L_BRACE}

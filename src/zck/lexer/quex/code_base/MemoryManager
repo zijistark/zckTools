@@ -19,8 +19,7 @@ typedef enum {
     E_MemoryObjectType_MEMENTO,
     E_MemoryObjectType_POST_CATEGORIZER_NODE,
     E_MemoryObjectType_TEXT,
-    E_MemoryObjectType_TOKEN_ARRAY,
-    E_MemoryObjectType_MODE_STACK
+    E_MemoryObjectType_TOKEN_ARRAY
 } E_MemoryObjectType;
  
 typedef enum {
@@ -35,22 +34,12 @@ typedef enum {
      : (OS) == E_Ownership_EXTERNAL         ? "EXTERNAL"         \
      :                                        "<Ownership Void>")
 
-#define E_Ownership_is_valid(OS) \
-    (   (OS) == E_Ownership_LEXICAL_ANALYZER \
-     || (OS) == E_Ownership_INCLUDING_BUFFER \
-     || (OS) == E_Ownership_EXTERNAL         )
-
 #endif
 
 QUEX_NAMESPACE_QUEX_OPEN
 
 extern uint8_t*
 QUEXED_DEF(MemoryManager_allocate)(const size_t ByteN, E_MemoryObjectType);
-
-extern uint8_t*
-QUEXED_DEF(MemoryManager_reallocate)(void*              old_memory,
-                                     const size_t       NewByteN, 
-                                     E_MemoryObjectType Type);
 
 extern void 
 QUEXED_DEF(MemoryManager_free)(void* Obj, E_MemoryObjectType);

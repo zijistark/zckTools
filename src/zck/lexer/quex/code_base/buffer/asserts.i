@@ -2,8 +2,6 @@
 #ifndef __QUEX_INCLUDE_GUARD__BUFFER__ASSERTS_I
 #define __QUEX_INCLUDE_GUARD__BUFFER__ASSERTS_I
 
-#include <quex/code_base/buffer/asserts>
-
 #ifndef QUEX_OPTION_ASSERTS
 
 #else
@@ -11,7 +9,7 @@
 QUEX_NAMESPACE_MAIN_OPEN
 
 QUEX_INLINE void
-QUEX_NAME(BUFFER_ASSERT_pointers_in_range_core)(const QUEX_NAME(Buffer)* B)                                      
+QUEX_NAME(BUFFER_ASSERT_pointers_in_range_core)(QUEX_NAME(Buffer)* B)                                      
 /* Check whether _read_p and _lexeme_start_p are in ther appropriate range. */
 {                                                                                    
     __quex_assert( (B) != 0x0 );                                                     
@@ -19,9 +17,9 @@ QUEX_NAME(BUFFER_ASSERT_pointers_in_range_core)(const QUEX_NAME(Buffer)* B)
         return;
     }
 
-    __quex_assert((*B)._memory._front  <  (*B)._memory._back);                     
-    __quex_assert((*B)._read_p         >= (*B)._memory._front);                
-    __quex_assert((*B)._lexeme_start_p >= (*B)._memory._front);                
+    __quex_assert((*B)._memory._front      <  (*B)._memory._back);                     
+    __quex_assert((*B)._read_p             >= (*B)._memory._front);                
+    __quex_assert((*B)._lexeme_start_p     >= (*B)._memory._front);                
 
     __quex_assert((*B).input.end_p     >= (*B)._memory._front + 1);          
     __quex_assert((*B).input.end_p     <= (*B)._memory._back);               
@@ -31,7 +29,7 @@ QUEX_NAME(BUFFER_ASSERT_pointers_in_range_core)(const QUEX_NAME(Buffer)* B)
 }
 
 QUEX_INLINE void
-QUEX_NAME(BUFFER_ASSERT_limit_codes_in_place_core)(const QUEX_NAME(Buffer)* B)                                            
+QUEX_NAME(BUFFER_ASSERT_limit_codes_in_place_core)(QUEX_NAME(Buffer)* B)                                            
 {
     if( ! (*B)._memory._front && ! (*B)._memory._back ) {                    
         return;
@@ -42,9 +40,8 @@ QUEX_NAME(BUFFER_ASSERT_limit_codes_in_place_core)(const QUEX_NAME(Buffer)* B)
 }
 
 QUEX_INLINE void
-QUEX_NAME(BUFFER_ASSERT_CONSISTENCY_core)(const QUEX_NAME(Buffer)* B)                                            
+QUEX_NAME(BUFFER_ASSERT_CONSISTENCY_core)(QUEX_NAME(Buffer)* B)                                            
 {                                                                                    
-    const QUEX_NAME(Buffer)* focus;
     if( ! B ) return;
     __quex_assert(   B->input.lexatom_index_begin == -1
                   || B->input.lexatom_index_begin >= 0);
@@ -52,24 +49,6 @@ QUEX_NAME(BUFFER_ASSERT_CONSISTENCY_core)(const QUEX_NAME(Buffer)* B)
                   || B->input.lexatom_index_end_of_stream >= B->input.lexatom_index_begin);
     QUEX_NAME(BUFFER_ASSERT_pointers_in_range_core)(B);                                              
     QUEX_NAME(BUFFER_ASSERT_limit_codes_in_place_core)(B);
-
-    if( B->_memory.ownership == E_Ownership_INCLUDING_BUFFER ) {
-        __quex_assert(0 != B->_memory.including_buffer);
-        /* No cyclic nesting of buffers.                                      */
-        for(focus = B; 0 != focus->_memory.including_buffer; ) { 
-            __quex_assert(focus->_memory.ownership == E_Ownership_INCLUDING_BUFFER);
-            focus = focus->_memory.including_buffer;
-            __quex_assert(focus != B);
-        }
-        /* NOT:
-         *     __quex_assert(&including_buffer->_memory._back[1] == &front[0]);
-         * BECAUSE: (1) Pointer adaption happens from back to front.
-         *              => consistency could not be checked during adaption.
-         *          (2) Future versions may store more in the buffer region.  */
-    }
-    else {
-        __quex_assert(0 == B->_memory.including_buffer);
-    }
 }
 
 QUEX_INLINE void

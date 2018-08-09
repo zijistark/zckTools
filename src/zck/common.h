@@ -1,29 +1,27 @@
 // -*- c++ -*-
 
-#ifndef _INCLUDE_GUARD_ZCK_COMMON_H_
-#define _INCLUDE_GUARD_ZCK_COMMON_H_
+#ifndef ZCK_COMMON_H
+#define ZCK_COMMON_H
 
 
 #include <cstdint>
 #include <cassert>
 #include <cstring>
-#include <ostream>
-#include <memory>
+#include <iosfwd>
 
 
-#define _ZCK_NAMESPACE_BEGIN namespace zck {
-#define _ZCK_NAMESPACE_END }
+#define NAMESPACE_ZCK namespace zck {
+#define NAMESPACE_ZCK_END }
 
 #ifndef SIZE_MAX
 #define SIZE_MAX (~(size_t)0)
 #endif
 
 
-_ZCK_NAMESPACE_BEGIN;
+NAMESPACE_ZCK;
 
 
-//using uptr = std::unique_ptr;
-typedef unsigned int uint; // would be 'using' but this is usually already a typedef
+typedef unsigned int uint;
 
 
 /* mdh_strncpy
@@ -51,7 +49,7 @@ static inline size_t mdh_strncpy(char* dst, size_t dst_sz, const char* src, size
 }
 
 
-_ZCK_NAMESPACE_END;
+NAMESPACE_ZCK_END;
 
 
-#endif // _INCLUDE_GUARD_ZCK_COMMON_H_
+#endif // ZCK_COMMON_H

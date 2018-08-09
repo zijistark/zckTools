@@ -21,33 +21,25 @@
 
 QUEX_NAMESPACE_MAIN_OPEN
 
-QUEX_INLINE bool
+QUEX_INLINE void
 QUEX_NAME(TokenQueue_construct)(QUEX_NAME(TokenQueue)* me, 
+                                QUEX_TYPE_TOKEN*       Memory, 
                                 const size_t           N)
 /* me:     The token queue.
  * Memory: Pointer to memory of token queue, 0x0 --> no initial memory.
  * N:      Number of token objects that the array can carry.                  */
 {
-    QUEX_TYPE_TOKEN*   iterator   = 0x0;
-    QUEX_TYPE_TOKEN*   memory     = (QUEX_TYPE_TOKEN*)QUEXED(MemoryManager_allocate)(
-                                             N * sizeof(QUEX_TYPE_TOKEN),
-                                             E_MemoryObjectType_TOKEN_ARRAY);
-    QUEX_TYPE_TOKEN*   memory_end = &memory[N];
+    QUEX_TYPE_TOKEN* iterator   = 0x0;
+    QUEX_TYPE_TOKEN* memory_end = &Memory[N];
 
-    if( ! memory ) {
-        QUEX_NAME(TokenQueue_resources_absent_mark)(me);
-        return false;
-    }
-
-    __quex_assert(memory != 0x0);
+    __quex_assert(Memory != 0x0);
     __quex_assert(N > (size_t)QUEX_SETTING_TOKEN_QUEUE_SAFETY_BORDER);
 
     /* Call placement new (plain constructor) for all tokens in chunk.        */
-    for(iterator = memory; iterator != memory_end; ++iterator) {
+    for(iterator = Memory; iterator != memory_end; ++iterator) {
         QUEX_NAME_TOKEN(construct)(iterator);
     }
-    QUEX_NAME(TokenQueue_init)(me, memory, memory_end); 
-    return true;
+    QUEX_NAME(TokenQueue_init)(me, Memory, memory_end); 
 }
 
 QUEX_INLINE void
@@ -104,9 +96,6 @@ QUEX_NAME(TokenQueue_destruct)(QUEX_NAME(TokenQueue)* me)
         QUEX_NAME_TOKEN(destruct)(iterator);
     }
 
-    QUEXED(MemoryManager_free)((void*)&me->begin[0],
-                               E_MemoryObjectType_TOKEN_ARRAY);
-
     /* The memory chunk for the token queue itself is located inside the
      * analyzer object. Thus, no explicit free is necessary. In case of user
      * managed token queue memory the user takes care of the deletion.        */
@@ -153,7 +142,7 @@ QUEX_NAME(TokenQueue_pop)(QUEX_NAME(TokenQueue)* me)
         return (QUEX_TYPE_TOKEN*)0;
     }
 #   if defined(QUEX_OPTION_TOKEN_REPETITION_SUPPORT)
-    else if( __QUEX_SETTING_TOKEN_ID_REPETITION_TEST(me->read_iterator->id) ) {
+    else if( __QUEX_SETTING_TOKEN_ID_REPETITION_TEST(me->read_iterator->_id) ) {
         repetition_count = QUEX_NAME_TOKEN(repetition_n_get)(me->read_iterator);
         if( repetition_count == 0 ) { 
             /* This case should never occurr!                                 */
@@ -196,7 +185,7 @@ QUEX_NAME(TokenQueue_set_token_TERMINATION)(QUEX_NAME(TokenQueue)* me)
  * only be called in case of a detected error.                                */
 {
     QUEX_NAME(TokenQueue_reset)(me);
-    (me->write_iterator++)->id =  QUEX_TOKEN_ID(TERMINATION);
+    (me->write_iterator++)->_id =  QUEX_TOKEN_ID(TERMINATION);
 }
 
 QUEX_NAMESPACE_MAIN_CLOSE

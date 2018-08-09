@@ -83,20 +83,20 @@ public:
 
 #   line 85 "Lexer-token"
 
-    void set(const QUEX_TYPE_TOKEN_ID ID) { id = ID; }
+    void set(const QUEX_TYPE_TOKEN_ID ID) { _id = ID; }
     void set(const QUEX_TYPE_TOKEN_ID ID, const  QUEX_TYPE_LEXATOM*& Value0, const size_t& Value1)
-    { id = ID; text = Value0; number = Value1; }
+    { _id = ID; text = Value0; number = Value1; }
 
 
     public:
-        /* _line_n, _column_n, and id are public, so that the token policy 
+        /* _line_n, _column_n, and _id are public, so that the token policy 
          * can access it. making it private would imply complications for 
          * user customized token classes. The token policies should be the
          * same for C and Cpp.                                               */
-        QUEX_TYPE_TOKEN_ID    id;
-        QUEX_TYPE_TOKEN_ID    type_id() const                             { return id; }
+        QUEX_TYPE_TOKEN_ID    _id;
+        QUEX_TYPE_TOKEN_ID    type_id() const                             { return _id; }
         const char*           map_id_to_name(QUEX_TYPE_TOKEN_ID ID) const { return QUEX_NAME_TOKEN(map_id_to_name)(ID); }
-        const std::string     type_id_name() const                        { return map_id_to_name(id); }
+        const std::string     type_id_name() const                        { return map_id_to_name(_id); }
 
 #   ifdef     QUEX_OPTION_TOKEN_STAMPING_WITH_LINE_AND_COLUMN
 #       ifdef QUEX_OPTION_COUNTER_LINE
@@ -125,7 +125,7 @@ public:
         get_string() const 
         {
             std::string  tmp;
-            tmp  = map_id_to_name(self.id);
+            tmp  = map_id_to_name(self._id);
             tmp += " '" + QUEX_NAME_TOKEN(lexeme_to_pretty_char)(self.text) + "'";
             return tmp;
         }
@@ -264,7 +264,7 @@ QUEX_NAME_TOKEN(copy)(Token* __this, const Token* __That)
 
 #   line 34 "/quex/code_base/token/CppDefault.qx"
 
-        self.id  = Other.id;
+        self._id  = Other._id;
 
         if( self.text != LexemeNull ) {
             QUEXED(MemoryManager_free)((void*)self.text, E_MemoryObjectType_TEXT);
@@ -298,7 +298,7 @@ QUEX_NAME_TOKEN(copy)(Token* __this, const Token* __That)
 #   undef self
    /* If the user even misses to copy the token id, then there's
     * something seriously wrong.                                 */
-   __quex_assert(__this->id == __That->id);
+   __quex_assert(__this->_id == __That->_id);
 #ifdef     QUEX_OPTION_TOKEN_STAMPING_WITH_LINE_AND_COLUMN
 #   ifdef QUEX_OPTION_TOKEN_STAMPING_WITH_LINE_AND_COLUMN
     __QUEX_IF_COUNT_LINES(__quex_assert(__this->_line_n == __That->_line_n));
@@ -528,6 +528,7 @@ QUEX_NAME_TOKEN(map_id_to_name)(const QUEX_TYPE_TOKEN_ID TokenID)
    case T_FAILURE:                              return "FAILURE";
    case T_IF:                                   return "IF";
    case T_INTEGER:                              return "INTEGER";
+   case T_IS_NULL:                              return "IS_NULL";
    case T_LIST:                                 return "LIST";
    case T_L_BRACE:                              return "L_BRACE";
    case T_L_PAREN:                              return "L_PAREN";
@@ -611,6 +612,7 @@ QUEX_NAME_TOKEN(map_id_to_name)(const QUEX_TYPE_TOKEN_ID TokenID)
    case T_R_BRACE:                              return "R_BRACE";
    case T_R_PAREN:                              return "R_PAREN";
    case T_STRING:                               return "STRING";
+   case T_TARGET_REF:                           return "TARGET_REF";
    case T_THEN:                                 return "THEN";
    case T_TITLE_ID:                             return "TITLE_ID";
    case T_VAR_REF:                              return "VAR_REF";

@@ -140,14 +140,14 @@ QUEX_INLINE void    QUEX_NAME(RawBuffer_print_this)(QUEX_NAME(RawBuffer)*  me);
 
 #ifdef QUEX_OPTION_ASSERTS
 #   define QUEX_ASSERT_RAW_BUFFER(BI)                         \
-    __quex_assert(0 != BI);                                         \
+    __quex_assert(BI);                                         \
     __quex_assert((BI)->next_to_convert_p >= (BI)->begin);     \
     __quex_assert((BI)->next_to_convert_p <= (BI)->fill_end_p);\
     __quex_assert((BI)->fill_end_p >= (BI)->begin);            \
     __quex_assert((BI)->fill_end_p <= (BI)->memory_end);             
 
 #   define QUEX_ASSERT_RAW_BUFFER_EASY(BI)                    \
-    __quex_assert(0 != BI);                                         \
+    __quex_assert(BI);                                         \
     __quex_assert((BI)->next_to_convert_p >= (BI)->begin);     \
     __quex_assert((BI)->next_to_convert_p <= (BI)->fill_end_p);                     
 
