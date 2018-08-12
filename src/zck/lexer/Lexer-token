@@ -524,6 +524,7 @@ QUEX_NAME_TOKEN(map_id_to_name)(const QUEX_TYPE_TOKEN_ID TokenID)
    case T_DATE:                                 return "DATE";
    case T_DECIMAL:                              return "DECIMAL";
    case T_DO:                                   return "DO";
+   case T_DOT:                                  return "DOT";
    case T_ELSIF:                                return "ELSIF";
    case T_FAILURE:                              return "FAILURE";
    case T_IF:                                   return "IF";
@@ -612,6 +613,7 @@ QUEX_NAME_TOKEN(map_id_to_name)(const QUEX_TYPE_TOKEN_ID TokenID)
    case T_RANDOM_WARD:                          return "RANDOM_WARD";
    case T_R_BRACE:                              return "R_BRACE";
    case T_R_PAREN:                              return "R_PAREN";
+   case T_SCOPED_EVENT_ID:                      return "SCOPED_EVENT_ID";
    case T_STRING:                               return "STRING";
    case T_TARGET_REF:                           return "TARGET_REF";
    case T_THEN:                                 return "THEN";

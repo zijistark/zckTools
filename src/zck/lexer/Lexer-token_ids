@@ -6,7 +6,7 @@
  * NOTE: This file has been created automatically by Quex.
  *       Visit quex.org for further info.
  *
- * DATE: Sun Aug 12 08:22:28 2018
+ * DATE: Sun Aug 12 11:58:44 2018
  *
  * (C) 2005-2010 Frank-Rene Schaefer
  * ABSOLUTELY NO WARRANTY                                                     */
@@ -108,6 +108,7 @@ const QUEX_TYPE_TOKEN_ID T_DATE                                 = ((QUEX_TYPE_TO
 const QUEX_TYPE_TOKEN_ID T_DECIMAL                              = ((QUEX_TYPE_TOKEN_ID)2051);
 const QUEX_TYPE_TOKEN_ID T_DEDENT                               = ((QUEX_TYPE_TOKEN_ID)10000);
 const QUEX_TYPE_TOKEN_ID T_DO                                   = ((QUEX_TYPE_TOKEN_ID)4356);
+const QUEX_TYPE_TOKEN_ID T_DOT                                  = ((QUEX_TYPE_TOKEN_ID)260);
 const QUEX_TYPE_TOKEN_ID T_ELSIF                                = ((QUEX_TYPE_TOKEN_ID)4353);
 const QUEX_TYPE_TOKEN_ID T_FAILURE                              = ((QUEX_TYPE_TOKEN_ID)2);
 const QUEX_TYPE_TOKEN_ID T_IF                                   = ((QUEX_TYPE_TOKEN_ID)4352);
@@ -198,6 +199,7 @@ const QUEX_TYPE_TOKEN_ID T_RANDOM_VOTER                         = ((QUEX_TYPE_TO
 const QUEX_TYPE_TOKEN_ID T_RANDOM_WARD                          = ((QUEX_TYPE_TOKEN_ID)12428);
 const QUEX_TYPE_TOKEN_ID T_R_BRACE                              = ((QUEX_TYPE_TOKEN_ID)257);
 const QUEX_TYPE_TOKEN_ID T_R_PAREN                              = ((QUEX_TYPE_TOKEN_ID)259);
+const QUEX_TYPE_TOKEN_ID T_SCOPED_EVENT_ID                      = ((QUEX_TYPE_TOKEN_ID)2058);
 const QUEX_TYPE_TOKEN_ID T_STRING                               = ((QUEX_TYPE_TOKEN_ID)2048);
 const QUEX_TYPE_TOKEN_ID T_TARGET_REF                           = ((QUEX_TYPE_TOKEN_ID)2057);
 const QUEX_TYPE_TOKEN_ID T_TERMINATION                          = ((QUEX_TYPE_TOKEN_ID)0);

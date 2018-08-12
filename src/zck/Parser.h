@@ -148,7 +148,7 @@ protected:
             rule_VRefRHS( pRoot, advance_and_save() );
         else if (peek_matchmask(TM_VAL)) {
             auto pVal = advance_and_save();
-            if (peek_matchmask(TM_OP) || peek_match(T_L_BRACE))
+            if (peek_matchmask(TM_OP) || peek_match(T_L_BRACE) || peek_match(T_DOT))
                 rule_StmtCont(pRoot, pVal);
             else
                 pRoot->add_child(pVal);
@@ -166,6 +166,20 @@ protected:
             auto pOp = pRoot->add_child( advance_and_save() );
             pOp->add_child(pLHS);
             rule_StmtRHS(pOp);
+        }
+        else if (peek_match(T_DOT)) {
+            while (peek_match(T_DOT)) {
+                advance();
+                pRoot = pRoot->add_child( new AST(make_token(T_OP_EQ)) );
+                pRoot->add_child(pLHS);
+                pRoot = pRoot->add_child( new AST(make_token(T_LIST)) );
+                pLHS = matchmask_and_save(TM_VAL);
+
+                if (peek_matchmask(TM_OP) || peek_match(T_L_BRACE)) {
+                    rule_StmtCont(pRoot, pLHS);
+                    break;
+                }
+            }
         }
         else {
             auto pOp = pRoot->add_child( new AST(make_token(T_OP_EQ)) );

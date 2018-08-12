@@ -43,6 +43,7 @@ token {
   CHAR_SCOPE      = 0b0000.0000.1000.0000.0111;
   VAR_REF         = 0b0000.0000.1000.0000.1000;
   TARGET_REF      = 0b0000.0000.1000.0000.1001;
+  SCOPED_EVENT_ID = 0b0000.0000.1000.0000.1010;
 
   /* PUNCTUATION TOKENS */
   OP_EQ           = 0b0000.0100.0101.0000.0000;
@@ -60,6 +61,7 @@ token {
   R_BRACE         = 0b0000.0000.0001.0000.0001;
   L_PAREN         = 0b0000.0000.0001.0000.0010;
   R_PAREN         = 0b0000.0000.0001.0000.0011;
+  DOT             = 0b0000.0000.0001.0000.0100;
   OP_ADD          = 0b0000.1000.0001.0000.0100;
   OP_SUB          = 0b0000.1000.0001.0000.0101;
   OP_MUL          = 0b0000.1000.0001.0000.0110;
@@ -226,10 +228,10 @@ define {
   QSTRING    "\""[^"\r\n]*"\""
   CHAR_ID    c_[0-9]+
   TITLE_ID   [bcdek]_[a-zA-Z][a-zA-Z0-9_\-]+
-  STRING     [^ \t\r\n\-+/\*!<=>\{\}\(\)#\"]+
+  STRING     [^ \t\r\n\-+/\*!<=>\{\}\(\)#\"\.]+
   ELSIF      el(s(e_)?)?if
   STRICT_ID  [a-zA-Z_][a-zA-Z0-9_]*
-  TARGET_REF (event_)?t(arget)?:{STRICT_ID}
+  TARGET_REF (event_)?[Tt](arget)?:{STRICT_ID}
 }
 
 
@@ -237,36 +239,45 @@ mode MAIN :
 <skip:       [ \t\r\n]>
 <skip_range: "#"  "\n">
 {
-  <<EOF>>         => T_TERMINATION;
-  <<FAIL>>        => T_FAILURE(Lexeme);
-  "=="            => T_OP_DEQ;
-  "!="            => T_OP_NEQ;
-  "="             => T_OP_EQ;
-  "<="            => T_OP_LTEQ;
-  "<"             => T_OP_LT;
-  ">="            => T_OP_GTEQ;
-  ">"             => T_OP_GT;
-  "{"             => T_L_BRACE;
-  "}"             => T_R_BRACE;
-  "("             => T_L_PAREN;
-  ")"             => T_R_PAREN;
-  "+="            => T_OP_ADD_ASSIGN;
-  "-="            => T_OP_SUB_ASSIGN;
-  "*="            => T_OP_MUL_ASSIGN;
-  "/="            => T_OP_DIV_ASSIGN;
-  "+"             => T_OP_ADD;
-  "-"             => T_OP_SUB;
-  "*"             => T_OP_MUL;
-  "/"             => T_OP_DIV;
-  "if"            => T_IF;
-  {ELSIF}         => T_ELSIF;
-  "while"         => T_WHILE;
-  "then"          => T_THEN;
-  "do"            => T_DO;
-  "is_null"       => T_IS_NULL;
-  "is_valid"      => T_IS_VALID;
-  "$"{STRICT_ID}  => T_VAR_REF(LexemeBegin+1, LexemeEnd);
-  {TARGET_REF}    => T_TARGET_REF(Lexeme);
+  <<EOF>>              => T_TERMINATION;
+  <<FAIL>>             => T_FAILURE(Lexeme);
+  "=="                 => T_OP_DEQ;
+  "!="                 => T_OP_NEQ;
+  "="                  => T_OP_EQ;
+  "<="                 => T_OP_LTEQ;
+  "<"                  => T_OP_LT;
+  ">="                 => T_OP_GTEQ;
+  ">"                  => T_OP_GT;
+  "{"                  => T_L_BRACE;
+  "}"                  => T_R_BRACE;
+  "("                  => T_L_PAREN;
+  ")"                  => T_R_PAREN;
+  "."                  => T_DOT;
+  "+="                 => T_OP_ADD_ASSIGN;
+  "-="                 => T_OP_SUB_ASSIGN;
+  "*="                 => T_OP_MUL_ASSIGN;
+  "/="                 => T_OP_DIV_ASSIGN;
+  "+"                  => T_OP_ADD;
+  "-"                  => T_OP_SUB;
+  "*"                  => T_OP_MUL;
+  "/"                  => T_OP_DIV;
+  "if"                 => T_IF;
+  {ELSIF}              => T_ELSIF;
+  "while"              => T_WHILE;
+  "then"               => T_THEN;
+  "do"                 => T_DO;
+  "is_null"            => T_IS_NULL;
+  "is_valid"           => T_IS_VALID;
+  "$"{STRICT_ID}       => T_VAR_REF(LexemeBegin+1, LexemeEnd);
+  {TARGET_REF}         => T_TARGET_REF(Lexeme);
+
+  // NOTE: this (T_SCOPED_EVENT_ID) prevents scope-chaining of province IDs
+  // with the DOT operator (will incorrectly be recognized as a single event
+  // ID of class VAL if there are no spaces on either side of the DOT). will
+  // need to address for completeness eventually, but that requires a bit more
+  // infrastructure.
+
+  {STRICT_ID}"."[0-9]+ => T_SCOPED_EVENT_ID(Lexeme);
 
   /* BEGIN: LIST SCOPE EMITTERS */
   "any_allied_character"                 => T_ANY_ALLIED_CHARACTER(Lexeme);
