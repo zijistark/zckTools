@@ -529,6 +529,7 @@ QUEX_NAME_TOKEN(map_id_to_name)(const QUEX_TYPE_TOKEN_ID TokenID)
    case T_IF:                                   return "IF";
    case T_INTEGER:                              return "INTEGER";
    case T_IS_NULL:                              return "IS_NULL";
+   case T_IS_VALID:                             return "IS_VALID";
    case T_LIST:                                 return "LIST";
    case T_L_BRACE:                              return "L_BRACE";
    case T_L_PAREN:                              return "L_PAREN";

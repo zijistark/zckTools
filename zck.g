@@ -10,11 +10,11 @@ Block        → StmtVal*                                          // LA: {VAL, 
 List         → L_BRACE Block R_BRACE                             // LA: {L_BRACE}
 StmtVal      → IF IfBody                                         // LA: {IF}
              | (WHILE|LIST_SCOPE) LoopBody                       // LA: {WHILE, LIST_SCOPE}
-             | IS_NULL (OP_EQ|OP_NEQ) VAL                        // LA: {IS_NULL}
+             | (IS_NULL|IS_VALID) (OP_EQ|OP_NEQ) VAL             // LA: {IS_NULL, IS_VALID}
              | VAR_REF VRefRHS                                   // LA: {VAR_REF}
              | VAL StmtCont?                                     // LA: {VAL}
              | List                                              // LA: {L_BRACE}
-             ;                                                   // LA: {VAL, LIST_SCOPE, L_BRACE, IF, WHILE, VAR_REF}
+             ;                                                   // LA: {VAL, LIST_SCOPE, L_BRACE, IF, WHILE, VAR_REF, IS_NULL, IS_VALID}
 IfBody       → OP_EQ? List (THEN List)? ElsIf*                   // LA: {OP_EQ, L_BRACE}
 ElsIf        → ELSIF IfBody                                      // LA: {ELSIF}
 LoopBody     → OP_EQ? List (DO List)?                            // LA: {OP_EQ, L_BRACE}

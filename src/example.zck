@@ -102,18 +102,21 @@
 #log = "$x16 = [This.x16.GetValue]"
 
 
-tier = DUKE
-tier == DUKE
-tier != DUKE
-tier >= DUKE
-tier > DUKE
-tier <= DUKE
-tier < DUKE
+#tier = DUKE
+#tier == DUKE
+#tier != DUKE
+#tier >= DUKE
+#tier > DUKE
+#tier <= DUKE
+#tier < DUKE
 
-real_tier = DUKE
-real_tier == DUKE
-real_tier != DUKE
-real_tier >= DUKE
-real_tier > DUKE
-real_tier <= DUKE
-real_tier < DUKE
+#real_tier = DUKE
+#real_tier == DUKE
+#real_tier != DUKE
+#real_tier >= DUKE
+#real_tier > DUKE
+#real_tier <= DUKE
+#real_tier < DUKE
+
+is_null = FROMFROM
+is_valid = t:my_rival

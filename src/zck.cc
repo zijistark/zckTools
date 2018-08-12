@@ -1,10 +1,12 @@
 
 #include "zck.h"
 
-#include <string_view>
 #include <cstdio>
-#include <getopt.h>
+#include <string_view>
+#include <string>
+
 #include <boost/filesystem.hpp>
+#include <getopt.h>
 
 using namespace std;
 using namespace zck;
@@ -12,7 +14,7 @@ namespace fs = boost::filesystem;
 
 
 const char* const TAB = "\t";
-const char* const VERSION = "v0.0-14";
+const char* const VERSION = "v0.1.0";
 
 struct options {
     int verbose;
@@ -123,19 +125,21 @@ private:
 
         indent(o);
 
-        if (k1t.type_id() == T_IS_NULL) {
+        if (k1t.type_id() == T_IS_NULL || k1t.type_id() == T_IS_VALID) {
             assert(k2t.type_id() == T_TARGET_REF ||
                    k2t.type_id() == T_STRING || // currrently includes all non-any/random-scopes
                    k2t.type_id() == T_TITLE_ID ||
                    k2t.type_id() == T_CHAR_SCOPE);
 
-            if (t.type_id() == T_OP_EQ)
-                o << "not = { ";
+            if ((k1t.type_id() == T_IS_NULL && t.type_id() == T_OP_EQ) ||
+                (k1t.type_id() == T_IS_VALID && t.type_id() == T_OP_NEQ))
+                o << "NOT = { ";
 
             walk(k2, o);
             o << " { always = yes }";
 
-            if (t.type_id() == T_OP_EQ)
+            if ((k1t.type_id() == T_IS_NULL && t.type_id() == T_OP_EQ) ||
+                (k1t.type_id() == T_IS_VALID && t.type_id() == T_OP_NEQ))
                 o << " }";
 
             o << "\n";
@@ -157,14 +161,14 @@ private:
 
             if (k2t.type_id() != T_LIST) {
                 // this version can be a one-liner; don't normally care much about output prettiness, but helps readability
-                o << "not = { ";
+                o << "NOT = { ";
                 walk(k1, o);
                 o << " = ";
                 walk(k2, o);
                 o << " }\n";
             }
             else {
-                o << "not = {\n";
+                o << "NOT = {\n";
                 ++_indent;
                 indent(o);
                 walk(k1, o);
@@ -230,7 +234,7 @@ private:
                     o << '\n';
                 }
                 else if (t.type_id() == T_OP_LTEQ || t.type_id() == T_OP_GTEQ) {
-                    o << "or = {\n";
+                    o << "OR = {\n";
                     ++_indent;
                     indent(o);
                     o << cmp_trigger << " = ";
@@ -462,22 +466,26 @@ private:
 
         std::string_view sv(txt);
 
-        if (strcmp(txt, "save_target") == 0)
+        if (sv == "save_target")
             o << "save_event_target_as";
-        else if (strcmp(txt, "save_global_target") == 0)
+        else if (sv == "save_global_target")
             o << "save_global_event_target_as";
-        else if (strcmp(txt, "clear_global_target") == 0)
+        else if (sv == "clear_global_target")
             o << "clear_global_event_target";
-        else if (strcmp(txt, "clear_target") == 0)
+        else if (sv == "clear_target")
             o << "clear_event_target";
         else if (strncmp("target:", txt, strlen("target:")) == 0)
             o << "event_" << txt;
         else if (strncmp("t:", txt, strlen("t:")) == 0)
             o << "event_target:" << &txt[strlen("t:")];
+        else if (strncmp("T:", txt, strlen("T:")) == 0)
+            o << "event_target:" << &txt[strlen("T:")];
         else if (auto pos = sv.rfind("@target:"); pos != string_view::npos)
             o << sv.substr(0, pos) << "@event_target:" << sv.substr(pos + strlen("@target:"));
         else if (auto pos = sv.rfind("@t:"); pos != string_view::npos)
             o << sv.substr(0, pos) << "@event_target:" << sv.substr(pos + strlen("@t:"));
+        else if (auto pos = sv.rfind("@T:"); pos != string_view::npos)
+            o << sv.substr(0, pos) << "@event_target:" << sv.substr(pos + strlen("@T:"));
         else if (t.type_id() == T_QSTRING || t.type_id() == T_QDATE)
             o << "\"" << txt << "\"";
         else

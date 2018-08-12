@@ -1,6 +1,5 @@
-// -*- c++ -*-
-
-#pragma once
+#ifndef ZCK_PARSER_H
+#define ZCK_PARSER_H
 
 #include "common.h"
 
@@ -134,11 +133,12 @@ protected:
             rule_IfBody(pRoot->add_child( advance_and_save() ));
         else if (peek_matchmask(TM_LIST_SCOPE) || peek_match(T_WHILE))
             rule_LoopBody(pRoot->add_child( advance_and_save() ));
-        else if (peek_match(T_IS_NULL)) {
+        else if (peek_match(T_IS_NULL) || peek_match(T_IS_VALID)) {
             auto pTrigger = advance_and_save();
 
             if (!peek_match(T_OP_EQ) && !peek_match(T_OP_NEQ))
-                throw VParseException(token_loc(), "Unexpected token after IS_NULL (expected OP_EQ or OP_NEQ)");
+                throw VParseException(token_loc(), "Unexpected token after %s (expected OP_EQ or OP_NEQ)",
+                                      pTrigger->token().type_id_name());
 
             auto pOp = pRoot->add_child( advance_and_save() );
             pOp->add_child(pTrigger);
@@ -320,12 +320,13 @@ protected:
     void rule_Block(AST* pRoot) {
         _tracer.push("Block //");
 
-        while ( peek_matchmask(TM_VAL) ||
-                peek_matchmask(TM_LIST_SCOPE) ||
-                peek_match(T_L_BRACE) ||
-                peek_match(T_IF) ||
-                peek_match(T_WHILE) ||
-                peek_match(T_IS_NULL) ) rule_StmtVal(pRoot);
+        while (peek_matchmask(TM_VAL) ||
+               peek_matchmask(TM_LIST_SCOPE) ||
+               peek_match(T_L_BRACE) ||
+               peek_match(T_IF) ||
+               peek_match(T_WHILE) ||
+               peek_match(T_IS_NULL) ||
+               peek_match(T_IS_VALID)) rule_StmtVal(pRoot);
 
         _tracer.pop("// Block");
     }
@@ -333,3 +334,4 @@ protected:
 
 
 NAMESPACE_ZCK_END;
+#endif
