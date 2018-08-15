@@ -62,7 +62,7 @@ protected:
     Lexer    _lex;
     Token*   _pTok; // lookahead token
 
-    Tracer<false> _tracer;
+    NullTracer _tracer;
 
     const auto& peek() { return *_pTok; }
 
@@ -84,6 +84,16 @@ protected:
         _lex.receive(&_pTok);
         assert( _pTok != nullptr );
 
+        auto trace_full_token = !((peek().type_id() & TM_EMPTY) ||
+                                  peek().type_id() == T_TERMINATION ||
+                                  peek().type_id() == T_FAILURE);
+
+        _tracer.trace("LA: {}{} [L{}:C{}]",
+                      (trace_full_token) ? peek().get_string() : peek().type_id_name(),
+                      (trace_full_token) ? ":" : "",
+                      peek().line_number(),
+                      peek().column_number());
+
         if (peek().type_id() == T_FAILURE)
             throw VParseException(token_loc(), "Failed to recognize token '%s'", _pTok->text);
     }
@@ -94,10 +104,11 @@ protected:
         advance();
     }
 
-    // TODO: add a version of match(token_id_t...) [templated variadic function] that will match any of the token IDs that
-    // are passed to it. maybe we can also avoid directly using bitmask matching this way (assuming it can be made to compile
-    // to similar instructions), so that, e.g., we actually do know the list of next expected token types if we're throwing a
-    // parse exception when trying to match a token ID set via bitmask.
+    // TODO: add a version of match(token_id_t...) [templated variadic function] that will match any of the
+    // token IDs that are passed to it. maybe we can also avoid directly using bitmask matching this way
+    // (assuming it can be made to compile to similar instructions), so that, e.g., we actually do know the list
+    // of next expected token types if we're throwing a parse exception when trying to match a token ID set via
+    // bitmask.
 
     void matchmask(token_id_t mask) {
         if ( (peek().type_id() & mask) == 0 )
@@ -123,22 +134,22 @@ protected:
 
     void start() {
         rule_Block(_pRoot = new AST( make_token(T_LIST) ));
-        match(T_TERMINATION);
+        //match(T_TERMINATION);
     }
 
     void rule_StmtVal(AST* pRoot) {
-        _tracer.push("StmtVal //");
+        ScopeTracer st(_tracer, "StmtVal");
 
         if (peek_match(T_IF))
             rule_IfBody(pRoot->add_child( advance_and_save() ));
         else if (peek_matchmask(TM_LIST_SCOPE) || peek_match(T_WHILE))
             rule_LoopBody(pRoot->add_child( advance_and_save() ));
-        else if (peek_match(T_IS_NULL) || peek_match(T_IS_VALID)) {
+        else if (peek_match(T_IS_NULL) || peek_match(T_EXISTS)) {
             auto pTrigger = advance_and_save();
 
             if (!peek_match(T_OP_EQ) && !peek_match(T_OP_NEQ))
-                throw VParseException(token_loc(), "Unexpected token after %s (expected OP_EQ or OP_NEQ)",
-                                      pTrigger->token().type_id_name());
+                throw VParseException(token_loc(), "Unexpected token %s after %s (expected OP_EQ or OP_NEQ)",
+                                      peek().type_id_name(), pTrigger->token().type_id_name());
 
             auto pOp = pRoot->add_child( advance_and_save() );
             pOp->add_child(pTrigger);
@@ -155,12 +166,10 @@ protected:
         }
         else
             rule_List(pRoot->add_child( new AST(make_token(T_LIST)) ));
-
-        _tracer.pop("// StmtVal");
     }
 
     void rule_StmtCont(AST* pRoot, AST* pLHS) {
-        _tracer.push("StmtCont //");
+        ScopeTracer st(_tracer, "StmtCont");
 
         if (peek_matchmask(TM_OP)) {
             auto pOp = pRoot->add_child( advance_and_save() );
@@ -186,23 +195,19 @@ protected:
             pOp->add_child(pLHS);
             rule_List(pOp->add_child( new AST(make_token(T_LIST)) ));
         }
-
-        _tracer.pop("// StmtCont");
     }
 
     void rule_StmtRHS(AST* pRoot) {
-        _tracer.push("StmtRHS //");
+        ScopeTracer st(_tracer, "StmtRHS");
 
         if (peek_matchmask(TM_VAL))
             pRoot->add_child( advance_and_save() );
         else
             rule_List(pRoot->add_child( new AST(make_token(T_LIST)) ));
-
-        _tracer.pop("// StmtRHS");
     }
 
     void rule_IfBody(AST* pRoot) {
-        _tracer.push("IfBody //");
+        ScopeTracer st(_tracer, "IfBody");
 
         if (peek_match(T_OP_EQ)) advance();
 
@@ -215,12 +220,10 @@ protected:
 
         while (peek_match(T_ELSIF))
             rule_ElsIf(pRoot->parent());
-
-        _tracer.pop("// IfBody");
     }
 
     void rule_LoopBody(AST* pRoot) {
-        _tracer.push("LoopBody //");
+        ScopeTracer st(_tracer, "LoopBody");
 
         if (peek_match(T_OP_EQ)) advance();
 
@@ -230,20 +233,15 @@ protected:
             advance();
             rule_List(pRoot->add_child( new AST(make_token(T_LIST)) ));
         }
-
-        _tracer.pop("// LoopBody");
     }
 
     void rule_ElsIf(AST* pRoot) {
-        _tracer.push("ElsIf //");
-
+        ScopeTracer st(_tracer, "ElsIf");
         rule_IfBody(pRoot->add_child( match_and_save(T_ELSIF) ));
-
-        _tracer.pop("// ElsIf");
     }
 
     void rule_VRefRHS(AST* pRoot, AST* pLHS) {
-        _tracer.push("VRefRHS //");
+        ScopeTracer(_tracer, "VRefRHS");
 
         if (peek_matchmask(TM_OP_ASSIGN)) {
             auto pOp = pRoot->add_child( advance_and_save() );
@@ -265,13 +263,10 @@ protected:
             pOp->add_child( advance_and_save() );
         else
             throw VParseException(token_loc(), "Unexpected token (expected VAR_REF, INTEGER, or DECIMAL)");
-
-        _tracer.pop("// VRefRHS");
     }
 
     AST* rule_VExpr() {
-        _tracer.push("VExpr //");
-
+        ScopeTracer st(_tracer, "VExpr");
         auto pExpr = rule_VExprMult();
 
         while (peek_match(T_OP_ADD) || peek_match(T_OP_SUB)) {
@@ -281,13 +276,11 @@ protected:
             pExpr = pOp;
         }
 
-        _tracer.pop("// VExpr");
         return pExpr;
     }
 
     AST* rule_VExprMult() {
-        _tracer.push("VExprMult //");
-
+        ScopeTracer st(_tracer, "VExprMult");
         auto pExpr = rule_VExprPrimary();
 
         while (peek_match(T_OP_MUL) || peek_match(T_OP_DIV)) {
@@ -297,12 +290,11 @@ protected:
             pExpr = pOp;
         }
 
-        _tracer.pop("// VExprMult");
         return pExpr;
     }
 
     AST* rule_VExprPrimary() {
-        _tracer.push("VExprPrimary //");
+        ScopeTracer st(_tracer, "VExprPrimary");
 
         if (peek_match(T_L_PAREN)) {
             advance();
@@ -312,27 +304,22 @@ protected:
         }
 
         if (peek_match(T_VAR_REF) || peek_match(T_INTEGER) || peek_match(T_DECIMAL) || peek_match(T_STRING))
-        {
-            _tracer.pop("// VExprPrimary");
             return advance_and_save();
-        }
         else
-            throw VParseException(token_loc(), "Unexpected token (expected VAR_REF, INTEGER, DECIMAL, or STRING)");
+            throw VParseException(token_loc(),
+                                  "Unexpected token (expected VAR_REF, INTEGER, DECIMAL, or STRING)");
 
     }
 
     void rule_List(AST* pRoot) {
-        _tracer.push("List //");
-
+        ScopeTracer st(_tracer, "List");
         match(T_L_BRACE);
         rule_Block(pRoot);
         match(T_R_BRACE);
-
-        _tracer.pop("// List");
     }
 
     void rule_Block(AST* pRoot) {
-        _tracer.push("Block //");
+        ScopeTracer st(_tracer, "Block");
 
         while (peek_matchmask(TM_VAL) ||
                peek_matchmask(TM_LIST_SCOPE) ||
@@ -340,9 +327,7 @@ protected:
                peek_match(T_IF) ||
                peek_match(T_WHILE) ||
                peek_match(T_IS_NULL) ||
-               peek_match(T_IS_VALID)) rule_StmtVal(pRoot);
-
-        _tracer.pop("// Block");
+               peek_match(T_EXISTS)) rule_StmtVal(pRoot);
     }
 };
 

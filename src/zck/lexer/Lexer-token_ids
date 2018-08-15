@@ -6,7 +6,7 @@
  * NOTE: This file has been created automatically by Quex.
  *       Visit quex.org for further info.
  *
- * DATE: Sun Aug 12 11:58:44 2018
+ * DATE: Wed Aug 15 07:42:12 2018
  *
  * (C) 2005-2010 Frank-Rene Schaefer
  * ABSOLUTELY NO WARRANTY                                                     */
@@ -110,12 +110,12 @@ const QUEX_TYPE_TOKEN_ID T_DEDENT                               = ((QUEX_TYPE_TO
 const QUEX_TYPE_TOKEN_ID T_DO                                   = ((QUEX_TYPE_TOKEN_ID)4356);
 const QUEX_TYPE_TOKEN_ID T_DOT                                  = ((QUEX_TYPE_TOKEN_ID)260);
 const QUEX_TYPE_TOKEN_ID T_ELSIF                                = ((QUEX_TYPE_TOKEN_ID)4353);
+const QUEX_TYPE_TOKEN_ID T_EXISTS                               = ((QUEX_TYPE_TOKEN_ID)69894);
 const QUEX_TYPE_TOKEN_ID T_FAILURE                              = ((QUEX_TYPE_TOKEN_ID)2);
 const QUEX_TYPE_TOKEN_ID T_IF                                   = ((QUEX_TYPE_TOKEN_ID)4352);
 const QUEX_TYPE_TOKEN_ID T_INDENT                               = ((QUEX_TYPE_TOKEN_ID)10001);
 const QUEX_TYPE_TOKEN_ID T_INTEGER                              = ((QUEX_TYPE_TOKEN_ID)2050);
 const QUEX_TYPE_TOKEN_ID T_IS_NULL                              = ((QUEX_TYPE_TOKEN_ID)69893);
-const QUEX_TYPE_TOKEN_ID T_IS_VALID                             = ((QUEX_TYPE_TOKEN_ID)69894);
 const QUEX_TYPE_TOKEN_ID T_LIST                                 = ((QUEX_TYPE_TOKEN_ID)768);
 const QUEX_TYPE_TOKEN_ID T_L_BRACE                              = ((QUEX_TYPE_TOKEN_ID)256);
 const QUEX_TYPE_TOKEN_ID T_L_PAREN                              = ((QUEX_TYPE_TOKEN_ID)258);

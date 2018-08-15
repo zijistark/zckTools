@@ -74,7 +74,7 @@ token {
   THEN        = 0b0000.0001.0001.0000.0011;
   DO          = 0b0000.0001.0001.0000.0100;
   IS_NULL     = 0b0001.0001.0001.0000.0101; // could reset linear sequence component over here due to trigger bit, if we cared
-  IS_VALID    = 0b0001.0001.0001.0000.0110;
+  EXISTS      = 0b0001.0001.0001.0000.0110;
 
   /* BEGIN: LIST SCOPE TOKENS */
   ANY_ALLIED_CHARACTER                 = 0x3000;
@@ -267,7 +267,7 @@ mode MAIN :
   "then"               => T_THEN;
   "do"                 => T_DO;
   "is_null"            => T_IS_NULL;
-  "is_valid"           => T_IS_VALID;
+  "exists"             => T_EXISTS;
   "$"{STRICT_ID}       => T_VAR_REF(LexemeBegin+1, LexemeEnd);
   {TARGET_REF}         => T_TARGET_REF(Lexeme);
 

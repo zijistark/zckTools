@@ -27,7 +27,7 @@ VExprPrimary → (INTEGER|DECIMAL|VAR_REF|STRING)                  // LA: {INTEG
              | L_PAREN VExpr R_PAREN                             // LA: {L_PAREN}
              ;                                                   // LA: {INTEGER, DECIMAL, VAR_REF, STRING, L_PAREN}
 StmtCont     → OP StmtRHS                                        // LA: {OP}
-             | (DOT VAL)+ List                                   // LA: {DOT}
+             | (DOT VAL)+ StmtCont?                              // LA: {DOT}
              | List                                              // LA: {L_BRACE}
              ;                                                   // LA: {OP, DOT, L_BRACE}
 StmtRHS      → VAL                                               // LA: {VAL}

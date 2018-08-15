@@ -3,6 +3,8 @@
 
 #include <cassert>
 #include <cstdio>
+#include <string>
+#include <string_view>
 #include <utility>
 
 #include "fmt/format.h"
@@ -11,72 +13,87 @@
 NAMESPACE_ZCK;
 
 
-template<bool IsEnabled = true>
-struct Tracer {
+template<typename TracerT>
+struct ScopeTracer
+{
+  template<typename... Args>
+  constexpr ScopeTracer(TracerT& tracer, std::string_view format, Args&& ...args)
+    : _M_tracer( tracer )
+    , _M_msg( fmt::format(format, std::forward<Args>(args)...) )
+  {
+    _M_tracer.push("{} {{", _M_msg);
+  }
 
+  ~ScopeTracer() noexcept
+  {
+    _M_tracer.pop("}} // END: {}", _M_msg);
+  }
+
+private:
+  TracerT&          _M_tracer;
+  const std::string _M_msg;
+};
+
+
+struct NullTracer
+{
+  template<size_t N> constexpr NullTracer(const char(&str)[N], FILE* out = nullptr) {}
+  constexpr NullTracer(FILE* out = nullptr) {}
+  constexpr void indent() const noexcept {}
+  constexpr void dedent() const noexcept {}
+  template<typename... Args> constexpr void trace(std::string_view format, Args&& ...args) const noexcept {}
+  template<typename... Args> constexpr void push(std::string_view format, Args&& ...args) const noexcept {}
+  template<typename... Args> constexpr void pop(std::string_view format, Args&& ...args) const noexcept {}
+};
+
+
+struct Tracer
+{
   constexpr Tracer(FILE* out = stderr)
-    : _M_indent("  ")
+    : _M_indent(" ")
     , _M_level(0)
     , _M_file(out) {}
 
-  template<size_t IndentStringSize>
-  constexpr Tracer(const char(&str)[IndentStringSize], FILE* out = stderr)
+  template<size_t N>
+  constexpr Tracer(const char(&str)[N], FILE* out = stderr)
     : _M_indent(str)
     , _M_level(0)
     , _M_file(out)
   {
-    static_assert(IndentStringSize >= 1, "This constructor requires a C-string literal.");
+    static_assert(N >= 1, "This constructor requires a C-string literal.");
   }
 
   template<typename... Args>
-  void trace(const char* const format, Args&& ...args)
+  void trace(std::string_view format, Args&& ...args)
   {
-    if constexpr (IsEnabled)
-    {
-      for (unsigned int u = 0; u < _M_level; ++u)
-        fputs(_M_indent, _M_file);
+    for (unsigned int u = 0; u < _M_level; ++u)
+      fputs(_M_indent, _M_file);
 
-      fmt::print(_M_file, format, std::forward<Args>(args)...);
-      fputc('\n', _M_file);
-      fflush(_M_file);
-    }
+    /*
+    if (_M_level)
+      fmt::print(_M_file, "{}: ", _M_level + 1);
+    */
+
+    fmt::print(_M_file, format, std::forward<Args>(args)...);
+    fputc('\n', _M_file);
+    fflush(_M_file);
   }
 
-  void push() noexcept
-  {
-    if constexpr (IsEnabled)
-    {
-      ++_M_level;
-    }
-  }
+  void indent() noexcept { ++_M_level; }
+  void dedent() noexcept { --_M_level; }
 
-  void pop() noexcept
+  template<typename... Args>
+  void push(std::string_view format, Args&& ...args)
   {
-    if constexpr (IsEnabled)
-    {
-      assert(_M_level > 0);
-      --_M_level;
-    }
+    trace(format, std::forward<Args>(args)...);
+    indent();
   }
 
   template<typename... Args>
-  void push(const char* const format, Args&& ...args)
+  void pop(std::string_view format, Args&& ...args)
   {
-    if constexpr (IsEnabled)
-    {
-      trace(format, std::forward<Args>(args)...);
-      push();
-    }
-  }
-
-  template<typename... Args>
-  void pop(const char* const format, Args&& ...args)
-  {
-    if constexpr (IsEnabled)
-    {
-      pop();
-      trace(format, std::forward<Args>(args)...);
-    }
+    dedent();
+    trace(format, std::forward<Args>(args)...);
   }
 
 private:

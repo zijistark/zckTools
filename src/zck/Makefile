@@ -10,14 +10,14 @@ ifndef QUEX_PATH
     $(error The environment variable QUEX_PATH is not defined!)
 endif
 
-#CCFLAG_ASSERTS=-DQUEX_OPTION_ASSERTS_DISABLED
+CCFLAG_ASSERTS=-DQUEX_OPTION_ASSERTS_DISABLED
 
 # (*) COMPILER SETTINGS ________________________________________________________
 #     (change COMPILER to whatever you use as compiler on the command line,
 #      e.g. "make COMPILER=icpc" will use intel's c++ compiler)
 COMPILER = g++ -g0 -s -Ofast -ffast-math -Wall -Wconversion -Wno-register -fpermissive -std=c++17
 
-QUEX_DEFINES = $(CCFLAG_ASSERTS) -DQUEX_OPTION_DEBUG_SHOW
+QUEX_DEFINES = $(CCFLAG_ASSERTS)
 # Other useful options for debugging:
 # -DQUEX_OPTION_ASSERTS_DISABLED
 # -DQUEX_OPTION_ASSERTS_WARNING_MESSAGE_DISABLED 
@@ -39,8 +39,7 @@ test_lexer.o: test_lexer.cpp lexer/Lexer.cpp
 	$(CC) $< -o $@ 
 
 lexer/Lexer.cpp: zck.qx 
-	quex -i zck.qx -o Lexer --token-id-prefix T_ -b 1 --encoding cp1252 --sp lexer
-#	quex -i zck.qx -o Lexer --sma --no-include-stack --token-id-prefix T_ -b 1 --encoding cp1252 --sp lexer
+	quex -i zck.qx -o Lexer --sma --no-include-stack --token-id-prefix T_ -b 1 --encoding cp1252 --sp lexer
 
 # Macro expansions (only for debugging):
 lexer/%.E: lexer/%.cpp    

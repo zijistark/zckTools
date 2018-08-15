@@ -14,7 +14,7 @@ namespace fs = boost::filesystem;
 
 
 const char* const TAB = "\t";
-const char* const VERSION = "v0.1.0";
+const char* const VERSION = "v0.1.1";
 
 struct options {
     int verbose;
@@ -125,21 +125,21 @@ private:
 
         indent(o);
 
-        if (k1t.type_id() == T_IS_NULL || k1t.type_id() == T_IS_VALID) {
+        if (k1t.type_id() == T_IS_NULL || k1t.type_id() == T_EXISTS) {
             assert(k2t.type_id() == T_TARGET_REF ||
                    k2t.type_id() == T_STRING || // currrently includes all non-any/random-scopes
                    k2t.type_id() == T_TITLE_ID ||
                    k2t.type_id() == T_CHAR_SCOPE);
 
             if ((k1t.type_id() == T_IS_NULL && t.type_id() == T_OP_EQ) ||
-                (k1t.type_id() == T_IS_VALID && t.type_id() == T_OP_NEQ))
+                (k1t.type_id() == T_EXISTS && t.type_id() == T_OP_NEQ))
                 o << "NOT = { ";
 
             walk(k2, o);
             o << " { always = yes }";
 
             if ((k1t.type_id() == T_IS_NULL && t.type_id() == T_OP_EQ) ||
-                (k1t.type_id() == T_IS_VALID && t.type_id() == T_OP_NEQ))
+                (k1t.type_id() == T_EXISTS && t.type_id() == T_OP_NEQ))
                 o << " }";
 
             o << "\n";
