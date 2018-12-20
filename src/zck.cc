@@ -14,7 +14,7 @@ namespace fs = boost::filesystem;
 
 
 const char* const TAB = "\t";
-const char* const VERSION = "v0.1.1";
+const char* const VERSION = "v0.1.2";
 
 struct options {
     int verbose;
@@ -136,7 +136,7 @@ private:
                 o << "NOT = { ";
 
             walk(k2, o);
-            o << " { always = yes }";
+            o << " = { always = yes }";
 
             if ((k1t.type_id() == T_IS_NULL && t.type_id() == T_OP_EQ) ||
                 (k1t.type_id() == T_EXISTS && t.type_id() == T_OP_NEQ))
